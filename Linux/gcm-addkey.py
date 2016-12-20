@@ -17,12 +17,14 @@ sshhosts = []
 for section in config.sections():
     if 'host' in section:
         if 'Linux' in config[section]['group']:
-            if config[section]['user']:
+            if 'username' in targs and targs['username']:
+                sshhosts.append('%s@%s'% (targs['username'], config[section]['host']))
+
+            elif config[section]['user']:
                 sshhosts.append('%s@%s'% (config[section]['user'], config[section]['host']))
+
             else:
                 sshhosts.append(config[section]['host'])
-
-print(sshhosts)
 
 tfile = open('add-keys.sh', 'w')
 
