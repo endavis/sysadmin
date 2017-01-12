@@ -1,23 +1,45 @@
 #!/usr/bin/env python3
-
 from paramiko import SSHClient, RSAKey
 from .humanize import approximate_size
 import os
 import math
 import string
-
+import sys
 import argparse
+import configparser
 
 naparser = argparse.ArgumentParser()
-naparser.add_argument('-u', '--username',
-                    help='username to use for ssh')
-naparser.add_argument('-p', '--password',
-                    help='password to use')
-naparser.add_argument('-k', '--sshkeyfile',
-                    help='path to an ssh keyfile to use')
-naparser.add_argument('-kp', '--keypass',
-                    help='password for the ssh keyfile')
+naparser.add_argument('-c', '--configfile', dest='configfile',
+                    help='specify a config file (it must exist), if config file is not specified, it defaults to na.ini in the current directory')
 
+def find_config(args):
+    """
+    find the config file
+
+    defaults to na.ini in the working directory
+    """
+    configfile = None
+
+    if args.configfile:
+        configfile = args.configfile
+    else:
+        configfile = os.path.join(os.getcwd(), "na.ini")
+
+    if not os.path.join(configfile):
+        thelp = naparser.format_usage()
+        thelp = thelp + '\n' + "Config file %s does not exist" % configfile
+        thelp = thelp + '\n    ' + configfile
+
+        print(thelp)
+        sys.exit(1)
+
+    print("found configfile: %s" % configfile)
+    return configfile
+
+def read_config(configfile):
+    cp= configparser.ConfigParser(  )
+    cp.read( configfile )
+    return cp
 
 BYTE = 1000
 
@@ -42,7 +64,7 @@ class Volume:
         self.name = name
         self.vserver = vserver
         self.attr = {}
-        
+
     def sset(self, key, value):
         self.attr[key] = value
 
@@ -52,7 +74,7 @@ class Vserver:
         self.host = host
         self.volumes = {}
         self.attr = {}
-        
+
     def getvolumes(self):
         if not self.volumes:
             cmd = 'vol show -vserver %s -instance' % self.name
@@ -74,45 +96,33 @@ class Vserver:
                         if nvalue != value:
                             value = nvalue
                     self.volumes[currentvolume].sset(key, value)
-                
+
     def sset(self, key, value):
         self.attr[key] = value
 
 class NetAppHost:
-    def __init__(self, host, username=None, pw=None, keyfile=None, keyfile_pw=None, args=[]):
+    def __init__(self, host, username=None, pw=None, keyfile=None, keyfile_pw=None):
         self.host = host
-        
+
         self.name = None
         self.uuid = None
         self.serialnumber = None
         self.location = None
         self.contact = None
 
-        self.username = username
-        if not self.username and args.username:
-            self.username = args.username
-
-        self.pw = pw
-        if not self.pw and args.password:
-            self.password = args.password
-
         self.vservers = {}
         self.snapmirrors = []
         self.peers = {}
         self.peersrev = {}
-        
+
         self.ssh = SSHClient()
         self.ssh.load_system_host_keys()
-        
-        
+
+        self.username = username
+        self.pw = pw
         self.pkey_filename = keyfile
-        if not self.pkey_filename and args.sshkeyfile:
-            self.pkey_filename = args.sshkeyfile
-            
         self.pkey_pw = keyfile_pw
-        if not self.pkey_pw and args.keypass:
-            self.pkey_pw = args.keypass
-            
+
         self.pkey = None
         if self.pkey_filename:
             self.pkey = RSAKey.from_private_key_file(self.pkey_filename, password=self.pkey_pw)
@@ -130,15 +140,15 @@ class NetAppHost:
             if 'Cluster Name:' in line:
                 self.name = line.split(':')[1].strip()
             if 'Cluster Serial Number:' in line:
-                self.serialnumber = line.split(':')[1].strip()                
+                self.serialnumber = line.split(':')[1].strip()
             if 'Cluster Location:' in line:
                 tlist = line.split(':')
                 if len(tlist) > 1:
-                    self.location = line.split(':')[1].strip()                
+                    self.location = line.split(':')[1].strip()
             if 'Cluster Contact:' in line:
                 tlist = line.split(':')
                 if len(tlist) > 1:
-                    self.contact = line.split(':')[1].strip()                
+                    self.contact = line.split(':')[1].strip()
 
     def getpeers(self):
         output = self.runcmd('vserver peer show-all -instance')
@@ -161,7 +171,7 @@ class NetAppHost:
                 tlist = line.split(':')
                 slist = [x.strip() for x in tlist]
                 try:
-                    peer[slist[0]] = slist[1]                
+                    peer[slist[0]] = slist[1]
                 except IndexError:
                     print('The following line was malformed')
                     print(line)
@@ -172,7 +182,7 @@ class NetAppHost:
         cursnap = {}
         for line in output:
             if not line:
-                continue
+                continuel
             if 'Source Path:' in line:
                 if cursnap:
                     self.snapmirrors.append(cursnap)
@@ -187,7 +197,7 @@ class NetAppHost:
                 tlist = line.split(':')
                 slist = [x.strip() for x in tlist]
                 cursnap[slist[0]] = slist[1]
-        
+
     def getsvms(self):
         output = self.runcmd('vserver show -instance')
         currentvserver = ''
@@ -213,20 +223,20 @@ class NetAppHost:
                         else:
                             nvalue = [self.vservers[currentvserver].attr[lastkey], slist[0]]
                             self.vservers[currentvserver].sset(lastkey, nvalue)
-        
+
     def runcmd(self, cmd, excludes=None):
         if not self.ssh.get_transport() or not self.ssh.get_transport().is_active():
             if self.pkey:
                 self.ssh.connect(self.host, username=self.username, pkey=self.pkey)
             else:
                 self.ssh.connect(self.host, username=self.username, password=self.pw)
-                
-            
+
+
         if not excludes:
             excludes = []
-            
+
         excludes.append('entries were displayed')
-            
+
         output = []
         stdin, stdout, stderr = self.ssh.exec_command(cmd)
         for line in stdout:
@@ -244,6 +254,32 @@ class NetAppHost:
                             break
                 if save:
                     output.append(line)
-                
+
         return output
+
+class NAManager:
+    def __init__(self, args):
+        self.args = args
+
+        self.netapps = {}
+
+        self.configfile = find_config(args)
+        self.cp = configparser.ConfigParser()
+        self.cp.read(self.configfile)
+
+        for section in self.cp.sections():
+
+            if section == 'Credentials':
+                continue
+
+            print('adding host %s' % section)
+            self.netapps[section] = NetAppHost(self.cp[section]['host'],
+                                               username = self.cp['Credentials']['username'],
+                                               pw = self.cp['Credentials']['pw'],
+                                               keyfile = self.cp['Credentials']['keyfile'],
+                                               keyfile_pw = self.cp['Credentials']['keyfile_pw'],
+                                               )
+
+
+
 
