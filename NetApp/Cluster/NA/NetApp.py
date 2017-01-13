@@ -33,7 +33,6 @@ def find_config(args):
         print(thelp)
         sys.exit(1)
 
-    print("found configfile: %s" % configfile)
     return configfile
 
 def read_config(configfile):
@@ -272,7 +271,6 @@ class NAManager:
             if section == 'Credentials':
                 continue
 
-            print('adding host %s' % section)
             self.netapps[section] = NetAppHost(self.cp[section]['host'],
                                                username = self.cp['Credentials']['username'],
                                                pw = self.cp['Credentials']['pw'],
