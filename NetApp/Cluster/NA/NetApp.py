@@ -54,9 +54,9 @@ def convertnetappsize(size):
     return size
 
 class Volume:
-  def __init__(self, name, vserver):
+  def __init__(self, name, svm):
     self.name = name
-    self.vserver = vserver
+    self.svm = svm
     self.attr = {}
 
   def sset(self, key, value):
@@ -197,29 +197,29 @@ class NetAppHost:
 
   def fetchsvms(self):
     output = self.runcmd('vserver show -instance')
-    currentvserver = ''
+    currentsvm = ''
     lastkey = None
     for line in output:
       if not line:
         lastkey = None
         continue
       if 'Vserver:' in line:
-        currentvserver = line.split()[1]
-        self.svms[currentvserver] = SVM(currentvserver, self)
+        currentsvm = line.split()[1]
+        self.svms[currentsvm] = SVM(currentsvm, self)
       else:
         line = line.strip()
         tlist = line.split(':')
         slist = [x.strip() for x in tlist]
         try:
-          self.svms[currentvserver].sset(slist[0], slist[1])
+          self.svms[currentsvm].sset(slist[0], slist[1])
           lastkey = slist[0]
         except IndexError:
           if lastkey and len(slist) == 1:
-            if type(self.svms[currentvserver].attr[lastkey]) == list:
-              self.vserver[currentvserver].attr[lastkey].append(slist[0])
+            if type(self.svms[currentsvm].attr[lastkey]) == list:
+              self.svms[currentsvm].attr[lastkey].append(slist[0])
             else:
-              nvalue = [self.svms[currentvserver].attr[lastkey], slist[0]]
-              self.svms[currentvserver].sset(lastkey, nvalue)
+              nvalue = [self.svms[currentsvm].attr[lastkey], slist[0]]
+              self.svms[currentsvm].sset(lastkey, nvalue)
 
   def runcmd(self, cmd, excludes=None):
     if not self.ssh.get_transport() or not self.ssh.get_transport().is_active():
@@ -276,3 +276,34 @@ class NAManager:
                          keyfile_pw = self.cp['Credentials']['keyfile_pw'],
                          )
 
+  def findvolume(self, volume, svm=None):
+    if svm:
+      foundvolume = False
+      foundsvm = False
+      for netapp in self.netapps.values():
+        if svm in netapp.svms:
+          foundsvm = True
+          svmo = netapp.svms[svm]
+
+          svmo.fetchvolumes()
+
+          if volume in svmo.volumes:
+            foundvolume = True
+            return svmo.volumes[volume]
+
+      if not foundsvm:
+        print('Could not find svm %s' % svm)
+        return None
+
+      if not foundvolume:
+        print('Could not find volume %s in svm %s' % (volume, svm))
+
+    else:
+      for netapp in self.netapps.values():
+        for svm in netapp.svms.values():
+          svm.fetchvolumes()
+          if volume in svm.volumes:
+            return svm.volumes[volume]
+
+      print('Could not find volume %s' % volume)
+      return None
