@@ -62,15 +62,16 @@ class Volume:
   def sset(self, key, value):
     self.attr[key] = value
 
-class Vserver:
+class SVM:
   def __init__(self, name, host):
     self.name = name
     self.host = host
+    self.hasvolumes = False
     self.volumes = {}
     self.attr = {}
 
-  def getvolumes(self):
-    if not self.volumes:
+  def fetchvolumes(self):
+    if not self.hasvolumes:
       cmd = 'vol show -vserver %s -instance' % self.name
       output = self.host.runcmd(cmd, excludes=['Vserver Name', 'There are no entries matching your query.'])
       currentvolume = None
@@ -90,13 +91,15 @@ class Vserver:
             if nvalue != value:
               value = nvalue
           self.volumes[currentvolume].sset(key, value)
+      self.hasvolumes = True
 
   def sset(self, key, value):
     self.attr[key] = value
 
 class NetAppHost:
-  def __init__(self, host, username=None, pw=None, keyfile=None, keyfile_pw=None):
+  def __init__(self, host, cname, username=None, pw=None, keyfile=None, keyfile_pw=None):
     self.host = host
+    self.cname = cname
 
     self.name = None
     self.uuid = None
@@ -104,7 +107,7 @@ class NetAppHost:
     self.location = None
     self.contact = None
 
-    self.vservers = {}
+    self.svms = {}
     self.snapmirrors = []
     self.peers = {}
     self.peersrev = {}
@@ -121,10 +124,10 @@ class NetAppHost:
     if self.pkey_filename:
       self.pkey = RSAKey.from_private_key_file(self.pkey_filename, password=self.pkey_pw)
 
-    self.getclusterinfo()
-    self.getsvms()
+    self.fetchclusterinfo()
+    self.fetchsvms()
 
-  def getclusterinfo(self):
+  def fetchclusterinfo(self):
     output = self.runcmd('cluster identity show')
     for line in output:
       if not line:
@@ -144,7 +147,7 @@ class NetAppHost:
         if len(tlist) > 1:
           self.contact = line.split(':')[1].strip()
 
-  def getpeers(self):
+  def fetchpeers(self):
     output = self.runcmd('vserver peer show-all -instance')
     peer = {}
     for line in output:
@@ -170,7 +173,7 @@ class NetAppHost:
           print('The following line was malformed')
           print(line)
 
-  def getsnapmirror(self):
+  def fetchsnapmirrors(self):
     output = self.runcmd('snapmirror show -instance')
     count = 0
     cursnap = {}
@@ -192,7 +195,7 @@ class NetAppHost:
         slist = [x.strip() for x in tlist]
         cursnap[slist[0]] = slist[1]
 
-  def getsvms(self):
+  def fetchsvms(self):
     output = self.runcmd('vserver show -instance')
     currentvserver = ''
     lastkey = None
@@ -202,21 +205,21 @@ class NetAppHost:
         continue
       if 'Vserver:' in line:
         currentvserver = line.split()[1]
-        self.vservers[currentvserver] = Vserver(currentvserver, self)
+        self.svms[currentvserver] = SVM(currentvserver, self)
       else:
         line = line.strip()
         tlist = line.split(':')
         slist = [x.strip() for x in tlist]
         try:
-          self.vservers[currentvserver].sset(slist[0], slist[1])
+          self.svms[currentvserver].sset(slist[0], slist[1])
           lastkey = slist[0]
         except IndexError:
           if lastkey and len(slist) == 1:
-            if type(self.vservers[currentvserver].attr[lastkey]) == list:
+            if type(self.svms[currentvserver].attr[lastkey]) == list:
               self.vserver[currentvserver].attr[lastkey].append(slist[0])
             else:
-              nvalue = [self.vservers[currentvserver].attr[lastkey], slist[0]]
-              self.vservers[currentvserver].sset(lastkey, nvalue)
+              nvalue = [self.svms[currentvserver].attr[lastkey], slist[0]]
+              self.svms[currentvserver].sset(lastkey, nvalue)
 
   def runcmd(self, cmd, excludes=None):
     if not self.ssh.get_transport() or not self.ssh.get_transport().is_active():
@@ -266,7 +269,7 @@ class NAManager:
       if section == 'Credentials':
         continue
 
-      self.netapps[section] = NetAppHost(self.cp[section]['host'],
+      self.netapps[section] = NetAppHost(self.cp[section]['host'], section,
                          username = self.cp['Credentials']['username'],
                          pw = self.cp['Credentials']['pw'],
                          keyfile = self.cp['Credentials']['keyfile'],
