@@ -7,10 +7,10 @@ if __name__ == '__main__':
   NApps = NAManager(args)
 
   for host in NApps.netapps.values():
-    for vserver in host.vservers.values():
-      vserver.getvolumes()
+    for svm in host.svms.values():
+      svm.fetchvolumes()
 
-      for volume in vserver.volumes.values():
+      for volume in svm.volumes.values():
         if not ('_root' in volume.name) and volume.name != 'vol0':
           if volume.attr['Space Guarantee Style'] != 'none':
-            print('Host: %s - Not thin provisioned - %-15s : %-40s' % (host.name, vserver.name, volume.name))
+            print('%s (%s) - Not thin - %-20s : %-40s' % (host.name, host.cname, svm.name, volume.name))
