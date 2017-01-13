@@ -13,36 +13,36 @@ if __name__ == '__main__':
 
   if args.svm:
     if args.netapp in NApps.netapps:
-      host = NApps.netapps[args.netapp]
+      cluster = NApps.netapps[args.netapp]
 
-      if args.svm in host.vservers:
-        host.vservers[args.svm].getvolumes()
+      if args.svm in cluster.svms:
+        cluster.svms[args.svm].fetchvolumes()
         size = 0
-        for volume in host.vservers[args.svm].volumes.values():
+        for volume in cluster.svms[args.svm].volumes.values():
             if not ('_root' in volume.name):
                 size = size + volume.attr['Used Size']
 
-        print('%s - Total size for volumes in %s: %s' % (host.name, args.svm, approximate_size(size, False)))
+        print('%s - Total size for volumes in %s: %s' % (cluster.name, args.svm, approximate_size(size, False)))
       else:
         print('%s is not a valid svm' % args.svm)
-        print('valid svms for host %s:' % (args.netapp))
-        print('%s' % ", ".join(host.vservers.keys()))
+        print('valid svms for cluster %s:' % (args.netapp))
+        print('%s' % ", ".join(cluster.svms.keys()))
     else:
-      print('%s is not a valid netapp cluster, valid hosts in config file are: %s' % (args.netapp, ", ".join(NApps.netapps.keys())))
+      print('%s is not a valid netapp cluster, valid clusters in config file are: %s' % (args.netapp, ", ".join(NApps.netapps.keys())))
   else:
-    for host in NApps.netapps.values():
+    for cluster in NApps.netapps.values():
       totalsize = 0
-      for vserver in host.vservers.values():
-        vserver.getvolumes()
+      for svm in cluster.svms.values():
+        svm.fetchvolumes()
         size = 0
-        for volume in vserver.volumes.values():
+        for volume in svm.volumes.values():
           if not ('_root' in volume.name) and volume.name != 'vol0':
             if volume.attr['Volume State'] != 'offline':
               size = size + volume.attr['Used Size']
 
         totalsize = totalsize + size
 
-        print('Host: %s - Total size for volumes in %s: %s' % (host.name, vserver.name, approximate_size(size, False)))
+        print('%s (%s) - Total size for volumes in %s: %s' % (cluster.name, cluster.cname, svm.name, approximate_size(size, False)))
 
-      print('Host: %s - Total size of used data: %s' % (host.name, approximate_size(totalsize, False)))
+      print('%s (%s) - Total size of used data: %s' % (cluster.name, cluster.cname, approximate_size(totalsize, False)))
 
