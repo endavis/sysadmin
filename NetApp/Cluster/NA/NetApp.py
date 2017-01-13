@@ -35,11 +35,6 @@ def find_config(args):
 
   return configfile
 
-def read_config(configfile):
-  cp= configparser.ConfigParser(  )
-  cp.read( configfile )
-  return cp
-
 BYTE = 1000
 
 NUMBYTES = {}
@@ -181,7 +176,7 @@ class NetAppHost:
     cursnap = {}
     for line in output:
       if not line:
-        continuel
+        continue
       if 'Source Path:' in line:
         if cursnap:
           self.snapmirrors.append(cursnap)
@@ -277,7 +272,4 @@ class NAManager:
                          keyfile = self.cp['Credentials']['keyfile'],
                          keyfile_pw = self.cp['Credentials']['keyfile_pw'],
                          )
-
-
-
 
