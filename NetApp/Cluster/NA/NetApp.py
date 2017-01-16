@@ -278,7 +278,6 @@ class NAManager:
 
   def findvolume(self, volume, svm=None):
     if svm:
-      foundvolume = False
       foundsvm = False
       for netapp in self.netapps.values():
         if svm in netapp.svms:
@@ -288,15 +287,14 @@ class NAManager:
           svmo.fetchvolumes()
 
           if volume in svmo.volumes:
-            foundvolume = True
             return svmo.volumes[volume]
 
       if not foundsvm:
         print('Could not find svm %s' % svm)
         return None
 
-      if not foundvolume:
-        print('Could not find volume %s in svm %s' % (volume, svm))
+      print('Could not find volume %s in svm %s' % (volume, svm))
+      return None
 
     else:
       for netapp in self.netapps.values():
