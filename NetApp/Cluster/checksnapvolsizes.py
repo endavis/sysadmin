@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from NA import NAManager, naparser, approximate_size
+from NA import ClusterManager, naparser, approximate_size
 
 
 def checkcluster(cluster):
@@ -9,11 +9,11 @@ def checkcluster(cluster):
   for mirror in cluster.snapmirrors:
     srcsvm = mirror['Source Path']['svm']
     srcvol = mirror['Source Path']['vol']
-    svol = NApps.findvolume(srcvol, svm=srcsvm)
+    svol = CLMan.findvolume(srcvol, svm=srcsvm)
 
     destsvm = mirror['Destination Path']['svm']
     destvol = mirror['Destination Path']['vol']
-    dvol = NApps.findvolume(destvol, svm=destsvm)
+    dvol = CLMan.findvolume(destvol, svm=destsvm)
 
     if not svol:
       print('Could not find source volume - %s:%s' % (srcsvm, srcvol))
@@ -29,18 +29,18 @@ def checkcluster(cluster):
                                             destsvm, destvol, approximate_size(dvol.attr['Volume Size'], False)))
 
 if __name__ == '__main__':
-  naparser.add_argument('-n', '--netapp',
+  naparser.add_argument('-cl', '--cluster',
                   help='the cluster to check')
   args = naparser.parse_args()
-  NApps = NAManager(args)
+  CLMan = ClusterManager(args)
 
-  if args.netapp:
-    if args.netapp in NApps.clusters:
-      checkcluster(NApps.clusters[args.netapp])
+  if args.cluster:
+    if args.cluster in CLMan.clusters:
+      checkcluster(CLMan.clusters[args.cluster])
     else:
-      print('%s is not a valid Netapp. Valid Netapps in config are %s.' % (args.netapp, ", ".join(NApps.clusters.keys())))
+      print('%s is not a valid Netapp. Valid Netapps in config are %s.' % (args.cluster, ", ".join(CLMan.clusters.keys())))
 
   else:
-    for cluster in NApps.clusters.values():
+    for cluster in CLMan.clusters.values():
       checkcluster(cluster)
 
