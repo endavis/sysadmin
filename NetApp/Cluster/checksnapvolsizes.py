@@ -35,12 +35,12 @@ if __name__ == '__main__':
   NApps = NAManager(args)
 
   if args.netapp:
-    if args.netapp in NApps.netapps:
-      checkcluster(NApps.netapps[args.netapp])
+    if args.netapp in NApps.clusters:
+      checkcluster(NApps.clusters[args.netapp])
     else:
-      print('%s is not a valid Netapp. Valid Netapps in config are %s.' % (args.netapp, ", ".join(NApps.netapps.keys())))
+      print('%s is not a valid Netapp. Valid Netapps in config are %s.' % (args.netapp, ", ".join(NApps.clusters.keys())))
 
   else:
-    for cluster in NApps.netapps.values():
+    for cluster in NApps.clusters.values():
       checkcluster(cluster)
 
