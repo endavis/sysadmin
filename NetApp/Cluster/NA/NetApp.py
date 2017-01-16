@@ -63,17 +63,17 @@ class Volume:
     self.attr[key] = value
 
 class SVM:
-  def __init__(self, name, host):
+  def __init__(self, name, cluster):
     self.name = name
-    self.host = host
     self.hasvolumes = False
+    self.cluster = cluster
     self.volumes = {}
     self.attr = {}
 
   def fetchvolumes(self):
     if not self.hasvolumes:
       cmd = 'vol show -vserver %s -instance' % self.name
-      output = self.host.runcmd(cmd, excludes=['Vserver Name', 'There are no entries matching your query.'])
+      output = self.cluster.runcmd(cmd, excludes=['Vserver Name', 'There are no entries matching your query.'])
       currentvolume = None
       for line in output:
         if not line:
@@ -97,8 +97,8 @@ class SVM:
     self.attr[key] = value
 
 class Cluster:
-  def __init__(self, host, cname, username=None, pw=None, keyfile=None, keyfile_pw=None):
-    self.host = host
+  def __init__(self, address, cname, username=None, pw=None, keyfile=None, keyfile_pw=None):
+    self.address = address
     self.cname = cname
 
     self.name = None
@@ -224,9 +224,9 @@ class Cluster:
   def runcmd(self, cmd, excludes=None):
     if not self.ssh.get_transport() or not self.ssh.get_transport().is_active():
       if self.pkey:
-        self.ssh.connect(self.host, username=self.username, pkey=self.pkey)
+        self.ssh.connect(self.address, username=self.username, pkey=self.pkey)
       else:
-        self.ssh.connect(self.host, username=self.username, password=self.pw)
+        self.ssh.connect(self.address, username=self.username, password=self.pw)
 
 
     if not excludes:
