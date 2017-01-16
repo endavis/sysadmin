@@ -96,7 +96,7 @@ class SVM:
   def sset(self, key, value):
     self.attr[key] = value
 
-class NetAppHost:
+class Cluster:
   def __init__(self, host, cname, username=None, pw=None, keyfile=None, keyfile_pw=None):
     self.host = host
     self.cname = cname
@@ -258,7 +258,7 @@ class NAManager:
   def __init__(self, args):
     self.args = args
 
-    self.netapps = {}
+    self.clusters = {}
 
     self.configfile = find_config(args)
     self.cp = configparser.ConfigParser()
@@ -269,7 +269,7 @@ class NAManager:
       if section == 'Credentials':
         continue
 
-      self.netapps[section] = NetAppHost(self.cp[section]['host'], section,
+      self.clusters[section] = Cluster(self.cp[section]['host'], section,
                          username = self.cp['Credentials']['username'],
                          pw = self.cp['Credentials']['pw'],
                          keyfile = self.cp['Credentials']['keyfile'],
@@ -279,10 +279,10 @@ class NAManager:
   def findvolume(self, volume, svm=None):
     if svm:
       foundsvm = False
-      for netapp in self.netapps.values():
-        if svm in netapp.svms:
+      for cluster in self.clusters.values():
+        if svm in cluster.svms:
           foundsvm = True
-          svmo = netapp.svms[svm]
+          svmo = cluster.svms[svm]
 
           svmo.fetchvolumes()
 
@@ -297,11 +297,19 @@ class NAManager:
       return None
 
     else:
-      for netapp in self.netapps.values():
-        for svm in netapp.svms.values():
+      for cluster in self.clusters.values():
+        for svm in cluster.svms.values():
           svm.fetchvolumes()
           if volume in svm.volumes:
             return svm.volumes[volume]
 
       print('Could not find volume %s' % volume)
       return None
+
+  def findsvm(self, svm):
+    for cluster in self.clusters.values():
+      if svm in cluster.svms:
+        return cluster.svms[svm]
+
+    return None
+
