@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-from NA import NAManager, naparser
+from NA import ClusterManager, naparser
 import os
 
 if __name__ == '__main__':
   args = naparser.parse_args()
-  NApps = NAManager(args)
+  CLMan = ClusterManager(args)
 
-  for cluster in NApps.clusters.values():
+  for cluster in CLMan.clusters.values():
     for svm in cluster.svms.values():
       svm.fetchvolumes()
 
