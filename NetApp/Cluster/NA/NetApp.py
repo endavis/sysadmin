@@ -233,6 +233,7 @@ class Cluster:
       excludes = []
 
     excludes.append('entries were displayed')
+    excludes.append('There are no entries matching your query.')
 
     output = []
     stdin, stdout, stderr = self.ssh.exec_command(cmd)
