@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from NA import ClusterManager, naparser, approximate_size
+from Cluster import ClusterManager, naparser, approximate_size
 
 
 def checkcluster(cluster):

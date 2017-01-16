@@ -1,5 +1,5 @@
 #/usr/bin/env python3
-from NA import ClusterManager, approximate_size, naparser
+from Cluster import ClusterManager, approximate_size, naparser
 
 def checksvm(svm):
   svm.fetchvolumes()

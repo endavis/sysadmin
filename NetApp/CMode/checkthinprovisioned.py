@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from NA import ClusterManager, naparser
+from Cluster import ClusterManager, naparser
 import os
 
 if __name__ == '__main__':
