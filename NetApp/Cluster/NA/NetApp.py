@@ -255,7 +255,7 @@ class Cluster:
 
     return output
 
-class NAManager:
+class ClusterManager:
   def __init__(self, args):
     self.args = args
 
