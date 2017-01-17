@@ -57,7 +57,24 @@ class Volume:
   def __init__(self, name, svm):
     self.name = name
     self.svm = svm
+    self.luns = {}
     self.attr = {}
+
+  def sset(self, key, value):
+    self.attr[key] = value
+
+  def addlun(self, lun):
+    lunname = lun.attr['LUN Name']
+    self.luns[lunname] = lun
+
+class LUN:
+  def __init__(self, name, svm, data=None):
+    self.name = name
+    self.svm = svm
+    if not data:
+      self.attr = {}
+    else:
+      self.attr = data
 
   def sset(self, key, value):
     self.attr[key] = value
@@ -66,24 +83,26 @@ class SVM:
   def __init__(self, name, cluster):
     self.name = name
     self.hasvolumes = False
+    self.hasluns = False
     self.cluster = cluster
     self.volumes = {}
+    self.luns = {}
     self.attr = {}
 
   def fetchvolumes(self):
     if not self.hasvolumes:
       cmd = 'vol show -vserver %s -instance' % self.name
-      output = self.cluster.runcmd(cmd, excludes=['Vserver Name', 'There are no entries matching your query.'])
+      output = self.cluster.runcmd(cmd, excludes=['Vserver Name'])
       currentvolume = None
       for line in output:
         if not line:
           continue
         if 'Volume Name' in line:
-          currentvolume = line.split(':')[1].strip()
+          currentvolume = line.split(':', 1)[1].strip()
           self.volumes[currentvolume] = Volume(currentvolume, self)
         else:
           line = line.strip()
-          tlist = line.split(':')
+          tlist = line.split(':', 1)
           key = tlist[0].strip()
           value = tlist[1].strip()
           if 'size' in key or 'Size' in key:
@@ -92,6 +111,53 @@ class SVM:
               value = nvalue
           self.volumes[currentvolume].sset(key, value)
       self.hasvolumes = True
+
+  def fetchluns(self):
+    if not self.hasvolumes:
+      self.fetchvolumes()
+
+    if not self.hasluns:
+      cmd = 'lun show -vserver %s -instance' % self.name
+      output = self.cluster.runcmd(cmd, excludes=['Vserver Name', 'This operation is only supported on data Vservers', 'has type "node"', 'has type "admin"'])
+      currentlun = {}
+      for line in output:
+        if not line:
+          continue
+
+        if 'LUN Path' in line:
+          if currentlun:
+            self.luns[currentlun['LUN Name']] = LUN(currentlun['LUN Name'], self, data = currentlun)
+            if currentlun['Volume Name'] in self.volumes:
+              self.volumes[currentlun['Volume Name']].addlun(self.luns[currentlun['LUN Name']])
+            else:
+              print('Could not find parent volume %s for lun %s' % (currentlun['Volume Name'], currentlun['LUN Name']))
+            currentlun = {}
+
+        line = line.strip()
+        tlist = line.split(':', 1)
+        if len(tlist) == 2:
+          key = tlist[0].strip()
+          value = tlist[1].strip()
+
+          if 'size' in key or 'Size' in key:
+            nvalue = convertnetappsize(value)
+            if nvalue != value:
+              value = nvalue
+          currentlun[key] = value
+        else:
+          if len(line) == 1:
+            print(ord(line))
+          print('Invalid line in fetchluns', line, )
+
+      if currentlun:
+        self.luns[currentlun['LUN Name']] = LUN(currentlun['LUN Name'], self, data = currentlun)
+        if currentlun['Volume Name'] in self.volumes:
+          self.volumes[currentlun['Volume Name']].addlun(self.luns[currentlun['LUN Name']])
+        else:
+          print('Could not find parent volume %s for lun %s' % (currentlun['Volume Name'], currentlun['LUN Name']))
+        currentlun = {}
+
+      self.hasluns = True
 
   def sset(self, key, value):
     self.attr[key] = value
@@ -133,19 +199,19 @@ class Cluster:
       if not line:
         continue
       if 'Cluster UUID:' in line:
-        self.uuid = line.split(':')[1].strip()
+        self.uuid = line.split(':', 1)[1].strip()
       if 'Cluster Name:' in line:
-        self.name = line.split(':')[1].strip()
+        self.name = line.split(':', 1)[1].strip()
       if 'Cluster Serial Number:' in line:
         self.serialnumber = line.split(':')[1].strip()
       if 'Cluster Location:' in line:
-        tlist = line.split(':')
+        tlist = line.split(':', 1)
         if len(tlist) > 1:
-          self.location = line.split(':')[1].strip()
+          self.location = line.split(':', 1)[1].strip()
       if 'Cluster Contact:' in line:
-        tlist = line.split(':')
+        tlist = line.split(':', 1)
         if len(tlist) > 1:
-          self.contact = line.split(':')[1].strip()
+          self.contact = line.split(':', 1)[1].strip()
 
   def fetchpeers(self):
     output = self.runcmd('vserver peer show-all -instance')
@@ -158,14 +224,14 @@ class Cluster:
           self.peers[peer['Local Vserver Name']] = peer
           self.peersrev[peer['Peer Vserver Name']] = peer
           peer = {}
-        local = line.split(':')[1].strip()
+        local = line.split(':', 1)[1].strip()
         peer['Local Vserver Name'] = local
       elif 'Peer Vserver Name' in line:
-        peername = line.split(':')[1].strip()
+        peername = line.split(':', 1)[1].strip()
         peer['Peer Vserver Name'] = peername
       else:
         line = line.strip()
-        tlist = line.split(':')
+        tlist = line.split(':', 1)
         slist = [x.strip() for x in tlist]
         try:
           peer[slist[0]] = slist[1]
@@ -191,7 +257,7 @@ class Cluster:
         cursnap['Destination Path'] = {'svm':tlist[1].strip(), 'vol':tlist[2].strip()}
       else:
         line = line.strip()
-        tlist = line.split(':')
+        tlist = line.split(':', 1)
         slist = [x.strip() for x in tlist]
         cursnap[slist[0]] = slist[1]
 
@@ -208,7 +274,7 @@ class Cluster:
         self.svms[currentsvm] = SVM(currentsvm, self)
       else:
         line = line.strip()
-        tlist = line.split(':')
+        tlist = line.split(':', 1)
         slist = [x.strip() for x in tlist]
         try:
           self.svms[currentsvm].sset(slist[0], slist[1])
@@ -234,6 +300,7 @@ class Cluster:
 
     excludes.append('entries were displayed')
     excludes.append('There are no entries matching your query.')
+    excludes.append('\a')
 
     output = []
     stdin, stdout, stderr = self.ssh.exec_command(cmd)
