@@ -18,7 +18,8 @@ def checksvm(svm):
 
 def checkcluster(cluster):
   totalsize = 0
-  for svm in cluster.svms.values():
+  for svmname in sorted(cluster.svms.keys()):
+    svm = cluster.svms[svmname]
     size = checksvm(svm)
 
     totalsize = totalsize + size
