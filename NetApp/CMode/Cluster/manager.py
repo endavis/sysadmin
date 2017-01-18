@@ -53,6 +53,43 @@ def convertnetappsize(size):
   else:
     return size
 
+
+class AGGR:
+  def __init__(self, name, cluster, data=None):
+    self.name = name
+    self.cluster = cluster
+    if not data:
+      self.attr = {}
+    else:
+      self.attr = data
+
+    self.fixfields()
+
+  def sset(self, key, value):
+    self.attr[key] = value
+
+  def fixdiskfield(self, dfield):
+    disklist = self.attr[dfield]
+    if type(disklist) == list:
+      newdisks = []
+      for i in disklist:
+        disks = i.split(',')
+        disks = [x.strip() for x in disks if x]
+        newdisks.extend(disks)
+      self.attr[dfield] = newdisks
+    else:
+      if disklist == '-':
+        self.attr[dfield] = []
+      else:
+        disks = disklist.split(',')
+        disks = [x.strip() for x in disks if x]
+        self.attr[dfield] = disks
+
+  def fixfields(self):
+    self.fixdiskfield('Disks for First Plex')
+    self.fixdiskfield('Disks for Mirrored Plex')
+
+
 class Volume:
   def __init__(self, name, svm):
     self.name = name
@@ -67,6 +104,7 @@ class Volume:
     lunname = lun.attr['LUN Name']
     self.luns[lunname] = lun
 
+
 class LUN:
   def __init__(self, name, svm, data=None):
     self.name = name
@@ -78,6 +116,7 @@ class LUN:
 
   def sset(self, key, value):
     self.attr[key] = value
+
 
 class SVM:
   def __init__(self, name, cluster):
@@ -162,6 +201,7 @@ class SVM:
   def sset(self, key, value):
     self.attr[key] = value
 
+
 class Cluster:
   def __init__(self, address, cname, username=None, pw=None, keyfile=None, keyfile_pw=None):
     self.address = address
@@ -175,6 +215,7 @@ class Cluster:
 
     self.svms = {}
     self.snapmirrors = []
+    self.aggregates = {}
     self.peers = {}
     self.peersrev = {}
 
@@ -261,6 +302,37 @@ class Cluster:
         slist = [x.strip() for x in tlist]
         cursnap[slist[0]] = slist[1]
 
+  def fetchaggrs(self):
+    output = self.runcmd('aggr show -instance')
+    currentaggr = {}
+    lastkey = None
+    for line in output:
+      if not line:
+        lastkey = None
+        continue
+      if '    Aggregate:' in line and currentaggr:
+        try:
+          self.aggregates[currentaggr['Aggregate']]= AGGR(currentaggr['Aggregate'], self, data = currentaggr)
+        except KeyError:
+          print(currentaggr)
+        currentaggr = {}
+      if ':' in line:
+        line = line.strip()
+        tlist = line.split(':', 1)
+        slist = [x.strip() for x in tlist]
+        lastkey = slist[0]
+        currentaggr[lastkey] = slist[1]
+      else:
+        if lastkey:
+          if type(currentaggr[lastkey]) == list:
+            currentaggr[lastkey].append(line.strip())
+          else:
+            nvalue = [currentaggr[lastkey], line.strip()]
+            currentaggr[lastkey] = nvalue
+
+    if currentaggr:
+      self.aggregates[currentaggr['Aggregate']]= AGGR(currentaggr['Aggregate'], self, data = currentaggr)
+
   def fetchsvms(self):
     output = self.runcmd('vserver show -instance')
     currentsvm = ''
@@ -321,6 +393,7 @@ class Cluster:
           output.append(line)
 
     return output
+
 
 class ClusterManager:
   def __init__(self, args):
