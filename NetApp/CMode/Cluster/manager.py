@@ -321,7 +321,12 @@ class Cluster:
         tlist = line.split(':', 1)
         slist = [x.strip() for x in tlist]
         lastkey = slist[0]
-        currentaggr[lastkey] = slist[1]
+        value = slist[1]
+        if 'size' in lastkey or 'Size' in lastkey:
+          nvalue = convertnetappsize(value)
+          if nvalue != value:
+            value = nvalue
+        currentaggr[lastkey] = value
       else:
         if lastkey:
           if type(currentaggr[lastkey]) == list:
