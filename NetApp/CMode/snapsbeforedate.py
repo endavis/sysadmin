@@ -33,17 +33,12 @@ if __name__ == '__main__':
                   help='the svm to check')
   naparser.add_argument('-cl', '--cluster',
                   help='the cluster to check')
-  naparser.add_argument('-d', '--date',
+  naparser.add_argument('-d', '--date', required=True,
                   help='the date in "01/01/2016 14:22:00" format')
   naparser.add_argument('-csv', action='store_true',
                   help="output in comma delimited format")
 
   args = naparser.parse_args()
-
-  if not args.date:
-    print('date is a required filed')
-    naparser.print_help()
-    sys.exit(1)
 
   CLMan = ClusterManager(args)
 
