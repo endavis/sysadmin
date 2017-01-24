@@ -1,7 +1,5 @@
 #/usr/bin/env python3
 from Cluster import ClusterManager, approximate_size, naparser
-from dateutil.relativedelta import relativedelta
-from datetime import timedelta
 import time
 import sys
 
