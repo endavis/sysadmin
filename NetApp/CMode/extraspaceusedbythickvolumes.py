@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 from Cluster import ClusterManager, naparser, approximate_size
 
-#Available Size
-
 def checkcluster(cluster):
   totalsize = 0
   aggrs = {}
@@ -26,15 +24,28 @@ def checkcluster(cluster):
 
             except TypeError:
               print(volume.name, volume.attr['Available Size'])
-            print('%s (%s) - Not thin - %-20s : %-40s' % (cluster.name, cluster.cname, svm.name, volume.name))
+            if args.csv:
+              print('%s (%s),%s,%s,%s,%d' % (cluster.name, cluster.cname, svm.name, volume.name, volume.attr['Aggregate Name'], volume.attr['Available Size']))
+            else:
+              print('%s (%s) - Not thin - %-20s : %-40s : %s' % (cluster.name, cluster.cname, svm.name, volume.name, approximate_size(volume.attr['Available Size'],      False)))
 
-  print('%s (%s) - %s more space if the above volumes were thin provisioned' % (cluster.name, cluster.cname, approximate_size(totalsize, False)))
   for aggr in sorted(aggrs.keys()):
-    print('aggr %s would gain %s' % (aggr, approximate_size(aggrs[aggr], False)))
+    if args.csv:
+      print('%s,%d' % (aggr, aggrs[aggr]))
+    else:
+      print('aggr %s would gain %s' % (aggr, approximate_size(aggrs[aggr], False)))
+
+  if args.csv:
+    print('%s (%s),%d' % (cluster.name, cluster.cname, totalsize))
+  else:
+    print('%s (%s) - %s more space if the above volumes were thin provisioned' % (cluster.name, cluster.cname, approximate_size(totalsize, False)))
 
 if __name__ == '__main__':
   naparser.add_argument('-cl', '--cluster',
                   help='the cluster to check')
+  naparser.add_argument('-csv', action='store_true',
+                  help="output in comma delimited format")
+
   args = naparser.parse_args()
   CLMan = ClusterManager(args)
 
