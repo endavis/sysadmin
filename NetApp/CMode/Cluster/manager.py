@@ -7,6 +7,7 @@ import string
 import sys
 import argparse
 import configparser
+import time
 
 naparser = argparse.ArgumentParser()
 naparser.add_argument('-c', '--configfile', dest='configfile',
@@ -96,6 +97,7 @@ class Volume:
     self.svm = svm
     self.luns = {}
     self.attr = {}
+    self.snaps = {}
 
   def sset(self, key, value):
     self.attr[key] = value
@@ -103,6 +105,38 @@ class Volume:
   def addlun(self, lun):
     lunname = lun.attr['LUN Name']
     self.luns[lunname] = lun
+
+  def addsnap(self, snap):
+    snapname = snap['Snapshot']
+    self.snaps[snapname] = snap
+
+  def fetchsnapshots(self):
+    if not self.snaps:
+      cmd = 'snapshot show -vserver %s -volume %s -instance' % (self.svm.name, self.name)
+      output = self.svm.cluster.runcmd(cmd, excludes=['   Vserver'])
+      currentsnap = {}
+      for line in output:
+        if not line:
+          continue
+        if '    Volume' in line and currentsnap:
+          self.addsnap(currentsnap)
+          currentsnap = {}
+        else:
+          line = line.strip()
+          tlist = line.split(':', 1)
+          key = tlist[0].strip()
+          value = tlist[1].strip()
+          if 'size' in key or 'Size' in key:
+            nvalue = convertnetappsize(value)
+            if nvalue != value:
+              value = nvalue
+          if key == 'Creation Time':
+            ttime = time.strptime(value, "%a %b %d %H:%M:%S %Y")
+            value = ttime
+          currentsnap[key] = value
+
+    if currentsnap:
+      self.addsnap(currentsnap)
 
 
 class LUN:
