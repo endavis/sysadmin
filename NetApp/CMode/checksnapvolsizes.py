@@ -24,6 +24,9 @@ def checkcluster(cluster):
     if not dvol or not svol:
       continue
 
+    svol = svol[0]
+    dvol = dvol[0]
+
     if svol.attr['Volume Size'] != dvol.attr['Volume Size']:
       print('%s:%s:%s not equal to %s:%s:%s' % (srcsvm, srcvol, approximate_size(svol.attr['Volume Size'], False),
                                             destsvm, destvol, approximate_size(dvol.attr['Volume Size'], False)))
