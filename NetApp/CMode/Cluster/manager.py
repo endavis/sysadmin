@@ -8,6 +8,7 @@ import sys
 import argparse
 import configparser
 import time
+import re
 
 naparser = argparse.ArgumentParser()
 naparser.add_argument('-c', '--configfile', dest='configfile',
@@ -232,6 +233,20 @@ class SVM:
 
       self.hasluns = True
 
+  def findvolume(self, volume, exact=True):
+    foundvolumes = []
+    self.fetchvolumes()
+
+    for nvolume in self.volumes:
+      if exact:
+        if nvolume == volume:
+          return [self.volumes[volume]]
+      else:
+        if re.search(volume, nvolume):
+          foundvolumes.append(self.volumes[nvolume])
+
+    return foundvolumes
+
   def sset(self, key, value):
     self.attr[key] = value
 
@@ -398,6 +413,17 @@ class Cluster:
               nvalue = [self.svms[currentsvm].attr[lastkey], slist[0]]
               self.svms[currentsvm].sset(lastkey, nvalue)
 
+  def findvolume(self, volume, svm=None, exact=True):
+    if svm in self.svms:
+      return self.svms[svm].findvolume(volume, exact)
+    else:
+      foundvolumes = []
+      for svmo in self.svms.values():
+        nvolumes = svmo.findvolume(volume, exact)
+        foundvolumes.extend(nvolumes)
+
+      return foundvolumes
+
   def runcmd(self, cmd, excludes=None):
     if not self.ssh.get_transport() or not self.ssh.get_transport().is_active():
       if self.pkey:
@@ -456,35 +482,47 @@ class ClusterManager:
                          keyfile_pw = self.cp['Credentials']['keyfile_pw'],
                          )
 
-  def findvolume(self, volume, svm=None):
-    if svm:
-      foundsvm = False
-      for cluster in self.clusters.values():
-        if svm in cluster.svms:
-          foundsvm = True
-          svmo = cluster.svms[svm]
+  def findcluster(self, cluster):
+    for tcluster in self.clusters.values():
+      if tcluster.name == cluster or tcluster.cname == cluster:
+        return tcluster
 
-          svmo.fetchvolumes()
+    return None
 
-          if volume in svmo.volumes:
-            return svmo.volumes[volume]
+  def findvolume(self, volume, cluster=None, svm=None, exact=True):
+    if cluster:
+      clustero = self.findcluster(cluster)
+      if clustero:
+        return clustero.findvolume(volume, svm=svm, exact=exact)
+      else:
+        print('Could not find cluster %s' % cluster)
+        return []
 
-      if not foundsvm:
+    elif svm:
+      svmo = self.findsvm(svm)
+      if svmo:
+        nvols = svmo.findvolume(volume, exact)
+        if exact and len(nvols) > 0:
+          return [nvols[0]]
+        else:
+          return nvols
+
+      else:
         print('Could not find svm %s' % svm)
-        return None
-
-      print('Could not find volume %s in svm %s' % (volume, svm))
-      return None
+        return []
 
     else:
+      foundvolumes = []
       for cluster in self.clusters.values():
-        for svm in cluster.svms.values():
-          svm.fetchvolumes()
-          if volume in svm.volumes:
-            return svm.volumes[volume]
+        nvols = cluster.findvolume(volume, exact=exact)
+        foundvolumes.extend(nvols)
 
-      print('Could not find volume %s' % volume)
-      return None
+      if exact and len(foundvolumes) > 0:
+        return [foundvolumes[0]]
+      else:
+        return foundvolumes
+
+    return []
 
   def findsvm(self, svm):
     for cluster in self.clusters.values():
