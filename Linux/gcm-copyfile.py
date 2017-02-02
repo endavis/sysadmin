@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import configparser
 import argparse
-from getpass import getpass
 import os
 
 parser = argparse.ArgumentParser(description='create script to copy file to all hosts')

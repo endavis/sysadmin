@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import configparser
 import argparse
-from getpass import getpass
 
 parser = argparse.ArgumentParser(description='add keys to hosts in the gcm.conf file')
 parser.add_argument('-u', "--username",
