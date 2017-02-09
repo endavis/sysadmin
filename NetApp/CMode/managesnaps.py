@@ -34,7 +34,7 @@ if __name__ == '__main__':
   naparser.add_argument('-i', '--input',
                   help='the input file of volumes',
                   default='volumes.txt')
-  naparser.add_argument('-n', '--name', required=True,
+  naparser.add_argument('-n', '--name',
                   help='the name of the snapshot')
 
   args = naparser.parse_args()
@@ -49,6 +49,10 @@ if __name__ == '__main__':
 
   if (args.create and args.delete) or (args.delete and args.check) or (args.create and args.check):
     print('please supply only one of the create, delete, or check arguments')
+    sys.exit(1)
+
+  if (args.delete or args.create) and not args.name:
+    print('please supply a snapshot name')
     sys.exit(1)
 
   CLMan = ClusterManager(args)
