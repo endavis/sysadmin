@@ -139,6 +139,21 @@ class Volume:
     if currentsnap:
       self.addsnap(currentsnap)
 
+  def createsnap(self, snapname):
+    """
+    volume snapshot create -vserver svm_mixed_it -volume vol_wk_sfs_linux_repo -snapshot EricTest
+    """
+    cmd = 'volume snapshot create -vserver %s -volume %s -snapshot %s' % (self.svm.name, self.name, snapname)
+    self.svm.cluster.runinteractivecmd(cmd)
+
+  def deletesnap(self, snapname):
+    """
+    volume snapshot create -vserver svm_mixed_it -volume vol_wk_sfs_linux_repo -snapshot EricTest
+    """
+    cmd = 'volume snapshot delete -vserver %s -volume %s -snapshot %s' % (self.svm.name, self.name, snapname)
+    self.svm.cluster.runinteractivecmd(cmd)
+
+
 
 class LUN:
   def __init__(self, name, svm, data=None):
