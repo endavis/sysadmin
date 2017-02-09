@@ -207,7 +207,8 @@ class SVM:
 
     if not self.hasluns:
       cmd = 'lun show -vserver %s -instance' % self.name
-      output = self.cluster.runcmd(cmd, excludes=['Vserver Name', 'This operation is only supported on data Vservers', 'has type "node"', 'has type "admin"'])
+      output = self.cluster.runcmd(cmd, excludes=['Vserver Name', 'This operation is only supported on data Vservers',
+                                                  'has type "node"', 'has type "admin"'])
       currentlun = {}
       for line in output:
         if not line:
