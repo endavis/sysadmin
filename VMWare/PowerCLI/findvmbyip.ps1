@@ -1,4 +1,7 @@
-﻿param( $server, $match_ip)
+﻿
+#requires -Modules VMware.VimAutomation.Core
+
+param( $server, $match_ip)
 
 Connect-VIServer -Server $server
 
@@ -10,3 +13,4 @@ Get-VM | %{
           }
       }
   }
+
