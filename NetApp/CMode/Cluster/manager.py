@@ -424,13 +424,18 @@ class Cluster:
 
       return foundvolumes
 
-  def runcmd(self, cmd, excludes=None):
+  def connect(self):
     if not self.ssh.get_transport() or not self.ssh.get_transport().is_active():
       if self.pkey:
         self.ssh.connect(self.address, username=self.username, pkey=self.pkey)
       else:
         self.ssh.connect(self.address, username=self.username, password=self.pw)
 
+  def runcmd(self, cmd, excludes=None):
+    """
+    run a command and returns the output
+    """
+    self.connect()
 
     if not excludes:
       excludes = []
@@ -458,6 +463,21 @@ class Cluster:
           output.append(line)
 
     return output
+
+  def runinteractivecmd(self, cmd, respondto=' {y|n}:', response='y'):
+    """
+    run a command that requires a response, also used to see output of a command
+    """
+    self.connect()
+    print(cmd)
+    stdin, stdout, stderr = self.ssh.exec_command(cmd)
+    for line in stdout:
+      print(line)
+      line = line.rstrip()
+      if respondto in line:
+        print('sending %s to server' % response)
+        stdin.write(response)
+        stdin.flush()
 
 
 class ClusterManager:
