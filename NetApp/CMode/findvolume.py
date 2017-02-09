@@ -6,9 +6,9 @@ if __name__ == '__main__':
   naparser.add_argument('-v', '--volume', required=True,
                   help='the volume to find, a regex')
   naparser.add_argument('-cl', '--cluster',
-                  help='the cluster of the svm, must be in the config')
+                  help='the cluster of the svm, must be in the config (optional)')
   naparser.add_argument('-s', '--svm',
-                  help='the svm to total')
+                  help='the svm the volume is located (optional)')
 
   args = naparser.parse_args()
   CLMan = ClusterManager(args)
