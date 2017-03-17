@@ -53,7 +53,10 @@ def convertnetappsize(size):
     newsize = num * NUMBYTES[ts]
     return newsize
   else:
-    return size
+    try:
+      return int(size)
+    except ValueError:
+      return size
 
 
 class AGGR:
@@ -229,7 +232,7 @@ class SVM:
           key = tlist[0].strip()
           value = tlist[1].strip()
 
-          if 'size' in key or 'Size' in key:
+          if ' size' in key.lower():
             nvalue = convertnetappsize(value)
             if nvalue != value:
               value = nvalue
