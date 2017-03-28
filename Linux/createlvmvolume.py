@@ -13,11 +13,20 @@ mount /mnt/redo_01
 
 echo "- - -" > /sys/class/scsi_host/hosth/scan
 """
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
 import os
 import argparse
 import subprocess
 import sys
 import time
+
+try:
+  raw_input = input
+except:
+  pass
 
 naparser = argparse.ArgumentParser()
 naparser.add_argument('-m', '--mountpoint', required=True,
@@ -32,22 +41,22 @@ naparser.add_argument('-t', '--test', action='store_true',
 args = naparser.parse_args()
 
 def runcommand(command):
-  print "Running command: '%s'" % command
+  print("Running command: '%s'" % command)
 
   p = subprocess.Popen(command, stdout=subprocess.PIPE, shell=True)
   (output, err) = p.communicate()
 
   p_status = p.wait()
-  print "Command output : ", output.rstrip()
+  print("Command output : ", output.rstrip())
   if err:
-    print "Command error  : ", err
-  print "Command status : ", p_status
+    print("Command error  : ", err)
+  print("Command status : ", p_status)
 
   if p_status != 0:
-    print "Something went wrong, exiting, please check commands"
+    print("Something went wrong, exiting, please check commands")
     sys.exit(1)
 
-  print ""
+  print("")
   time.sleep(2)
 
 def main():
@@ -66,7 +75,7 @@ def main():
 Are these correct? (Y/N)\n""" % (device, volumegroup, logicalvolume, mountpoint))
 
   if yesno.lower() == "n":
-    print "Exiting"
+    print("Exiting")
     sys.exit(1)
 
 
@@ -87,18 +96,18 @@ Are these correct? (Y/N)\n""" % (device, volumegroup, logicalvolume, mountpoint)
   mountcmd = "mount %s" % mountpoint
 
 
-  print "The following cmds and actions will be taken"
-  #print "Command : %s" % cmdcreatelabel
-  #print "Command : %s" % cmdcreatepart
-  #print "Command : %s" % cmdsetlvm
-  print "Command : %s" % cmdpvcreate
-  print "Command : %s" % cmdvgcreate
-  print "Command : %s" % cmdlvcreate
-  print "Command : %s" % cmdmkfs
-  print "Action  : Create directory %s" % mountpoint
-  print "Action  : Add line '%s' to /etc/fstab" % fstabline
-  print "Command : %s" % mountcmd
-  print ""
+  print("The following cmds and actions will be taken")
+  #print("Command : %s" % cmdcreatelabel
+  #print("Command : %s" % cmdcreatepart
+  #print("Command : %s" % cmdsetlvm
+  print("Command : %s" % cmdpvcreate)
+  print("Command : %s" % cmdvgcreate)
+  print("Command : %s" % cmdlvcreate)
+  print("Command : %s" % cmdmkfs)
+  print("Action  : Create directory %s" % mountpoint)
+  print("Action  : Add line '%s' to /etc/fstab" % fstabline)
+  print("Command : %s" % mountcmd)
+  print("")
 
   if not args.test:
     #runcommand(cmdcreatelabel)
