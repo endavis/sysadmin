@@ -27,7 +27,7 @@ def checkcluster(cluster):
             if args.csv:
               print('%s (%s),%s,%s,%s,%d' % (cluster.name, cluster.cname, svm.name, volume.name, volume.attr['Aggregate Name'], volume.attr['Available Size']))
             else:
-              print('%s (%s) - Not thin - %-20s : %-40s : %s' % (cluster.name, cluster.cname, svm.name, volume.name, approximate_size(volume.attr['Available Size'],      False)))
+              print('%s (%s) - Not thin - %-20s : %-12s : %s' % (cluster.name, cluster.cname, svm.name, approximate_size(volume.attr['Available Size'], False), volume.name))
 
   for aggr in sorted(aggrs.keys()):
     if args.csv:
