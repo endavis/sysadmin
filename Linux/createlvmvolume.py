@@ -24,9 +24,9 @@ import sys
 import time
 
 try:
-  raw_input = input
+  raw_input
 except:
-  pass
+  raw_input = input
 
 naparser = argparse.ArgumentParser()
 naparser.add_argument('-m', '--mountpoint', required=True,
