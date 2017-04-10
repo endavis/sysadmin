@@ -103,6 +103,14 @@ class Volume:
     self.attr = {}
     self.snaps = {}
 
+  def modify(self, option, value):
+    tcmd = 'vol modify -vserver %s -volume %s -%s %s'
+    ncmd = tcmd % (self.svm.name, self.name, option, value)
+    print('cmd: %s' % ncmd)
+    output = self.svm.cluster.runcmd(ncmd)
+    for i in output:
+      print(i)
+
   def sset(self, key, value):
     self.attr[key] = value
 
