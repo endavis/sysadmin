@@ -103,10 +103,38 @@ class Volume:
     self.attr = {}
     self.snaps = {}
 
+  def mount(self):
+    ncmd = "volume mount -vserver %s -volume %s -junction-path /%s" % (self.svm.name, self.name, self.name)
+    print('cmd: %s' % ncmd)
+    output = self.svm.cluster.runcmd(ncmd)
+    for i in output:
+      print(i)
+
   def modify(self, option, value):
     tcmd = 'vol modify -vserver %s -volume %s -%s %s'
     ncmd = tcmd % (self.svm.name, self.name, option, value)
     print('cmd: %s' % ncmd)
+    output = self.svm.cluster.runcmd(ncmd)
+    for i in output:
+      print(i)
+
+  def clone(self, name=None, snapshot=None):
+    flexname = None
+    if name:
+      flexname = self.name + '_' + name
+    else:
+      if snapshot:
+        flexname = self.name + '_' + snapshot
+
+    if flexname:
+      ncmd = 'vol clone create -vserver %s -flexclone %s -type RW -parent-volume %s' % (self.svm.name, flexname, self.name)
+    else:
+      ncmd = 'vol clone create -vserver %s -type RW -parent-volume %s' % (self.svm.name, self.name)
+
+    if snapshot:
+      ncmd = ncmd + ' -parent-snapshot %s' % snapshot
+
+    print('Cloning volume %s with cmd %s' % (self.name, ncmd))
     output = self.svm.cluster.runcmd(ncmd)
     for i in output:
       print(i)
