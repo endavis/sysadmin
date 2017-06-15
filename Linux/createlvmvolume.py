@@ -104,8 +104,8 @@ Are these correct? (Y/N)\n""" % (device, volumegroup, logicalvolume, mountpoint)
   print("Command : %s" % cmdvgcreate)
   print("Command : %s" % cmdlvcreate)
   print("Command : %s" % cmdmkfs)
-  print("Action  : Create directory %s" % mountpoint)
   print("Action  : Add line '%s' to /etc/fstab" % fstabline)
+  print("Action  : Create directory %s" % mountpoint)
   print("Command : %s" % mountcmd)
   print("")
 
@@ -118,11 +118,11 @@ Are these correct? (Y/N)\n""" % (device, volumegroup, logicalvolume, mountpoint)
     runcommand(cmdlvcreate)
     runcommand(cmdmkfs)
 
-    os.makedirs(mountpoint)
-
     fstab = open("/etc/fstab", "a")
     fstab.write(fstabline)
     fstab.close()
+
+    os.makedirs(mountpoint)
 
     runcommand(mountcmd)
 
