@@ -36,6 +36,8 @@ if __name__ == '__main__':
                   default='volumes.txt')
   naparser.add_argument('-n', '--name',
                   help='the name of the snapshot')
+  naparser.add_argument('-so', '--showonly', action='store_true',
+                  help='only show the commands')
 
   args = naparser.parse_args()
 
@@ -60,17 +62,20 @@ if __name__ == '__main__':
   volumes = read_file(args.input)
 
   for volume in volumes:
+    nvol = None
     vol = volume['vol']
     cluster = volume['cluster']
-    nvol = CLMan.findvolume(vol, cluster=cluster)[0]
+    vols = CLMan.findvolume(vol, cluster=cluster)
+    if vols:
+      nvol = vols[0]
     if args.check:
       if not nvol:
         print('%s - %s not found' % (cluster, vol))
 
     elif args.create:
       if nvol:
-        nvol.createsnap(args.name)
+        nvol.createsnap(args.name, showonly=args.showonly)
 
     elif args.delete:
       if nvol:
-        nvol.deletesnap(args.name)
+        nvol.deletesnap(args.name, showonly=args.showonly)
