@@ -1,16 +1,10 @@
 ﻿
-#requires -Modules VMware.VimAutomation.Core
 
-param( $server, $match_ip)
+function FindVMbyIP {
+    $vCenter = $args[0]
+    $match_ip = $args[1]
 
-Connect-VIServer -Server $server
+    Connect-VCenter $vCenter
 
-Get-VM | %{
-      $vmIPs = $_.Guest.IPAddress
-      foreach($ip in $vmIPs) {
-          if ($ip -eq $match_ip) {
-              "Found VM with matching address: {0}" -f $_.Name
-          }
-      }
-  }
-
+    get-vm | where {$_.Guest.IPAddress -contains $match_ip} | select name, @{N="IP Address";E={@($_.guest.IPAddress)}}
+}
