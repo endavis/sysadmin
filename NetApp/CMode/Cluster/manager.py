@@ -118,7 +118,7 @@ class Volume:
     for i in output:
       print(i)
 
-  def clone(self, name=None, snapshot=None):
+  def clone(self, name=None, snapshot=None, showonly=False):
     flexname = None
     if name:
       flexname = self.name + '_' + name
@@ -134,10 +134,14 @@ class Volume:
     if snapshot:
       ncmd = ncmd + ' -parent-snapshot %s' % snapshot
 
-    print('Cloning volume %s with cmd %s' % (self.name, ncmd))
-    output = self.svm.cluster.runcmd(ncmd)
-    for i in output:
-      print(i)
+
+    if showonly:
+      print(ncmd)
+    else:
+      print('Cloning volume %s with cmd %s' % (self.name, ncmd))
+      output = self.svm.cluster.runcmd(ncmd)
+      for i in output:
+        print(i)
 
   def sset(self, key, value):
     self.attr[key] = value
@@ -178,19 +182,25 @@ class Volume:
     if currentsnap:
       self.addsnap(currentsnap)
 
-  def createsnap(self, snapname):
+  def createsnap(self, snapname, showonly=False):
     """
     volume snapshot create -vserver svm_mixed_it -volume vol_wk_sfs_linux_repo -snapshot EricTest
     """
     cmd = 'volume snapshot create -vserver %s -volume %s -snapshot %s' % (self.svm.name, self.name, snapname)
-    self.svm.cluster.runinteractivecmd(cmd)
+    if showonly:
+      print(cmd)
+    else:
+      self.svm.cluster.runinteractivecmd(cmd)
 
-  def deletesnap(self, snapname):
+  def deletesnap(self, snapname, showonly=False):
     """
     volume snapshot create -vserver svm_mixed_it -volume vol_wk_sfs_linux_repo -snapshot EricTest
     """
     cmd = 'volume snapshot delete -vserver %s -volume %s -snapshot %s' % (self.svm.name, self.name, snapname)
-    self.svm.cluster.runinteractivecmd(cmd)
+    if showonly:
+      print(cmd)
+    else:
+      self.svm.cluster.runinteractivecmd(cmd)
 
 
 
