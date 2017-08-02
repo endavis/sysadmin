@@ -1,5 +1,3 @@
-﻿
-
 function FindVMbyIP {
     $vCenter = $args[0]
     $match_ip = $args[1]
