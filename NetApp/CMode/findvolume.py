@@ -44,7 +44,7 @@ if __name__ == '__main__':
   naparser.add_argument('-i', '--input',
                   help='the input file of volumes',
                   default=None)
-  naparser.add_argument('-e', '--exact',
+  naparser.add_argument('-e', '--exact', action='store_true',
                   help='show only exact names',
                   default=None)
 
