@@ -103,8 +103,36 @@ class Volume:
     self.attr = {}
     self.snaps = {}
 
+  def checkclones(self):
+    ncmd = "volume clone show -vserver %s -parent-volume %s" % (self.svm.name, self.name)
+    print('cmd: %s' % ncmd)
+    output = self.svm.cluster.runcmd(ncmd)
+    for i in output:
+      print(i)
+
+  def offline(self):
+    ncmd = "volume offline -vserver %s -volume %s" % (self.svm.name, self.name)
+    print('cmd: %s' % ncmd)
+    output = self.svm.cluster.runcmd(ncmd)
+    for i in output:
+      print(i)
+
+  def delete(self):
+    ncmd = "volume delete -vserver %s -volume %s" % (self.svm.name, self.name)
+    print('cmd: %s' % ncmd)
+    output = self.svm.cluster.runcmd(ncmd)
+    for i in output:
+      print(i)
+
   def mount(self):
     ncmd = "volume mount -vserver %s -volume %s -junction-path /%s" % (self.svm.name, self.name, self.name)
+    print('cmd: %s' % ncmd)
+    output = self.svm.cluster.runcmd(ncmd)
+    for i in output:
+      print(i)
+
+  def unmount(self):
+    ncmd = "volume unmount -vserver %s -volume %s" % (self.svm.name, self.name)
     print('cmd: %s' % ncmd)
     output = self.svm.cluster.runcmd(ncmd)
     for i in output:
