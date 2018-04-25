@@ -69,7 +69,7 @@ items = [
 ]
 tmask = ','.join(items)
 
-tfile.write('SLID,UNIQUEID,DATACENTER,CREATED,TYPE,CAPACITY,IOPS,NOTES,SUBNETS,IPs,HARDWARE\n')
+tfile.write('SLID|UNIQUEID|DATACENTER|CREATED|TYPE|CAPACITY|IOPS|NOTES|SUBNETS|IPs|HARDWARE\n')
 
 for volume in vols:
   if volume['serviceResource']['datacenter']['name'].upper() in VDCS:
