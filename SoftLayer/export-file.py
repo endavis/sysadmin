@@ -11,7 +11,7 @@ config.read('softlayer.ini')
 
 client = SoftLayer.create_client_from_env(username=config.get('General', 'username'), api_key=config.get('General', 'apikey'))
 
-tfile = open('sl-volumes.csv', 'w')
+tfile = open('sl-file.csv', 'w')
 
 SUBNETLU = {}
 VDCS = {}
