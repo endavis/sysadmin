@@ -11,7 +11,7 @@ config.read('softlayer.ini')
 
 client = SoftLayer.create_client_from_env(username=config.get('General', 'username'), api_key=config.get('General', 'apikey'))
 
-tfile = open('sl-file.csv', 'w')
+tfile = open('sl-file.psv', 'w')
 
 SUBNETLU = {}
 VDCS = {}
@@ -143,7 +143,7 @@ for volume in vols:
 
     notes = notes.strip()
     notes = notes.replace('\n', ' ')
-    tstr = "%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n" % (volume['username'].strip(),
+    tstr = "%s|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s\n" % (volume['username'].strip(),
                                  volume['id'],
                                  volume['serviceResource']['datacenter']['name'].upper().strip(),
                                  createdate.strip(),
