@@ -141,13 +141,15 @@ for volume in vols:
     else:
       createdate = details['billingItem']['createDate']
 
-    tstr = "%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n" % (volume['username'],
+    notes = notes.strip()
+    notes = notes.replace('\n', ' ')
+    tstr = "%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n" % (volume['username'].strip(),
                                  volume['id'],
-                                 volume['serviceResource']['datacenter']['name'].upper(),
-                                 createdate,
-                                 details['storageType']['keyName'],
+                                 volume['serviceResource']['datacenter']['name'].upper().strip(),
+                                 createdate.strip(),
+                                 details['storageType']['keyName'].strip(),
                                  volume['capacityGb'],
-                                 iops,
+                                 iops.strip(),
                                  notes,
                                  ":".join(allowl),
                                  ":".join(allowi),
