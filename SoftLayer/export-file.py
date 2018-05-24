@@ -15,12 +15,16 @@ tfile = open('sl-file.psv', 'w')
 
 SUBNETLU = {}
 VDCS = {}
+ALLVDCS = False
 
 for vdc in config.items('VDCS'):
-  VDCS[vdc[0].upper()] = True
+  if vdc[0].upper() == 'ALL':
+    ALLVDCS = True
+  else:
+    VDCS[vdc[0].upper()] = True
 
-for vdcn in config.items('VDCNETWORKS'):
-  SUBNETLU[vdcn[1]] = vdcn[0].upper()
+for vdcn in config.items('VDCSUBNETID'):
+  SUBNETLU[int(vdcn[1])] = vdcn[0].upper()
 
 filem = FileStorageManager(client)
 
@@ -72,7 +76,11 @@ tmask = ','.join(items)
 tfile.write('SLID|UNIQUEID|DATACENTER|CREATED|TYPE|CAPACITY|IOPS|NOTES|SUBNETS|IPs|HARDWARE\n')
 
 for volume in vols:
-  if volume['serviceResource']['datacenter']['name'].upper() in VDCS:
+  #pprint.pprint(volume)
+  if volume['serviceResource']['type']['type'] == 'NAS':
+    print('skipping %s because it is NAS' % volume['username'])
+    continue
+  if volume['serviceResource']['datacenter']['name'].upper() in VDCS or ALLVDCS == True:
     print('Getting info for %s' % volume['username'])
     try:
       details = filem.get_file_volume_details(volume['id'], mask=tmask)
@@ -97,8 +105,8 @@ for volume in vols:
     if allowed['allowedSubnets']:
       for subnet in allowed['allowedSubnets']:
         net = '%s/%s' % (subnet['networkIdentifier'], subnet['cidr'])
-        if net in SUBNETLU:
-          allowl.append(SUBNETLU[net])
+        if subnet['id'] in SUBNETLU:
+          allowl.append(SUBNETLU[subnet['id']])
         else:
           allowl.append(net)
 
