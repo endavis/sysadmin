@@ -1,5 +1,5 @@
-#!/usr/bin/env python3
-import configparser
+#!/usr/bin/env python2
+import ConfigParser
 import argparse
 import os
 
@@ -15,22 +15,24 @@ parser.add_argument('-l', "--location", required=True,
                     default="")
 targs = vars(parser.parse_args())
 
-config = configparser.ConfigParser()
+config = ConfigParser.ConfigParser()
 config.read('/home/endavis/src/wk/gcm/gcm.conf')
 
 sshhosts = []
 
 for section in config.sections():
-    if 'host' in section:
-        if 'Linux' in config[section]['group']:
+    if config.has_option(section, 'host'):
+        group = config.get(section, 'group')
+        if 'Linux' in group:
+          if 'DAL09' in group or 'WDC04' in group:
             if 'username' in targs and targs['username']:
-                sshhosts.append('%s@%s'% (targs['username'], config[section]['host']))
+                sshhosts.append('%s@%s'% (targs['username'], config.get(section, 'host')))
 
             elif config[section]['user']:
-                sshhosts.append('%s@%s'% (config[section]['user'], config[section]['host']))
+                sshhosts.append('%s@%s'% (config.get(section, 'user'), config.get(section, 'host')))
 
             else:
-                sshhosts.append(config[section]['host'])
+                sshhosts.append(config.get(section, 'host'))
 
 tfile = open('copy.sh', 'w')
 
