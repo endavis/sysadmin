@@ -58,6 +58,18 @@ def convertnetappsize(size):
     except ValueError:
       return size
 
+class BaseItem(object):
+  def __init__(self, name, vserver, data=None):
+    self.name = name
+    self.svm = vserver
+    if not data:
+      self.attr = {}
+    else:
+      self.attr = data
+
+  def sset(self, key, value):
+    self.attr[key] = value
+
 
 class AGGR:
   def __init__(self, name, cluster, data=None):
@@ -94,6 +106,9 @@ class AGGR:
     self.fixdiskfield('Disks for First Plex')
     self.fixdiskfield('Disks for Mirrored Plex')
 
+class Share(BaseItem):
+  def getsharepath(self):
+    return '\\\\' + '\\'.join([self.attr['CIFS Server NetBIOS Name'], self.attr['Share']])
 
 class Volume:
   def __init__(self, name, svm):
@@ -101,7 +116,14 @@ class Volume:
     self.svm = svm
     self.luns = {}
     self.attr = {}
+    self.shares = {}
+    self.hassnaps = False
     self.snaps = {}
+    self.hassnapdests = False
+    self.snapdests = {}
+
+  def __str__(self):
+    return '%s - %s' % (self.svm.name, self.name)
 
   def checkclones(self):
     ncmd = "volume clone show -vserver %s -parent-volume %s" % (self.svm.name, self.name)
@@ -112,6 +134,13 @@ class Volume:
 
   def offline(self):
     ncmd = "volume offline -vserver %s -volume %s" % (self.svm.name, self.name)
+    print('cmd: %s' % ncmd)
+    output = self.svm.cluster.runcmd(ncmd)
+    for i in output:
+      print(i)
+
+  def online(self):
+    ncmd = "volume online -vserver %s -volume %s" % (self.svm.name, self.name)
     print('cmd: %s' % ncmd)
     output = self.svm.cluster.runcmd(ncmd)
     for i in output:
@@ -162,7 +191,6 @@ class Volume:
     if snapshot:
       ncmd = ncmd + ' -parent-snapshot %s' % snapshot
 
-
     if showonly:
       print(ncmd)
     else:
@@ -178,12 +206,16 @@ class Volume:
     lunname = lun.attr['LUN Name']
     self.luns[lunname] = lun
 
+  def addshare(self, share):
+    sharename = share.attr['Share']
+    self.shares[sharename] = share
+
   def addsnap(self, snap):
     snapname = snap['Snapshot']
     self.snaps[snapname] = snap
 
   def fetchsnapshots(self):
-    if not self.snaps:
+    if not self.hassnaps:
       cmd = 'snapshot show -vserver %s -volume %s -instance' % (self.svm.name, self.name)
       output = self.svm.cluster.runcmd(cmd, excludes=['   Vserver'])
       currentsnap = {}
@@ -230,6 +262,51 @@ class Volume:
     else:
       self.svm.cluster.runinteractivecmd(cmd)
 
+  def getsnapmirrordest(self):
+    """
+    get snapmirror destinations for this volume
+    """
+    if not self.hassnapdests:
+      ncmd = "snapmirror list-destinations -source-vserver %s -source-volume %s -instance" % (self.svm.name, self.name)
+      print('cmd: %s' % ncmd)
+      output = self.svm.cluster.runcmd(ncmd)
+      currentdest = None
+      for line in output:
+        if not line:
+          continue
+        else:
+          line = line.strip()
+          tlist = line.split(':', 1)
+          key = tlist[0].strip()
+          value = tlist[1].strip()
+          if key == 'Source Path':
+            continue
+          if key == 'Destination Path':
+            currentdest = {}
+            currentdest['Source Path'] = "%s:%s" % (self.svm.name, self.name)
+            self.snapdests[value] = currentdest
+          if 'size' in key or 'Size' in key:
+            nvalue = convertnetappsize(value)
+            if nvalue != value:
+              value = nvalue
+          if key == 'Creation Time':
+            ttime = time.strptime(value, "%a %b %d %H:%M:%S %Y")
+            value = ttime
+          currentdest[key] = value
+
+  def snapmirrorreleaseall(self):
+    """
+    release all snapmirror relationships
+    """
+    if not self.hassnapdests:
+      self.getsnapmirrordest()
+
+    for dest in self.snapdests.values():
+      ncmd = "snapmirror release -source-path %s -destination-path %s" % (dest['Source Path'], dest['Destination Path'])
+      print('cmd: %s' % ncmd)
+      output = self.svm.cluster.runcmd(ncmd)
+      for i in output:
+        print(i)
 
 
 class LUN:
@@ -251,9 +328,112 @@ class SVM:
     self.hasvolumes = False
     self.hasluns = False
     self.cluster = cluster
+    self.iscsisessions = []
+    self.igroups = []
     self.volumes = {}
     self.luns = {}
     self.attr = {}
+    self.shares = {}
+
+  def fetchiscsigroup(self):
+    output = self.cluster.runcmd('lun igroup show -instance -vserver %s' % self.name)
+    currentdata = {}
+    lastkey = None
+    for line in output:
+      if not line:
+        lastkey = None
+        continue
+      if 'Vserver Name:' in line:
+        if currentdata:
+          self.igroups.append(BaseItem(currentdata['Igroup Name'], self, data=currentdata))
+# fix initiators and break them into init and logged in
+        currentdata = {}
+        currentdata['Vserver'] = self
+      else:
+        line = line.strip()
+        if ':' in line:
+          tlist = line.split(':', 1)
+          slist = [x.strip() for x in tlist]
+          lastkey = slist[0]
+          value = slist[1]
+          currentdata[lastkey] = value
+        else:
+          if lastkey:
+            if type(currentdata[lastkey]) == list:
+              currentdata[lastkey].append(line.strip())
+            else:
+              nvalue = [currentdata[lastkey], line.strip()]
+              currentdata[lastkey] = nvalue
+
+    if currentdata:
+      self.iscsisessions.append(BaseItem(currentdata['Igroup Name'], self, data=currentdata))
+
+  def fetchiscsisessions(self):
+    output = self.cluster.runcmd('iscsi session show -instance -vserver %s' % self.name)
+    currentsession = {}
+    lastkey = None
+    for line in output:
+      if not line:
+        lastkey = None
+        continue
+      if 'Vserver:' in line:
+        if currentsession:
+          self.iscsisessions.append(BaseItem(currentsession['Target Session ID'], self, data=currentsession))
+
+        currentsession = {}
+        currentsession['Vserver'] = self
+      else:
+        line = line.strip()
+        if ':' in line:
+          tlist = line.split(':', 1)
+          slist = [x.strip() for x in tlist]
+          lastkey = slist[0]
+          value = slist[1]
+          currentsession[lastkey] = value
+        else:
+          if lastkey:
+            if type(currentsession[lastkey]) == list:
+              currentsession[lastkey].append(line.strip())
+            else:
+              nvalue = [currentsession[lastkey], line.strip()]
+              currentsession[lastkey] = nvalue
+
+    if currentsession:
+      self.iscsisessions.append(BaseItem(currentsession['Target Session ID'], self, data=currentsession))
+
+  def fetchshares(self):
+    output = self.cluster.runcmd('cifs share show -instance -vserver %s' % self.name)
+    currentshare = {}
+    lastkey = None
+    for line in output:
+      if not line:
+        lastkey = None
+        continue
+      if 'Vserver:' in line and currentshare:
+        sharename = currentshare['Share']
+        self.shares[sharename] = Share(sharename, self.name, data=currentshare)
+        vol = self.findvolume(currentshare['Volume Name'])
+        vol.addshare(self.shares[sharename])
+        currentshare = {}
+      else:
+        line = line.strip()
+        if ':' in line:
+          tlist = line.split(':', 1)
+          slist = [x.strip() for x in tlist]
+          lastkey = slist[0]
+          value = slist[1]
+          currentshare[lastkey] = value
+        else:
+          if lastkey:
+            if type(currentshare[lastkey]) == list:
+              currentshare[lastkey].append(line.strip())
+            else:
+              nvalue = [currentshare[lastkey], line.strip()]
+              currentshare[lastkey] = nvalue
+
+    if currentshare:
+      sharename = currentshare['Share']
+      self.shares[sharename] = Share(sharename, self.name, data=currentshare)
 
   def fetchvolumes(self):
     if not self.hasvolumes:
