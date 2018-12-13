@@ -529,6 +529,9 @@ class Cluster:
     self.address = address
     self.cname = cname
 
+    logname = time.strftime("%d%b%Y")
+    self.logfile = open(os.path.join('./logs', '%s-%s.log' % (cname, logname)), 'a')
+
     self.name = None
     self.uuid = None
     self.serialnumber = None
@@ -697,6 +700,12 @@ class Cluster:
 
       return foundvolumes
 
+  def log(self, line):
+    """
+    write to the log file
+    """
+    self.logfile.write(line)
+
   def connect(self):
     if not self.ssh.get_transport() or not self.ssh.get_transport().is_active():
       if self.pkey:
@@ -716,12 +725,13 @@ class Cluster:
     excludes.append('entries were displayed')
     excludes.append('There are no entries matching your query.')
     excludes.append('\a')
-
+    self.log('%s - %s - %s\n' % (time.strftime("%a %d %b %Y %H:%M:%S %Z"), self.name, cmd))
     output = []
     stdin, stdout, stderr = self.ssh.exec_command(cmd)
     for line in stdout:
       line = line.rstrip()
 
+      self.log('   %s\n' % line)
       if "Press <space> to page down" in line:
         stdin.write(' ')
         stdin.flush()
@@ -741,17 +751,24 @@ class Cluster:
     """
     run a command that requires a response, also used to see output of a command
     """
+    output = []
+
     self.connect()
     print(cmd)
+    self.log('%s - %s - %s\n' % (time.strftime("%a %d %b %Y %H:%M:%S %Z"), self.name, cmd))
     stdin, stdout, stderr = self.ssh.exec_command(cmd)
     for line in stdout:
       print(line)
       line = line.rstrip()
+      self.log('   %s\n' % line)      
       if respondto in line:
         print('sending %s to server' % response)
         stdin.write(response)
         stdin.flush()
+      else:
+        output.append(line)
 
+    return output
 
 class ClusterManager:
   def __init__(self, args):
