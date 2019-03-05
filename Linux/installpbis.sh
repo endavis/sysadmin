@@ -27,5 +27,7 @@ domainjoin-cli join $fulldomain $domainaccount $domainpass
 /opt/pbis/bin/config UserDomainPrefix $shortdomain 
 /opt/pbis/bin/config AssumeDefaultDomain true 
 /opt/pbis/bin/config LoginShellTemplate /bin/bash 
-/opt/pbis/bin/config HomeDirTemplate %H/%U 
+/opt/pbis/bin/config HomeDirTemplate %H/%D/%U
 /opt/pbis/bin/config RequireMembershipOf "$shortdomain\\$securitygroup"
+
+echo -e "oracle\n" >> /etc/pbis/user-ignore
