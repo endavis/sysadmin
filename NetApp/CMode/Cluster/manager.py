@@ -725,6 +725,7 @@ class Cluster:
     excludes.append('entries were displayed')
     excludes.append('There are no entries matching your query.')
     excludes.append('\a')
+    excludes.append('Last login time:')
     self.log('%s - %s - %s\n' % (time.strftime("%a %d %b %Y %H:%M:%S %Z"), self.name, cmd))
     output = []
     stdin, stdout, stderr = self.ssh.exec_command(cmd)
