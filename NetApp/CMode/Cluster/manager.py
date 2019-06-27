@@ -242,6 +242,16 @@ class Volume:
     if currentsnap:
       self.addsnap(currentsnap)
 
+  def deleteallsnaps(self):
+    """
+    delete all snapshots for the volume
+    """
+    self.fetchsnapshots()
+    for snap in self.snaps.values():
+      self.deletesnap(snap['Snapshot'])
+
+    self.hassnaps = False
+
   def createsnap(self, snapname, showonly=False):
     """
     volume snapshot create -vserver svm_mixed_it -volume vol_wk_sfs_linux_repo -snapshot EricTest
