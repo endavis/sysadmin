@@ -53,12 +53,18 @@ if __name__ == '__main__':
                   help='action: list all snapmirror destinations')
   naparser.add_argument('-d', '--details', action='store_true',
                   help='action: get details for volumes')
+  naparser.add_argument('-das', '--deleteallsnapshots', action='store_true',
+                  help='action: deleteallsnapshots')
   naparser.add_argument('-cl', '--clones', action='store_true',
                   help='action: check if volumes has clones')
 
   args = naparser.parse_args()
 
-  if not (args.unmount or args.mount or args.offline or args.online or args.delete or args.details or args.releasesnapmirror or args.listsnapmirror or args.clones or args.check):
+  if not (args.unmount or args.mount or args.offline \
+          or args.online or args.delete or args.details \
+          or args.releasesnapmirror or args.listsnapmirror \
+          or args.clones or args.check\
+          or args.deleteallsnapshots):
     print('Please specify an action')
     sys.exit(1)
 
@@ -111,6 +117,8 @@ if __name__ == '__main__':
           listsnapmirror(nvol)
         if args.clones:
           nvol.checkclones()
+        if args.deleteallsnapshots:
+          nvol.deleteallsnaps()
         if args.details:
           print('%s,%s,%s,%s,%s,%s,%s' % (nvol.svm.cluster.name, nvol.svm.cluster.cname, nvol.svm.name, nvol.attr['Aggregate Name'], nvol.name, nvol.attr['Used Size'], nvol.attr['Total Physical Used Size']))
 
