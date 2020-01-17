@@ -312,7 +312,9 @@ class Volume:
       self.getsnapmirrordest()
 
     for dest in self.snapdests.values():
-      ncmd = "snapmirror release -source-path %s -destination-path %s" % (dest['Source Path'], dest['Destination Path'])
+      ncmd = "snapmirror release -source-path %s -destination-path %s -relationship-id %s" % (dest['Source Path'], 
+                                                                                              dest['Destination Path'],
+                                                                                              dest['Relationship ID'])
       print('cmd: %s' % ncmd)
       output = self.svm.cluster.runcmd(ncmd)
       for i in output:
