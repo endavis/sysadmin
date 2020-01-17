@@ -591,6 +591,13 @@ class Cluster:
         if len(tlist) > 1:
           self.contact = line.split(':', 1)[1].strip()
 
+  def fetchclusterstats(self):
+    output = self.runcmd('statistics system show')
+    for line in output:
+      if line.startswith('cluster'):
+        (cpu, ops, bps, latency) = line.split()[1:]
+    return int(cpu), int(ops), int(bps), int(latency)
+
   def fetchpeers(self):
     output = self.runcmd('vserver peer show-all -instance')
     peer = {}
