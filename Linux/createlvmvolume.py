@@ -37,6 +37,8 @@ naparser.add_argument('-d', '--device', required=True,
                 help='The device to use')
 naparser.add_argument('-t', '--test', action='store_true',
                 help='show actions do be taken but do not execute them')
+naparser.add_argument('-fs', '--filesystem', default="ext4",
+                help='show actions do be taken but do not execute them')                
 
 args = naparser.parse_args()
 
@@ -72,7 +74,8 @@ def main():
   volume group name   : %s
   logical volume name : %s
   mount point         : %s
-Are these correct? (Y/N)\n""" % (device, volumegroup, logicalvolume, mountpoint))
+  filesystem          : %s
+Are these correct? (Y/N)\n""" % (device, volumegroup, logicalvolume, mountpoint, args.filesystem))
 
   if yesno.lower() == "n":
     print("Exiting")
@@ -90,8 +93,12 @@ Are these correct? (Y/N)\n""" % (device, volumegroup, logicalvolume, mountpoint)
   cmdpvcreate = "pvcreate %s" % device
   cmdvgcreate = "vgcreate %s %s" % (volumegroup, device)
   cmdlvcreate = "lvcreate -l 100%%FREE -n %s %s" % (logicalvolume, volumegroup)
-  cmdmkfs = "mkfs -t ext4 %s" % mapperdev
-  fstabline = "%s %s                 ext4    defaults,noatime        1 2\n" % (mapperdev, mountpoint)
+  if args.filesystem == "ext4":
+    cmdmkfs = "mkfs -t ext4 %s" % mapperdev
+  else:
+    cmdmkfs = "mkfs.xfs %s" % mapperdev
+  fstabline = "%s %s                 %s    defaults,noatime        1 2\n" % (mapperdev, mountpoint, args.filesystem)
+
 
   mountcmd = "mount %s" % mountpoint
 
