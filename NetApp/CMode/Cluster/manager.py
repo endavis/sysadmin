@@ -424,8 +424,12 @@ class SVM:
       if 'Vserver:' in line and currentshare:
         sharename = currentshare['Share']
         self.shares[sharename] = Share(sharename, self.name, data=currentshare)
-        vol = self.findvolume(currentshare['Volume Name'])
-        vol.addshare(self.shares[sharename])
+        vols = self.findvolume(currentshare['Volume Name'])
+        if len(vols) == 1:
+          vol = vols[0]
+          vol.addshare(self.shares[sharename])
+        else:
+          print 'two volumes of the same name for share %s' % sharename
         currentshare = {}
       else:
         line = line.strip()
@@ -458,12 +462,18 @@ class SVM:
         if 'Volume Name' in line:
           currentvolume = line.split(':', 1)[1].strip()
           self.volumes[currentvolume] = Volume(currentvolume, self)
+          self.volumes[currentvolume].sset('name', currentvolume)
         else:
           line = line.strip()
           tlist = line.split(':', 1)
           key = tlist[0].strip()
           value = tlist[1].strip()
+          if '%' in value:
+            self.volumes[currentvolume].sset(key+'_orig', value)
+            value = value.replace('%', '')
           if 'size' in key or 'Size' in key:
+            if key+'_orig' not in self.volumes[currentvolume].attr:
+              self.volumes[currentvolume].sset(key+'_orig', value)
             nvalue = convertnetappsize(value)
             if nvalue != value:
               value = nvalue
