@@ -9,8 +9,9 @@ import smtplib
 from datetime import datetime
 
 
-fromaddress = 'SECDMONITORING@wolterskluwer.com'
-toaddress = 'eric.davis@wolterskluwer.com'
+fromaddress = 'fromaddress'
+toaddress = 'toaddress'
+mailserver = 'somemailserver'
 
 def getdestination(cluster):
   """
@@ -89,7 +90,7 @@ SECD Virtual Memory Update: %s
   msg['From'] = fromaddress
   msg['To'] = toaddress
 
-  s = smtplib.SMTP('localhost')
+  s = smtplib.SMTP(mailserver)
   s.sendmail(fromaddress, toaddress, msg.as_string)
   s.quit()
 
