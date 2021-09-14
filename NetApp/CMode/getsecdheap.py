@@ -35,11 +35,6 @@ def getdestination(cluster):
 
   percentage = '{:.2%}'.format(vsize / maxvsize)
  
-  
-  nowtime = datetime.now(timezone(timezoneoutput))
-
-  date_t = nowtime.strftime('%m/%d/%Y %H:%M')
-
   body = \
 """
 Cluster: %s
@@ -78,8 +73,9 @@ if __name__ == '__main__':
 
   CLMan = ClusterManager(args)
 
-  now = datetime.now()
-  date_t = now.strftime('%d/%m/%Y %H:%M')
+  
+  nowtime = datetime.now(timezone(timezoneoutput))
+  date_t = nowtime.strftime('%m/%d/%Y %H:%M')
 
   msgtext = """
 SECD Virtual Memory Update: %s
