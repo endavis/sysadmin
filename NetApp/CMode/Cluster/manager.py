@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from paramiko import SSHClient, RSAKey
+from paramiko import SSHClient, RSAKey, AutoAddPolicy
 from .humanize import approximate_size
 import os
 import math
@@ -568,6 +568,7 @@ class Cluster:
 
     self.ssh = SSHClient()
     self.ssh.load_system_host_keys()
+    self.ssh.set_missing_host_key_policy(AutoAddPolicy)
 
     self.username = username
     self.pw = pw
@@ -784,7 +785,7 @@ class Cluster:
     output = []
 
     self.connect()
-    print(cmd)
+    #print(cmd)
     self.log('%s - %s - %s\n' % (time.strftime("%a %d %b %Y %H:%M:%S %Z"), self.name, cmd))
     stdin, stdout, stderr = self.ssh.exec_command(cmd)
     for line in stdout:
