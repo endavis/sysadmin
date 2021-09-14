@@ -4,14 +4,19 @@ from Cluster import ClusterManager, naparser
 import sys
 import os
 import pprint
+from pytz import timezone
 from email.mime.text import MIMEText
 import smtplib
 from datetime import datetime
 
+local_tz = 'US/Central'
 
 fromaddress = 'fromaddress'
 toaddress = 'toaddress'
 mailserver = 'somemailserver'
+
+timezoneoutput = 'US/Central'
+
 
 def getdestination(cluster):
   """
@@ -30,8 +35,10 @@ def getdestination(cluster):
 
   percentage = '{:.2%}'.format(vsize / maxvsize)
  
-  now = datetime.now()
-  date_t = now.strftime('%d/%m/%Y %H:%M')
+  
+  nowtime = datetime.now(timezone(timezoneoutput))
+
+  date_t = nowtime.strftime('%m/%d/%Y %H:%M')
 
   body = \
 """
@@ -91,7 +98,7 @@ SECD Virtual Memory Update: %s
   msg['To'] = toaddress
 
   s = smtplib.SMTP(mailserver)
-  s.sendmail(fromaddress, toaddress, msg.as_string)
+  s.sendmail(fromaddress, toaddress, msg.as_string())
   s.quit()
 
 

@@ -789,7 +789,7 @@ class Cluster:
     self.log('%s - %s - %s\n' % (time.strftime("%a %d %b %Y %H:%M:%S %Z"), self.name, cmd))
     stdin, stdout, stderr = self.ssh.exec_command(cmd)
     for line in stdout:
-      print(line)
+      #print(line)
       line = line.rstrip()
       self.log('   %s\n' % line)      
       if respondto in line:
