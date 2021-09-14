@@ -17,7 +17,6 @@ mailserver = 'somemailserver'
 
 timezoneoutput = 'US/Central'
 
-
 def getdestination(cluster):
   """
   get information for a specific cluster
@@ -69,6 +68,10 @@ Percentage: %s
   return body
 
 if __name__ == '__main__':
+
+  naparser.add_argument('-e', '--environment',
+                  help='The environment this script is checking')
+
   args = naparser.parse_args()
 
   CLMan = ClusterManager(args)
@@ -89,7 +92,7 @@ SECD Virtual Memory Update: %s
 
   msg = MIMEText(msgtext)
 
-  msg['Subject'] = 'SECD Virtual Memory Update: %s' % date_t
+  msg['Subject'] = 'SECD Virtual Memory Update for %s: %s' % (args.environment, date_t)
   msg['From'] = fromaddress
   msg['To'] = toaddress
 
