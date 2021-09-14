@@ -75,7 +75,7 @@ if __name__ == '__main__':
 
   
   nowtime = datetime.now(timezone(timezoneoutput))
-  date_t = nowtime.strftime('%m/%d/%Y %H:%M')
+  date_t = nowtime.strftime('%m/%d/%Y %H:%M') + ' ' + timezoneoutput
 
   msgtext = """
 SECD Virtual Memory Update: %s
@@ -94,7 +94,7 @@ SECD Virtual Memory Update: %s
   msg['To'] = toaddress
 
   s = smtplib.SMTP(mailserver)
-  s.sendmail(fromaddress, toaddress, msg.as_string())
+  s.sendmail(fromaddress, toaddress.split(','), msg.as_string())
   s.quit()
 
 
