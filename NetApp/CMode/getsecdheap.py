@@ -64,7 +64,7 @@ Node: %s
 Virtual Size: %s
 Max Virtual Size: %s
 Percentage: %s
-""" % (cluster.name, cluster.name + '-01', vsize, maxvsize, percentage)
+""" % (cluster.name, cluster.name + '-02', vsize, maxvsize, percentage)
 
   return body
 
