@@ -53,7 +53,7 @@ if __name__ == '__main__':
   CLMan = ClusterManager(args)
 
   now = datetime.now()
-  date_t = now.strftime('%m/%d/%Y %H:%M')
+  date_t = now.strftime('%m/%d/%Y %H:%M:%S')
 
   CSVFILE_FO = open(args.csvfile, "a")
 
