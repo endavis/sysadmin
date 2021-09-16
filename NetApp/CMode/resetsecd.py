@@ -79,6 +79,7 @@ if __name__ == '__main__':
     out = checknodes(cluster, args.threshhold, args.force) 
 
   if out:
+    print('%s: Reset occured' % date_t)
     output.extend(out)
     msgtext = '\n'.join(output)
 
@@ -93,6 +94,8 @@ if __name__ == '__main__':
     s = smtplib.SMTP(mailserver)
     s.sendmail(fromaddress, toaddress.split(','), msg.as_string())
     s.quit()
+  else:
+    print('%s: Nothing to do' % date_t)
 
 
     
