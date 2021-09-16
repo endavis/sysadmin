@@ -76,11 +76,10 @@ if __name__ == '__main__':
 
   CLMan = ClusterManager(args)
   for cluster in CLMan.clusters.values():
-    output.extend = checknodes(cluster, args.threshhold, args.force)
+    out = checknodes(cluster, args.threshhold, args.force) 
 
-  print(output)
-
-  if output:
+  if out:
+    output.extend(out)
     msgtext = '\n'.join(output)
 
     print(msgtext)
