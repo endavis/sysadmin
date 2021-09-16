@@ -11,7 +11,7 @@ import time
 import re
 
 naparser = argparse.ArgumentParser()
-naparser.add_argument('-c', '--configfile', dest='configfile',
+naparser.add_argument('-c', '--configfile', dest='configfile', required=True,
           help='specify a config file (it must exist), if config file is not specified, it defaults to na.ini in the current directory')
 
 def find_config(args):
@@ -560,6 +560,7 @@ class Cluster:
     self.location = None
     self.contact = None
 
+    self.nodes = {}
     self.svms = {}
     self.snapmirrors = []
     self.aggregates = {}
@@ -580,6 +581,7 @@ class Cluster:
       self.pkey = RSAKey.from_private_key_file(self.pkey_filename, password=self.pkey_pw)
 
     self.fetchclusterinfo()
+    self.fetchnodes()
     self.fetchsvms()
 
   def fetchclusterinfo(self):
@@ -601,6 +603,34 @@ class Cluster:
         tlist = line.split(':', 1)
         if len(tlist) > 1:
           self.contact = line.split(':', 1)[1].strip()
+
+  def fetchnodes(self):
+    """
+    fetch the nodes of the system
+    """
+    output = self.runcmd('system node show -instance')
+    node = {}
+    currentnode = ''
+    for line in output:
+      if not line:
+        continue
+      if 'Node:' in line:
+        if node:
+          self.nodes[node['Node']] = node
+        currentnode = line.split(':')[-1].strip()
+        node = {}
+        node['Node'] = currentnode
+        continue
+      if ':' in line:
+        line = line.strip()
+        tlist = line.split(':', 1)
+        slist = [x.strip() for x in tlist]
+        lastkey = slist[0]
+        value = slist[1]
+        node[lastkey] = value
+      
+      if node:
+        self.nodes[node['Node']] = node
 
   def fetchclusterstats(self):
     output = self.runcmd('statistics system show')
@@ -634,6 +664,33 @@ class Cluster:
         except IndexError:
           print('The following line was malformed')
           print(line)
+
+      if peer:
+        self.peers[peer['Local Vserver Name']] = peer
+        self.peersrev[peer['Peer Vserver Name']] = peer
+
+  def getsecdstats(self):
+    """
+    return true if node is over threshhold
+    """
+    for node in self.nodes.values():
+      cmdnode = "set d;diag secd echo -echo-text showLimits -node %s" % node['Node']
+      output = self.runinteractivecmd(cmdnode)                                  
+      
+      node['secdstats'] = {}
+      for line in output:
+        if ':' in line:
+          line = line.strip()
+          tlist = line.split(':', 1)
+          slist = [x.strip() for x in tlist]
+          lastkey = slist[0]
+          value = slist[1]
+          try:
+            node['secdstats'][lastkey] = int(value)
+          except:
+            node['secdstats'][lastkey] = value
+
+      #print(node['secdstats'])
 
   def fetchsnapmirrors(self):
     output = self.runcmd('snapmirror show -instance')
@@ -737,11 +794,16 @@ class Cluster:
     self.logfile.write(line)
 
   def connect(self):
+    # if self.ssh.get_transport():
+    #   print('Connect: session active %s' % self.ssh.get_transport().is_active())
     if not self.ssh.get_transport() or not self.ssh.get_transport().is_active():
+      # print('Connect: creating connection')
       if self.pkey:
         self.ssh.connect(self.address, username=self.username, pkey=self.pkey)
       else:
         self.ssh.connect(self.address, username=self.username, password=self.pw)
+      transport = self.ssh.get_transport()
+      transport.set_keepalive(5)
 
   def runcmd(self, cmd, excludes=None):
     """
@@ -778,14 +840,14 @@ class Cluster:
 
     return output
 
-  def runinteractivecmd(self, cmd, respondto=' {y|n}:', response='y'):
+  def runinteractivecmd(self, cmd, respondto=' {y|n}:', response='y\n'):
     """
     run a command that requires a response, also used to see output of a command
     """
     output = []
 
     self.connect()
-    #print(cmd)
+    #print("command: %s" % cmd)
     self.log('%s - %s - %s\n' % (time.strftime("%a %d %b %Y %H:%M:%S %Z"), self.name, cmd))
     stdin, stdout, stderr = self.ssh.exec_command(cmd)
     for line in stdout:
@@ -793,7 +855,7 @@ class Cluster:
       line = line.rstrip()
       self.log('   %s\n' % line)      
       if respondto in line:
-        print('sending %s to server' % response)
+        #print('sending %s to server' % response)
         stdin.write(response)
         stdin.flush()
       else:
