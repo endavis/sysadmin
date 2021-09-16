@@ -38,11 +38,11 @@ def checknodes(cluster, threshhold, force):
     if checknodeneedsrestart(node, threshhold) or force:
       output.append('--------------------------------------------------')
       if force:
-        output.append('Node %s secd was forced reloaded' % node['Node'])
+        output.append('Node %s secd was forced restarted' % node['Node'])
       else:
         output.append('Node %s secd was over the threshhold %s and was restarted' % (node['Node'], threshhold))
-      resetnodecmd = 'set d -c off;diag secd restart -node %s' % node['Node']
-      output.extend(cluster.runinteractivecmd(resetnodecmd, respondto='This command can take up to 2 minutes to complete.'))
+      restartnodecmd = 'set d -c off;diag secd restart -node %s' % node['Node']
+      output.extend(cluster.runinteractivecmd(restartnodecmd, respondto='This command can take up to 2 minutes to complete.'))
 
   return output
 
@@ -54,8 +54,8 @@ if __name__ == '__main__':
                   help='The threshhold to restart secd if above')
   naparser.add_argument('-f', '--force', action='store_true',
                   help='Force restart secd with no checking')
-  naparser.add_argument('-ar', '--autoresettime', default='',
-                  help='the time to do an autoreset, in military time. Example: 16:00')
+  naparser.add_argument('-ar', '--autorestarttime', default='',
+                  help='the time to do an autorestart, in military time. Example: 16:00')
   
   args = naparser.parse_args()
 
@@ -63,11 +63,11 @@ if __name__ == '__main__':
   date_t = nowtime.strftime('%m/%d/%Y %H:%M') + ' ' + timezoneoutput
   time = nowtime.strftime('%H:%M')
 
-  if time == args.autoresettime:
+  if time == args.autorestarttime:
     args.force = True
-    subject = 'SECD Automatic Reset for %s at %s' % (args.environment, date_t)
+    subject = 'SECD Automatic Restart for %s at %s' % (args.environment, date_t)
   else:
-    subject = 'SECD Threshhold Reset for %s at %s' % (args.environment, date_t)
+    subject = 'SECD Threshhold Restart for %s at %s' % (args.environment, date_t)
 
   output = ["",
             subject,
@@ -75,11 +75,12 @@ if __name__ == '__main__':
             ""]
 
   CLMan = ClusterManager(args)
+  out = []
   for cluster in CLMan.clusters.values():
     out = checknodes(cluster, args.threshhold, args.force) 
 
   if out:
-    print('%s: Reset occured' % date_t)
+    print('%s: Restart occured' % date_t)
     output.extend(out)
     msgtext = '\n'.join(output)
 
