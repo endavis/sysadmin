@@ -62,22 +62,24 @@ if __name__ == '__main__':
   nowtime = datetime.now(timezone(timezoneoutput))
   date_t = nowtime.strftime('%m/%d/%Y %H:%M') + ' ' + timezoneoutput
   time = nowtime.strftime('%H:%M')
-  
+
   if time == args.autoresettime:
     args.force = True
+    subject = 'SECD Automatic Reset for %s at %s' % (args.environment, date_t)
+  else:
+    subject = 'SECD Threshhold Reset for %s at %s' % (args.environment, date_t)
+
+  output = ["",
+            subject,
+            "",
+            ""]
 
   CLMan = ClusterManager(args)
-
-  msgtext = """
-SECD Reset for %s at %s
-
-  """ % (args.environment, date_t)
-
   for cluster in CLMan.clusters.values():
-      output = checknodes(cluster, args.threshhold, args.force)
+    output.extend = checknodes(cluster, args.threshhold, args.force)
 
   print(output)
-  
+
   if output:
     msgtext = '\n'.join(output)
 
@@ -85,7 +87,7 @@ SECD Reset for %s at %s
 
     msg = MIMEText(msgtext)
 
-    msg['Subject'] = 'SECD Reset for %s: %s' % (args.environment, date_t)
+    msg['Subject'] = subject
     msg['From'] = fromaddress
     msg['To'] = toaddress
 
