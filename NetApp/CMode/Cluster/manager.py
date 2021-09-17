@@ -629,8 +629,8 @@ class Cluster:
         value = slist[1]
         node[lastkey] = value
       
-      if node:
-        self.nodes[node['Node']] = node
+    if node:
+      self.nodes[node['Node']] = node
 
   def fetchclusterstats(self):
     output = self.runcmd('statistics system show')
