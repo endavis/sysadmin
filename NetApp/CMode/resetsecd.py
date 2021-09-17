@@ -77,7 +77,7 @@ if __name__ == '__main__':
   CLMan = ClusterManager(args)
   out = []
   for cluster in CLMan.clusters.values():
-    out = checknodes(cluster, args.threshhold, args.force) 
+    out.extend(checknodes(cluster, args.threshhold, args.force))
 
   if out:
     print('%s: Restart occured' % date_t)
