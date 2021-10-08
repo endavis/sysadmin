@@ -9,21 +9,28 @@ from email.mime.text import MIMEText
 import smtplib
 from datetime import datetime
 
-local_tz = 'US/Central'
+local_tz = 'US/Eastern'
 
 fromaddress = 'fromaddress'
 toaddress = 'toaddress'
 mailserver = 'mailserver'
+fromaddress = 'SECDMemoryStats@wolterskluwer.com'
+mailserver = 'bulkmail-int.wkrainier.com'
+toaddress = 'eric.davis@wolterskluwer.com'
 
-timezoneoutput = 'US/Central'
+timezoneoutput = 'US/Eastern'
 
 def checknodeneedsrestart(node, threshhold):
   """
   return true if node is over threshhold
   """
-  percentage = node['secdstats']['Virtual Size'] / node['secdstats']['Max Virtual size']
-  if percentage > threshhold:
-    return True
+  try:
+    percentage = node['secdstats']['Virtual Size'] / node['secdstats']['Max Virtual size']
+    if percentage > threshhold:
+      return True
+
+  except KeyError:
+    pass
 
   return False
 
@@ -54,17 +61,22 @@ if __name__ == '__main__':
                   help='The threshhold to restart secd if above')
   naparser.add_argument('-f', '--force', action='store_true',
                   help='Force restart secd with no checking')
-  naparser.add_argument('-ar', '--autorestarttime', default='',
-                  help='the time to do an autorestart, in military time. Example: 16:00')
+  naparser.add_argument('-ar', '--autorestarttime', action="append",
+                  help='the time to do an autorestart, in military time. Example: 16:00, can pass multiple times')
   
   args = naparser.parse_args()
+
+  print args.autorestarttime
 
   nowtime = datetime.now(timezone(timezoneoutput))
   date_t = nowtime.strftime('%m/%d/%Y %H:%M') + ' ' + timezoneoutput
   time = nowtime.strftime('%H:%M')
 
-  if time == args.autorestarttime:
-    args.force = True
+  for ctime in args.autorestarttime:
+    if time == ctime:
+      args.force = True
+
+  if args.force:
     subject = 'SECD Automatic Restart for %s at %s' % (args.environment, date_t)
   else:
     subject = 'SECD Threshhold Restart for %s at %s' % (args.environment, date_t)
