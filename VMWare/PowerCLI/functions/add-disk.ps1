@@ -3,14 +3,21 @@ function adddisk {
 
     $vmn = $args[0]
     $datastoren = $args[1]
+    $sizeGB = $args[2]
+
+    $disksize = $sizeGB
 
     $vm = Get-VM $vmn
 
     $ds = Get-Datastore $datastoren
 
-    $dsava = $ds.CapacityGB - 1
+    if (!$disksize) {  
+        $disksize = $ds.CapacityGB - 50
+    }
 
-    New-HardDisk -VM $vm -Datastore $ds -CapacityGB $dsava
+    Write-Host "Adding disk of size $disksize to $vmn on datastore $datastoren"
+
+    New-HardDisk -VM $vm -Datastore $ds -CapacityGB $disksize
 }
 
 function mountcluster {
@@ -47,3 +54,4 @@ function checkforslvolume {
    }
    Disconnect-VIServer -Server $srv -Confirm:$false -Force
 }
+
