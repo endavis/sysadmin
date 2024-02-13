@@ -1,3 +1,5 @@
+import logging
+
 from openpyxl import Workbook
 from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.dimensions import ColumnDimension
@@ -25,8 +27,8 @@ class SpaceWorkbook(Workbook):
         ws = self.get_sheet_by_name('Totals by Datatype')
         ws.append(['Cluster', 'Type', 'Total Data (GB)', 'Total Hot Data (GB)', 'Total Cold Data (GB)'])
 
-    def addcluster(self, clustername):
-        self.swb_clusters[clustername] = ClusterSheet(clustername, self)
+    def addcluster(self, app, environment, clustername):
+        self.swb_clusters[clustername] = ClusterSheet(app, environment, clustername, self)
         return self.swb_clusters[clustername]
     
     def save(self):
@@ -58,8 +60,7 @@ class SpaceWorkbook(Workbook):
         ws = self.get_sheet_by_name(sheet)
         for column in columns:
             header_text = ws.cell(row=1, column=column).value
-            print(f"sheet {sheet} column {column}:{letters[column]} text {header_text} len {len(header_text)}")
-            header_text_length = len(ws.cell(row=1, column=column).value)
+            header_text_length = len(header_text)
             if header_text_length < 5:
                 text_length = header_text_length + 4
             else:
@@ -87,9 +88,11 @@ class SpaceWorkbook(Workbook):
 
 
 class ClusterSheet:
-    def __init__(self, name, spacewb):
-        self.wb = spacewb
+    def __init__(self, app, environment, name, spacewb):
+        self.app = app
+        self.environment = environment
         self.name = name
+        self.wb = spacewb
         self.row = 1
         self.columns = ['Cluster', 'Volume', 'Type', 'Total Used (GB)', 'Hot (GB)', 'Cold (GB)']
         self.sheet = self.wb.create_sheet(title=self.name)
@@ -101,6 +104,7 @@ class ClusterSheet:
         self.wb.save()
 
     def addvolume(self, name, vtype, totalsize, hotsize, coldsize):
+        logging.debug(f'Cluster {self.name} : volume {name} of type {vtype} = {totalsize=} {hotsize=} {coldsize=}')        
         self.row += 1
         if vtype not in self.types_seen:
             self.types_seen.append(vtype)
@@ -112,6 +116,7 @@ class ClusterSheet:
 
     def close(self):
         filters = self.sheet.auto_filter
+        last_row = self.sheet.max_row
         filters.ref = f"A1:F{self.sheet.max_row}"
 
         self.sheet.append(['', '', 'Totals', f'=SUBTOTAL(109, D2:D{self.sheet.max_row})',
@@ -129,9 +134,9 @@ class ClusterSheet:
         totals_sheet = self.wb.get_sheet_by_name('Totals by Datatype')
         row = totals_sheet.max_row + 1
         for item in self.types_seen:
-            totals_sheet.append([self.name, item, f'=SUMIF({self.name}!C2:C20, B{row}, {self.name}!D2:D20)', 
-                                f'=SUMIF({self.name}!C2:C20, B{row}, {self.name}!E2:E20)', 
-                                f'=SUMIF({self.name}!C2:C20, B{row}, {self.name}!F2:F20)'])
+            totals_sheet.append([self.name, item, f'=SUMIF({self.name}!C2:C{last_row}, B{row}, {self.name}!D2:D{last_row})', 
+                                f'=SUMIF({self.name}!C2:C{last_row}, B{row}, {self.name}!E2:E{last_row})', 
+                                f'=SUMIF({self.name}!C2:C{last_row}, B{row}, {self.name}!F2:F{last_row})'])
             totals_sheet[f'C{row}'].number_format = '#,##0.00'
             totals_sheet[f'D{row}'].number_format = '#,##0.00'
             totals_sheet[f'E{row}'].number_format = '#,##0.00'
