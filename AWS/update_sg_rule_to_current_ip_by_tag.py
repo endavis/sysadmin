@@ -244,6 +244,9 @@ class AWS:
         # #DATE .Mon Mar 29 2021 14:45:00 UTC.
 
         # update the description with the current date and time
+        if 'Description' not in rule:
+            rule['Description'] = ''
+
         if '#DATE' in rule['Description']:
             new_description = re.sub(r'#DATE \.(.*)\.', f'#DATE .{datestring}.', rule['Description'])
         else:
