@@ -15,15 +15,11 @@ or the aws cli. The script will use the default profile and region.
 see: https://boto3.amazonaws.com/v1/documentation/api/latest/guide/quickstart.html#configuration
 """
 # Standard Library
-import configparser
-import os
 import sys
-import pprint
 import datetime
 import argparse
 import re
 import logging
-import time
 from pathlib import Path
 
 # 3rd Party
