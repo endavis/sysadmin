@@ -103,7 +103,7 @@ class AWS:
                                     aws_access_key_id=self.aws_access_key_id,
                                     aws_secret_access_key=self.aws_secret_access_key,
                                     region_name=self.region)
-        except Exception:
+        except Exception as e:
             print(e)
             sys.exit()
 
