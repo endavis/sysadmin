@@ -202,7 +202,7 @@ class AWS:
         for rule in sg_rules['SecurityGroupRules']:
 
             # check if the rule has the tag
-            if 'Tags' in rule and self.find_tag(tag, rule['Tags']):
+            if 'Tags' in rule and self.find_tag(tag, rule['Tags']) and rule['IpProtocol'] in ['tcp', 'udp']:
                 logger.info(f"Rule {rule['GroupId']} {rule['SecurityGroupRuleId']}: has tag {tag}")
 
                 # update the rule
