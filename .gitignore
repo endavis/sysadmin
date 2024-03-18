@@ -92,3 +92,4 @@ ENV/
 
 # Specific files
 na.ini
+.python*
