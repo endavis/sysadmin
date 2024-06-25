@@ -5,10 +5,6 @@ from .log import setup_logger
 
 config_logger = setup_logger('toml-config')
 
-config = None
-parsed_groups = []
-
-
 class Config:
     def __init__(self, config_file, debug=False):
         self.username = None
