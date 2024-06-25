@@ -1,18 +1,9 @@
 import tomllib
 import logging
 import pprint
+from .log import setup_logger
 
-config_logger = logging.getLogger('toml-config')
-# create a console handler
-console_handler = logging.StreamHandler()
-# set the handler's level
-console_handler.setLevel(logging.DEBUG)
-# create a formatter
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-# set the formatter for the handler
-console_handler.setFormatter(formatter)
-# add the handler to the logger
-config_logger.addHandler(console_handler)
+config_logger = setup_logger('toml-config')
 
 config = None
 parsed_groups = []
