@@ -39,10 +39,10 @@ class Config:
         each param should be a dictionary with field and value
 
         this is case insensitive
-
-        Eg. {'bu':'TAA', 'env':'prod', 'subapp':'POD3', 'workload':'vault'}
         """
         config_logger.debug(f"{search_terms = }")
+        if not search_terms:
+            return self.config['cluster-data'].copy()
         results = {}
         for cluster in self.config['cluster-data']:
             cluster_details = self.config['cluster-data'][cluster]
