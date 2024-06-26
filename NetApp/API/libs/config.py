@@ -1,3 +1,12 @@
+"""
+# the below will check each item
+-f '{"div":"div1"}' '{"bu":"bu1"}' '{"tags":"tag1"}'
+# the below will check if a tag matches one of the tags in the list
+-f '{"div":"div1"}' '{"bu":"bu1"}' '{"tags":["tag1", "tag2"]}'
+# the below will only return items that have both tags
+-f '{"div":"div1"}' '{"bu":"bu1"}' '{"tags":"tag1"} '{"tags":"tag2"}'
+"""
+
 import tomllib
 import logging
 import pprint
