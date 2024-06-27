@@ -8,7 +8,7 @@
 #   Window 2: to search files from the command line
 #   Window 3: a python interpreter in the venv
 session_name: Python SysAdmin
-start_directory: /home/endavis/src.local/sysadmin
+start_directory: /home/endavis/src/local/sysadmin
 environment:
   EDITOR: /usr/bin/vim
 windows:
