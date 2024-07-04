@@ -7,8 +7,8 @@
 #   Window 1: to run git commands
 #   Window 2: to search files from the command line
 #   Window 3: a python interpreter in the venv
-session_name: Python AWS
-start_directory: /home/endavis/src.local/sysadmin/AWS
+session_name: Python SysAdmin
+start_directory: /home/endavis/src/local/sysadmin
 environment:
   EDITOR: /usr/bin/vim
 windows:
