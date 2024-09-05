@@ -33,6 +33,9 @@ class Config:
         self.username = self.config['default']['name']
         self.enc = self.config['default']['enc']
 
+        for item in self.config['cluster-data'].keys():
+            self.config['cluster-data'][item]['name'] = item
+
     def search(self, search_terms):
         """
         search for clusters that match the given fields
@@ -50,29 +53,29 @@ class Config:
             result_check = []
             for item in search_terms:
                 config_logger.debug(f"{item = }")
-                for k,v in item.items():
-                    config_logger.debug(f"{k = } {v = }")
-                    if isinstance(cluster_details[k.lower()], list):
+                for search_field,search_value in item.items():
+                    config_logger.debug(f"{search_field = } {search_value = }")
+                    if isinstance(cluster_details[search_field.lower()], list):
                         if isinstance(v, list):
                             found = False
-                            for i in v:
-                                if i in cluster_details[k.lower()]:
+                            for i in search_value:
+                                if i in cluster_details[search_field.lower()]:
                                     found = True
                             config_logger.debug(f"checking list in list: {found}")
                             result_check.append(found)
                             continue
                         else:
-                            if v in cluster_details[k.lower()]:
-                                config_logger.debug('cluster_details[k.lower()] is a list and v is in it')
+                            if search_value in cluster_details[search_field.lower()]:
+                                config_logger.debug('cluster_details[search_field.lower()] is a list and search_value is in it')
                                 result_check.append(True)
                                 continue
                     else:
-                        if v == cluster_details[k.lower()].lower():
-                            config_logger.debug('v == cluster_details[k.lower()]')
+                        if search_value == cluster_details[search_field.lower()].lower():
+                            config_logger.debug('search_value == cluster_details[search_field.lower()]')
                             result_check.append(True)
                             continue
-                        if v in cluster_details[k.lower()]:
-                            config_logger.debug('v in cluster_details[k.lower()]')
+                        if search_value in cluster_details[search_field.lower()]:
+                            config_logger.debug('search_Value in cluster_details[search_field.lower()]')
                             result_check.append(True)
                             continue
                     config_logger.debug("unsuccessful")
