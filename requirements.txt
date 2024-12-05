@@ -1,0 +1,8 @@
+Softlayer
+netapp_ontap
+boto3
+dnspython
+google-api-core
+google-api-python-client
+google-auth
+oauth2client
