@@ -467,8 +467,12 @@ class ClusterData:
                             with self.tag('ul'):
                                 with self.tag('li'):
                                     with self.tag('table', ('class', 'custom-table')):
-                                        for i, name_server in enumerate(self.fetched_data['cluster']['ntp_servers']):
-                                            self.app_instance.format_table_row_text(f"Server {i + 1}", name_server)
+                                        if 'ntp_servers' in self.fetched_data['cluster']:
+                                            for i, name_server in enumerate(self.fetched_data['cluster']['ntp_servers']):
+                                                self.app_instance.format_table_row_text(f"Server {i + 1}", name_server)
+                                        else:
+                                            self.app_instance.format_table_row_text(f"None", error=True)
+
 
     def format_netapp_vservers_info(self):
         # pprint.pprint(self.fetched_data['svms'])
