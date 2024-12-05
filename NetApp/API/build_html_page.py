@@ -492,6 +492,8 @@ class ClusterData:
                         self.format_netapp_vserver_smb_server_info(svm_data)
 
     def format_netapp_vserver_interfaces_info(self, svm_data):
+        if 'ip_interfaces' not in svm_data:
+            return
         with self.tag('li'):
             with self.tag('details'):                        
                 with self.tag('summary'):
@@ -524,6 +526,8 @@ class ClusterData:
                                 self.app_instance.format_table_row_text(f"Server {i + 1}", name_server)                
 
     def format_netapp_vserver_smb_server_info(self, svm_data):
+        if 'name' not in svm_data['cifs']:
+            return
         cifs_data = self.fetched_data['cifs'][svm_data['cifs']['name']]
         with self.tag('li'):
             with self.tag('details'):                        
