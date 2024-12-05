@@ -568,20 +568,23 @@ class ClusterData:
     def format_netapp_nodes(self):
         for node in self.fetched_data['nodes']:
             node_data = self.fetched_data['nodes'][node]
-            pprint.pprint(node_data)
+            print(f"  Node: {node_data['name']}")            
             self.format_netapp_node(node_data)
 
 
     def format_netapp_node(self, node_data):
         management_link = f"https://{node_data['management_interfaces'][0]['ip']['address']}"        
-        short_name = node_data['name'].split('-')[0]
-        node_number = int(node_data['name'].split('-')[1])
+        vm_id = None
+        vm_url = None
         match self.cloud:
             case 'azure':
+                short_name = node_data['name'].split('-')[0]
+                node_number = int(node_data['name'].split('-')[1])            
                 vm_type = 'Azure VM'
                 vm_name = f"{short_name}-vm{node_number}"
-                vm_id = build_azure_id(self.azure['sub_id'], self.azure['resource_group'], resource_name=vm_name)
-                vm_url = build_azure_portal_link(vm_id)
+                if hasattr(self, 'azure'):
+                    vm_id = build_azure_id(self.azure['sub_id'], self.azure['resource_group'], resource_name=vm_name)
+                    vm_url = build_azure_portal_link(vm_id)
             
             case _:
                 vm_name = 'Unknown'
@@ -598,7 +601,7 @@ class ClusterData:
                             self.app_instance.format_table_row_text('Serial Number', node_data['serial_number'])
                             self.app_instance.format_table_row_link('System Manager', 'Link', management_link)
                             self.app_instance.format_table_row_link('SPI', 'Link', f"{management_link}/spi")
-                            if 'vm_name' != 'Unknown':
+                            if 'vm_name' != 'Unknown' and vm_id and vm_url:
                                 self.app_instance.format_table_row_text(f'{vm_type} Name', vm_name)
                                 self.app_instance.format_table_row_link(vm_type, vm_id, vm_url)                            
 
