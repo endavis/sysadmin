@@ -97,50 +97,65 @@ class Config:
 
     def search(self, data_type, search_terms):
         """
-        search for clusters that match the given fields
+        search for items that match the given fields
         each param should be a dictionary with field and value
 
         this is case insensitive
         """
         config_logger.debug(f"{search_terms = }")
         if not search_terms:
-            return self.config['cluster-data'].copy()
+            data_copy = self.data[data_type].copy()
+            if 'settings' in data_copy:
+                del(data_copy['settings'])
+            return data_copy
         results = {}
-        for cluster in self.config['cluster-data']:
-            cluster_details = self.config['cluster-data'][cluster]
-            config_logger.debug(f"{cluster_details = }")
+        for item in self.data[data_type]:
+            if item == 'settings':
+                continue
+            item_details = self.data[data_type][item]
+            config_logger.debug(f"{item_details = }")
             result_check = []
-            for item in search_terms:
-                config_logger.debug(f"{item = }")
-                for search_field,search_value in item.items():
+            for term in search_terms:
+                config_logger.debug(f"{term = }")
+                for search_field,search_value in term.items():
                     config_logger.debug(f"{search_field = } {search_value = }")
-                    if isinstance(cluster_details[search_field.lower()], list):
+                    if isinstance(item_details[search_field.lower()], list):
                         if isinstance(v, list):
                             found = False
                             for i in search_value:
-                                if i in cluster_details[search_field.lower()]:
+                                if i in item_details[search_field.lower()]:
                                     found = True
                             config_logger.debug(f"checking list in list: {found}")
                             result_check.append(found)
                             continue
                         else:
-                            if search_value in cluster_details[search_field.lower()]:
-                                config_logger.debug('cluster_details[search_field.lower()] is a list and search_value is in it')
+                            if search_value in item_details[search_field.lower()]:
+                                config_logger.debug('item_details[search_field.lower()] is a list and search_value is in it')
                                 result_check.append(True)
                                 continue
                     else:
-                        if search_value == cluster_details[search_field.lower()].lower():
-                            config_logger.debug('search_value == cluster_details[search_field.lower()]')
-                            result_check.append(True)
-                            continue
-                        if search_value in cluster_details[search_field.lower()]:
-                            config_logger.debug('search_Value in cluster_details[search_field.lower()]')
-                            result_check.append(True)
-                            continue
+                        if isinstance(search_value, list):
+                            if item_details[search_field.lower()].lower() in search_value:
+                                config_logger.debug('search_value == item_details[search_field.lower()]')
+                                result_check.append(True)
+                                continue
+                            if item_details[search_field.lower()] in search_value:
+                                config_logger.debug('search_Value in item_details[search_field.lower()]')
+                                result_check.append(True)
+                                continue
+                        else:
+                            if search_value == item_details[search_field.lower()].lower():
+                                config_logger.debug('search_value == item_details[search_field.lower()]')
+                                result_check.append(True)
+                                continue
+                            if search_value in item_details[search_field.lower()]:
+                                config_logger.debug('search_Value in item_details[search_field.lower()]')
+                                result_check.append(True)
+                                continue
                     config_logger.debug("unsuccessful")
                     result_check.append(False)
 
             if all(result_check):
-                results[cluster] = cluster_details
+                results[item] = item_details
         return results
     
