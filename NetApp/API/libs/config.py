@@ -158,4 +158,58 @@ class Config:
             if all(result_check):
                 results[item] = item_details
         return results
-    
+
+    def get_clusters(self, search_terms):
+        return self.search('clusters', search_terms)
+
+    def get_utilities(self, data_type, search_terms, ignore=None):
+        search_result = self.search(data_type, search_terms)
+        config_logger.debug(f"match_exact {data_type = } {search_terms = }")
+        keys_to_ignore = ['name', 'url', 'ip']
+        if ignore:
+            keys_to_ignore.extend(ignore)
+        found = []
+        for item in search_result:
+            config_logger.debug(f"  {item =}")
+            data_keys = list(self.data[data_type][item].keys())
+
+            # ignore keys that are not ints or strings
+            for key in data_keys:
+                if not isinstance(self.data[data_type][item][key], (str, int)):
+                    try:
+                        data_keys.remove(key)
+                    except ValueError:
+                        pass
+
+            # remove keys that should be ignored
+            for key in keys_to_ignore:
+                try:
+                    data_keys.remove(key)
+                except ValueError:
+                    pass
+
+            config_logger.debug(f"  keys left to check: {data_keys}")
+
+            new_key_list = data_keys[:]
+            for key_to_check in data_keys:
+                if key_to_check not in self.data[data_type][item]:
+                    new_key_list.remove(key_to_check)
+                if self.data[data_type][item][key_to_check] in ['', None]:
+                    new_key_list.remove(key_to_check)
+            
+            for key_to_check in search_terms:
+                config_logger.debug(f"  {key_to_check}")
+                for key2 in key_to_check:
+                    if key2 in new_key_list:
+                        new_key_list.remove(key2)
+
+            if len(new_key_list) == 0:
+                found.append(self.data[data_type][item])
+                config_logger.debug(f"  match {item = }")
+            else:
+                config_logger.debug(f"  {new_key_list = }", stack_info=True)
+                
+        config_logger.debug(f"{found = }")
+        return found
+            
+
