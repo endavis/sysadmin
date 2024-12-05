@@ -152,10 +152,14 @@ class AppClass:
             vmlink_url = build_azure_portal_link(vmlink_id)
             self.format_table_row_link('Azure VM', vmlink_id, vmlink_url)
 
-    def format_table_row_text(self, *args, header=False):
+    def format_table_row_text(self, *args, header=False, error=False):
+        if error:
+            kwargs = {'klass':'error'}
+        else:
+            kwargs = {}
         with self.tag('tr'):
             for item in args:
-                with self.tag('th' if header else 'td'):
+                with self.tag('th' if header else 'td', **kwargs):
                     self.text(item)
 
     def format_table_row_link(self, col1, col2, link=None):

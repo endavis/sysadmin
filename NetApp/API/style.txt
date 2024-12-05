@@ -91,7 +91,9 @@
     border: 2px solid black;
     background-color: rgb(17, 239, 247);
   }
-  
+.error {
+  background-color: red;
+}
 table.custom-table {
   border-collapse: collapse;
 }
