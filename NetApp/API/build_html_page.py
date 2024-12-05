@@ -407,6 +407,7 @@ class ClusterData:
             # pprint.pprint(self.fetched_data)
 
     def format(self, tag, text):
+        print(f"Cluster: {self.name}")
         self.tag = tag
         self.text = text
         self.gather_data()
@@ -475,9 +476,9 @@ class ClusterData:
 
 
     def format_netapp_vservers_info(self):
-        # pprint.pprint(self.fetched_data['svms'])
         for svm in self.fetched_data['svms']:
             svm_data = self.fetched_data['svms'][svm]
+            print(f"  SVM: {svm_data['name']}")
             if svm_data['state'] == 'stopped':
                 state = " - State: Stopped"
             else:
@@ -504,14 +505,9 @@ class ClusterData:
                             self.app_instance.format_table_row_text('LIF name', 'LIF IP', 'Home Node', header=True)      
                             for svm_interface in svm_data['ip_interfaces']:
                                 ip_interface = self.fetched_data['interfaces'][svm_interface['name']]
-                                # pprint.pprint(ip_interface)
                                 self.app_instance.format_table_row_text(ip_interface['name'], 
                                                         f"{ip_interface['ip']['address']}/{ip_interface['ip']['netmask']}",
                                                         ip_interface['location']['home_node']['name']) 
-                                # print(f'------- svm_interface {svm_interface["name"]}')
-                                # pprint.pprint(svm_interface)
-                                # print(f'------- ip_interface {ip_interface["name"]}')
-                                # pprint.pprint(ip_interface)
     
     def format_netapp_vserver_dns_info(self, svm_data):
         with self.tag('li'):
