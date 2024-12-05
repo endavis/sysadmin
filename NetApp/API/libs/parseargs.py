@@ -13,7 +13,7 @@ class argp:
         self.description = description
 
         self.parser = argparse.ArgumentParser(description=self.description)
-        self.parser.add_argument('-c', '--config', type=str, help="config file", required=True)
+        self.parser.add_argument('-d', '--data_dir', type=str, help="config file", default='data')
         self.parser.add_argument('-f', '--filters', nargs='+', help="""filters: Example: -f '{"div":"div1"}' '{"bu":"bu1"}' '{"tags":"tag1"}'""")        
     
         self.args = self.parser.parse_args(namespace=self)
