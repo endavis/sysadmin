@@ -20,17 +20,10 @@ class SpaceWorkbook(Workbook):
         self.swb_path = path
         self.setup_totals_sheet()
         self.save()
+        self.apps = {}
+        self.envs = {}
         self.swb_clusters = {}
 
-    def setup_totals_sheet(self):
-        self.active.title = 'Totals by Datatype'
-        ws = self.get_sheet_by_name('Totals by Datatype')
-        ws.append(['Cluster', 'Type', 'Total Data (GB)', 'Total Hot Data (GB)', 'Total Cold Data (GB)'])
-
-    def addcluster(self, app, environment, clustername):
-        self.swb_clusters[clustername] = ClusterSheet(app, environment, clustername, self)
-        return self.swb_clusters[clustername]
-    
     def save(self):
         super().save(self.swb_path)
 
@@ -40,21 +33,54 @@ class SpaceWorkbook(Workbook):
         self.update_sheets()
         self.save()
 
+    def setup_totals_sheet(self):
+        self.active.title = 'Totals'
+        ws = self.get_sheet_by_name('Totals')
+        ws.append(['App', 'ENV', 'Region', 'Cluster', 'Type', 'Total Data (GB)', 'Total Hot Data (GB)', 'Total Cold Data (GB)'])
+
+    def addcluster(self, app, environment, clustername):
+        self.swb_clusters[clustername] = ClusterSheet(app, environment, clustername, self)
+        return self.swb_clusters[clustername]
+
+    def addenvironment(self, app, environment):
+        if app not in self.apps:
+            self.apps[app] = {}
+        if app not in self.sheetnames:
+            self.create_sheet(title=app, index=1)
+        if environment not in self.apps[app]:
+            self.apps[app][environment] = {}
+        sheet_name = f'{app}-{environment}'
+        if sheet_name not in self.sheetnames:
+            self.create_sheet(title=sheet_name, index=2)
+        self.save()
+
+    def addcluster(self, app, environment, cluster, ip):
+        if cluster not in self.app[app][environment]:
+            self.app[app][environment][cluster] = ip
+
     def update_sheets(self):
-        self.fix_column_widths('Totals by Datatype')
-        self.set_column_width_to_header('Totals by Datatype', [3, 4, 5])
+        ...
+        
+    def build_environment_sheets(self):
+        ...
+
+    def update_app_sheets(self):
+        ...
+
+    def build_totals_sheet(self):
+        self.fix_column_widths('Totals')
+        self.set_column_width_to_header('Totals', [6, 7, 8])
         ws = self.get_sheet_by_name('Totals by Datatype')
         filters = ws.auto_filter
-        filters.ref = f"A1:E{ws.max_row}"        
-        ws.append(['', 'Totals', f'=SUBTOTAL(109, C2:C{ws.max_row})',
-                       f'=SUBTOTAL(109, D2:D{ws.max_row})',
-                       f'=SUBTOTAL(109, E2:E{ws.max_row})'])
+        filters.ref = f"A1:H{ws.max_row}"        
+        ws.append(['', '', '', '', 'Totals', f'=SUBTOTAL(109, F2:F{ws.max_row})',
+                       f'=SUBTOTAL(109, G2:G{ws.max_row})',
+                       f'=SUBTOTAL(109, H2:H{ws.max_row})'])
         
         row = ws.max_row
         ws[f'C{row}'].number_format = '#,##0.00'
         ws[f'D{row}'].number_format = '#,##0.00'
         ws[f'E{row}'].number_format = '#,##0.00'
-        
 
     def set_column_width_to_header(self, sheet, columns):
         ws = self.get_sheet_by_name(sheet)
@@ -93,8 +119,9 @@ class ClusterSheet:
         self.environment = environment
         self.name = name
         self.wb = spacewb
+        self.region = self.name[1:4]
         self.row = 1
-        self.columns = ['Cluster', 'Volume', 'Type', 'Total Used (GB)', 'Hot (GB)', 'Cold (GB)']
+        self.columns = ['App', 'Environment', 'Cluster', 'Region', 'Volume', 'Type', 'Total Used (GB)', 'Hot (GB)', 'Cold (GB)']
         self.sheet = self.wb.create_sheet(title=self.name)
         self.types_seen = []
         self.create_header()
@@ -108,38 +135,46 @@ class ClusterSheet:
         self.row += 1
         if vtype not in self.types_seen:
             self.types_seen.append(vtype)
-        self.sheet.append([self.name, name, vtype, round(totalsize, 2), round(hotsize, 2), round(coldsize, 2)])        
-        self.sheet[f'D{self.row}'].number_format = '#,##0.00'
+        self.sheet.append([self.app, self.environment, self.name, self.region, name, vtype, round(totalsize, 2), round(hotsize, 2), round(coldsize, 2)])        
         self.sheet[f'E{self.row}'].number_format = '#,##0.00'
         self.sheet[f'F{self.row}'].number_format = '#,##0.00'
+        self.sheet[f'G{self.row}'].number_format = '#,##0.00'
         self.wb.save()
 
     def close(self):
         filters = self.sheet.auto_filter
         last_row = self.sheet.max_row
-        filters.ref = f"A1:F{self.sheet.max_row}"
+        filters.ref = f"A1:G{self.sheet.max_row}"
 
-        self.sheet.append(['', '', 'Totals', f'=SUBTOTAL(109, D2:D{self.sheet.max_row})',
-                       f'=SUBTOTAL(109, E2:E{self.sheet.max_row})',
-                       f'=SUBTOTAL(109, F2:F{self.sheet.max_row})'])
+        self.sheet.append(['', '', '', 'Totals', f'=SUBTOTAL(109, E2:E{self.sheet.max_row})',
+                       f'=SUBTOTAL(109, F2:F{self.sheet.max_row})',
+                       f'=SUBTOTAL(109, G2:G{self.sheet.max_row})'])
         
         row = self.sheet.max_row
-        self.sheet[f'D{row}'].number_format = '#,##0.00'
         self.sheet[f'E{row}'].number_format = '#,##0.00'
         self.sheet[f'F{row}'].number_format = '#,##0.00'
+        self.sheet[f'G{row}'].number_format = '#,##0.00'
         
         self.wb.fix_column_widths(self.name) 
 
-        # Update Totals Sheet
-        totals_sheet = self.wb.get_sheet_by_name('Totals by Datatype')
-        row = totals_sheet.max_row + 1
+        # Update Environment sheet
+        sheet_name = f'{self.app}-{self.environment}'
+        env_sheet = self.wb.get_sheet_by_name(sheet_name)
+        row = env_sheet.max_row + 1
         for item in self.types_seen:
-            totals_sheet.append([self.name, item, f'=SUMIF({self.name}!C2:C{last_row}, B{row}, {self.name}!D2:D{last_row})', 
+            env_sheet.append([self.name, item, f'=SUMIF({self.name}!C2:C{last_row}, B{row}, {self.name}!D2:D{last_row})', 
                                 f'=SUMIF({self.name}!C2:C{last_row}, B{row}, {self.name}!E2:E{last_row})', 
                                 f'=SUMIF({self.name}!C2:C{last_row}, B{row}, {self.name}!F2:F{last_row})'])
-            totals_sheet[f'C{row}'].number_format = '#,##0.00'
-            totals_sheet[f'D{row}'].number_format = '#,##0.00'
-            totals_sheet[f'E{row}'].number_format = '#,##0.00'
+            env_sheet[f'C{row}'].number_format = '#,##0.00'
+            env_sheet[f'D{row}'].number_format = '#,##0.00'
+            env_sheet[f'E{row}'].number_format = '#,##0.00'
             row += 1
+
+        # Update App sheet
+
+
+
+        # Update Totals Sheet
+
 
         self.wb.save()
