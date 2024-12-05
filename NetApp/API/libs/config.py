@@ -5,38 +5,97 @@
 -f '{"div":"div1"}' '{"bu":"bu1"}' '{"tags":["tag1", "tag2"]}'
 # the below will only return items that have both tags
 -f '{"div":"div1"}' '{"bu":"bu1"}' '{"tags":"tag1"} '{"tags":"tag2"}'
-"""
 
+a data toml has the following section:
+[settings]
+type='data'
+
+the following sections are valid in a data toml:
+[aiquims]
+[connectors]
+[clusters]
+[cloudinsights]
+[azure]
+[ibm]
+
+This data is loaded into the Config.data attribute
+
+And there are several ways to group this data into tomls:
+1) A specific toml for each type of data
+2) a toml for each distinct unit, like division, or bu
+
+In addition, there are specific tomls
+Azure settings (azure.toml)
+IBM/Softlayer settings (ibm.toml)
+AWS settings (aws.toml)
+global settings (settings.toml)
+
+These tomls are loading into the Config.config attribute by file name (without the .toml)
+"""
 import tomllib
 import logging
 import pprint
+import pathlib
 from .log import setup_logger
 
-config_logger = setup_logger('toml-config')
+config_logger = setup_logger('toml-data')
 
 class Config:
-    def __init__(self, config_file, debug=False):
-        self.username = None
-        self.enc = None
-        self.config = None
-        self.config_file = config_file
+    def __init__(self, data_dir, debug=False):
+        self.data = {}
+        self.data_dir = pathlib.Path.cwd() / data_dir
+        self.data_types = ['aiqums', 'connectors', 'cloudinsights', 'clusters', 'azure']
+        self.settings = {}
         if debug:
-            print('toml-config: setting logging to debug')
             config_logger.setLevel(logging.DEBUG)
-        self.parse_config()
+            config_logger.debug('toml-config: setting logging to debug')
+        self.parse_data()
 
-    def parse_config(self):
-        with open(self.config_file, "rb") as f:
-            self.config = tomllib.load(f)
-            config_logger.debug(f"config read: {pprint.pformat(self.config)}")
+    def parse_data(self):
 
-        self.username = self.config['default']['name']
-        self.enc = self.config['default']['enc']
+        all_tomls = self.data_dir.rglob('*.toml')
+        loaded_tomls = []
+        for file in all_tomls:
+            config_logger.debug(f"parsing {file}")
+            self.parse_toml(file)
+            loaded_tomls.append(file.stem)
 
-        for item in self.config['cluster-data'].keys():
-            self.config['cluster-data'][item]['name'] = item
+        config_logger.debug(f"loaded the following files: {', '.join(loaded_tomls)}")
+        print(f"loaded the following files: {', '.join(loaded_tomls)}")        
+        self.add_searchable_keys()
 
-    def search(self, search_terms):
+    def parse_toml(self, file):
+        with open(file, "rb") as f:
+            data = tomllib.load(f)
+            if 'settings' in data and 'type' in data['settings'] and data['settings']['type'] == 'data':
+                print(f'data file: {file.stem}')
+                self.load_data(data)
+            else: 
+                print(f'config file: {file.stem}')
+                if file.stem not in self.settings:
+                    self.settings[file.stem] = data
+                else:
+                    self.settings[file.stem].update(data)
+
+    def add_searchable_keys(self):
+        for data_type in self.data_types:
+            if data_type in self.settings['settings'] and  'searchable_keys' in self.settings['settings'][data_type]:
+                default_keys = self.settings['settings'][data_type]['searchable_keys']
+                for item in self.data[data_type]:
+                    if 'name' not in self.data[data_type][item]:
+                        self.data[data_type][item]['name'] = item
+                    for key in default_keys:
+                        if key not in self.data[data_type][item]:
+                            self.data[data_type][item][key] = ''        
+
+    def load_data(self, data):
+        for data_type in self.data_types:
+            if data_type not in self.data:
+                self.data[data_type] = {}
+            if data_type in data:
+                self.data[data_type].update(data[data_type])
+
+    def search(self, data_type, search_terms):
         """
         search for clusters that match the given fields
         each param should be a dictionary with field and value
