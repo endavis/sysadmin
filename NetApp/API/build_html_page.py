@@ -478,10 +478,14 @@ class ClusterData:
         # pprint.pprint(self.fetched_data['svms'])
         for svm in self.fetched_data['svms']:
             svm_data = self.fetched_data['svms'][svm]
+            if svm_data['state'] == 'stopped':
+                state = " - State: Stopped"
+            else:
+                state = ''
             with self.tag('li'):
                 with self.tag('details'):
                     with self.tag('summary'):
-                        self.text(f'vserver {svm_data["name"]}')    
+                        self.text(f'vserver {svm_data["name"]}{state}')    
                     with self.tag('ul'):
                         self.format_netapp_vserver_interfaces_info(svm_data)
                         self.format_netapp_vserver_dns_info(svm_data)
