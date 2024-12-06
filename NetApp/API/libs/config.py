@@ -77,6 +77,15 @@ class Config:
                 else:
                     self.settings[file.stem].update(data)
 
+    def count(self, section, id='name'):
+        found = []
+        for item in self.data[section]:
+            try:
+                found.append(getattr(item, id))
+            except AttributeError:
+                found.append(self.data[section][item][id])
+        return len(set(found))
+
     def add_searchable_keys(self):
         for data_type in self.data_types:
             if data_type in self.settings['settings'] and  'searchable_keys' in self.settings['settings'][data_type]:
