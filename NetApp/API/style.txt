@@ -94,6 +94,12 @@
 .error {
   background-color: red;
 }
+.active {
+  background-color: green;
+  color: white;
+  padding-left: 2em;
+  padding-right: 2em;
+}
 table.custom-table {
   border-collapse: collapse;
 }

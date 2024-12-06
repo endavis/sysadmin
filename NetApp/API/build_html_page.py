@@ -429,10 +429,21 @@ class ClusterData:
         print(f"Cluster: {self.name}")
         self.tag = tag
         self.text = text
+        active = False
+        if hasattr(self, 'tags') and 'active' in self.tags:
+            active = True
         with self.tag('li'):
             with self.tag('details'):
                 with self.tag('summary'):
-                    self.text(self.name)
+                    with self.tag('table'):                    
+                        with self.tag('tr'):
+                            with self.tag('td'):
+                                self.text(self.name)
+                            if active:
+                                with self.tag('td', ('class', 'active')):
+                                    self.text('Active')
+
+                    # self.text(f"{self.name}{active}")
                 with self.tag('ul'):
                     # format cloud data
                     self.format_netapp_cloud_info()
