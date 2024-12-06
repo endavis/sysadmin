@@ -177,6 +177,14 @@ class Config:
         keys_to_ignore = ['name', 'url', 'ip']
         if ignore:
             keys_to_ignore.extend(ignore)
+        search_terms_to_remove = []
+        for i, search_item in enumerate(search_terms):
+            for key in keys_to_ignore:
+                if key in search_item:
+                    search_terms_to_remove.append(search_item)
+        for item in search_terms_to_remove:
+            search_terms.remove(item)
+        search_result = self.search(data_type, search_terms)
         found = []
         for item in search_result:
             config_logger.debug(f"  {item =}")
