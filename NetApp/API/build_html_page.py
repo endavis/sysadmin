@@ -62,14 +62,28 @@ class AppClass:
         self.cluster_details = clusters
         self.clusterdata = {}
         self.divisions = {}
+        self.counts = {}
+        self.counts['ha'] = 0
+        self.counts['sn'] = 0
+        self.counts['aiqums'] = 0
+        self.counts['connectors'] = 0
+
         self.doc, self.tag, self.text = Doc().tagtext()
         self.build_app()
 
     def build_app(self):
+        self.counts['aiqums'] = self.config.count('aiqums', 'ip')
+        self.counts['connectors'] = self.config.count('connectors', 'ip')
         for item in self.cluster_details:
             # print(f"adding {item}")
             self.clusterdata[item] = ClusterData(item, self, **self.cluster_details[item])
             cluster = self.clusterdata[item]
+
+            if len(list(cluster.fetched_data['nodes'].keys())) > 1:
+                self.counts['ha'] += 1
+            else:
+                self.counts['sn'] += 1
+
             # key = f"{cluster.div}"
             if cluster.div not in self.divisions:
                 # print(f"  division '{key}' did not exist")
@@ -235,6 +249,9 @@ class AppClass:
         result = indent(self.doc.getvalue())
         with open('test.html', 'w') as tfile:
             tfile.write(result)
+        print(f"Processed {self.counts['ha'] + self.counts['sn']} clusters")
+        print(f"   Single Node : {self.counts['sn']}")
+        print(f"   HA          : {self.counts['ha']}")
 
     def format_divisions(self):
         for division in self.divisions:
