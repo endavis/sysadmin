@@ -433,8 +433,11 @@ class ClusterData:
                             with self.tag('li'):
                                 with self.tag('table', ('class', 'custom-table')):
                                     func_name = f"format_{cloud}_info"
-                                    func = getattr(self.app_instance, func_name)
-                                    func(getattr(self, cloud))
+                                    try:
+                                        func = getattr(self.app_instance, func_name)
+                                        func(getattr(self, cloud))
+                                    except AttributeError:
+                                        pass
 
 
     def format_netapp_cluster_info(self):
