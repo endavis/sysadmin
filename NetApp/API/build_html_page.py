@@ -362,6 +362,7 @@ class ClusterData:
         self.app_instance = app_instance
         self.tag = self.app_instance.tag
         self.text = self.app_instance.text
+        self.gather_data()
 
     def build_cloud_info(self):
         if hasattr(self, 'azure'):
@@ -371,6 +372,7 @@ class ClusterData:
             self.azure['resource_group_url'] = build_azure_portal_link(self.azure['resource_group_id'])
 
     def gather_data(self):
+        print(f'gathering data for {self.name}')
         self.build_cloud_info()
         
         with HostConnection(self.ip, username=config.settings['settings']['user']['name'], password=config.settings['settings']['user']['enc'], verify=False):
@@ -427,7 +429,6 @@ class ClusterData:
         print(f"Cluster: {self.name}")
         self.tag = tag
         self.text = text
-        self.gather_data()
         with self.tag('li'):
             with self.tag('details'):
                 with self.tag('summary'):
