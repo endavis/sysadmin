@@ -199,33 +199,21 @@ class AppClass:
                                     self.format_azure_info(item['azure'])
                                 #self.format_aws_info(aiqum)
 
-    def format_aiqum(self, aiqum):
-        if len(aiqum) > 1:
-            logging.error('More than one aiqum, only printing the first one')
-        self.format_generic_cloud_item('AIQUM', aiqum[0])
-
     def format_ci(self, ci):
-        if len(ci) > 1:
-            logging.error('More than one ci, only printing the first one')
         with self.tag('li'):
-            with self.tag('a', ('href', ci[0]['url'])):
+            with self.tag('a', ('href', ci['url'])):
                 self.text('Cloud Insights')
 
-    def format_connector(self, connector):
-        if len(connector) > 1:
-            logging.error('More than one connector, only printing the first one')
-        self.format_generic_cloud_item('Connector', connector[0])
-
     def format_utilities(self, search_terms):
-        ci = self.config.get_utilities('cloudinsights', search_terms)
+        ci = self.config.find_closest('cloudinsights', search_terms)
         if ci:
             self.format_ci(ci)    
-        aiqum = self.config.get_utilities('aiqums', search_terms)                
+        aiqum = self.config.find_closest('aiqums', search_terms)
         if aiqum:
-            self.format_aiqum(aiqum)
-        connector = self.config.get_utilities('connectors', search_terms)            
+            self.format_generic_cloud_item('AIQUM', aiqum)
+        connector = self.config.find_closest('connectors', search_terms)
         if connector:
-            self.format_connector(connector)
+            self.format_generic_cloud_item('Connector', connector)
         # deploy = self.config.get_utilities('deployservers', search_terms, ignore=['cloud'])       
         # if deploy:
         #     self.format_deploy(deployservers)
@@ -261,7 +249,6 @@ class AppClass:
                     with self.tag('summary'):
                         self.text(division)
                     with self.tag('ul'):
-                        self.format_utilities(search_terms)
                         self.format_business_units(self.divisions[division], search_terms)
     
     def format_business_units(self, business_units, search_terms):
@@ -273,7 +260,6 @@ class AppClass:
                     with self.tag('summary'):
                         self.text(business_unit)
                     with self.tag('ul'):
-                        self.format_utilities(new_search_terms)
                         self.format_apps(business_units[business_unit], new_search_terms)
 
     def format_apps(self, apps, search_terms):
@@ -290,7 +276,6 @@ class AppClass:
                         with self.tag('summary'):
                             self.text(app)
                         with self.tag('ul'):
-                            self.format_utilities(new_search_terms)
                             self.format_environments(apps[app], new_search_terms)
 
     def format_environments(self, environments, search_terms):
@@ -302,7 +287,6 @@ class AppClass:
                     with self.tag('summary'):
                         self.text(environment)
                     with self.tag('ul'):
-                        self.format_utilities(new_search_terms)  
                         self.format_subapps(environments[environment], new_search_terms)
 
     def format_subapps(self, subapps, search_terms):
@@ -319,7 +303,6 @@ class AppClass:
                         with self.tag('summary'):
                             self.text(subapp)
                         with self.tag('ul'):
-                            self.format_utilities(new_search_terms)                                
                             self.format_clouds(subapps[subapp], new_search_terms)
 
     def format_clouds(self, clouds, search_terms):
@@ -331,7 +314,6 @@ class AppClass:
                         with self.tag('summary'):
                             self.text(cloud.upper())
                         with self.tag('ul'):
-                            self.format_utilities(new_search_terms)  
                             self.format_regions(clouds[cloud], new_search_terms)
 
     def format_regions(self, regions, search_terms):
