@@ -204,7 +204,7 @@ class Config:
                 except ValueError:
                     pass
 
-            config_logger.debug(f"  keys left to check: {data_keys}")
+            config_logger.debug(f"  match_exact: keys left to check: {data_keys}")
 
             new_key_list = data_keys[:]
             for key_to_check in data_keys:
