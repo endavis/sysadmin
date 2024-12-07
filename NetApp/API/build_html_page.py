@@ -380,48 +380,26 @@ class ClusterData:
             
             cluster.get()
             self.fetched_data['cluster'] = cluster.to_dict()
-            # print(f"{'-' *20}Cluster : {cluster['name']}{'-' *20}")
-            # pprint.pprint(cluster.to_dict())
-            # print(f"{'-' *20}End Cluster : {cluster['name']}{'-' *20}")
+
             nodes = list(Node.get_collection(fields="*"))
             self.fetched_data['nodes'] = {}
             for node in nodes:
                 self.fetched_data['nodes'][node['name']] = node.to_dict()
-            # node_names = []
-            # for node in nodes:
-            #     print(f"{'-' *20}Node : {node['name']}{'-' *20}")
-            #     pprint.pprint(node.to_dict())
-            #     print(f"{'-' *20}End Node : {node['name']}{'-' *20}")
-            #     node_names.append(node['name'])
 
             svms = list(Svm.get_collection(fields="*"))
             self.fetched_data['svms'] = {}
             for svm in svms:
                 self.fetched_data['svms'][svm['name']] = svm.to_dict()
-            # for svm in svms:
-            #     print(f"{'-' *20}SVM : {svm['name']}{'-' *20}")
-            #     pprint.pprint(svm.to_dict())
-            #     print(f"{'-' *20}END SVM : {svm['name']}{'-' *20}")
 
             ipinterfaces = list(IpInterface.get_collection(fields="*"))
             self.fetched_data['interfaces'] = {}
             for interface in ipinterfaces:
                 self.fetched_data['interfaces'][interface['name']] = interface.to_dict()
 
-            # for interface in ipinterfaces:
-            #     print(f"{'-' *20}Interface : {interface['name']}{'-' *20}")
-            #     pprint.pprint(interface.to_dict())
-            #     print(f"{'-' *20}END Interface : {interface['name']}{'-' *20}")
-
             cifsservices = list(CifsService.get_collection(fields="*"))
             self.fetched_data['cifs'] = {}
             for cifserver in cifsservices:
                 self.fetched_data['cifs'][cifserver['name']] = cifserver.to_dict()
-
-            # for cifsservice in cifsservices:
-            #     print(f"{'-' *20}Cifs Service : {cifsservice['svm']['name']}{'-' *20}")
-            #     pprint.pprint(cifsservice.to_dict())
-            #     print(f"{'-' *20}END Cifs Service : {cifsservice['svm']['name']}{'-' *20}")
 
             # pprint.pprint(self.fetched_data)
 
@@ -596,7 +574,6 @@ class ClusterData:
     def format_netapp_nodes(self):
         for node in self.fetched_data['nodes']:
             node_data = self.fetched_data['nodes'][node]
-            print(f"  Node: {node_data['name']}")            
             self.format_netapp_node(node_data)
 
 
