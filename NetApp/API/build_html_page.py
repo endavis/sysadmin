@@ -206,7 +206,7 @@ class AppClass:
 
     def format_divisions(self):
         for division in self.divisions:
-            search_terms = [{'div':division}]
+            search_terms = {'div':division}
             with self.tag('li'):
                 with self.tag('details', ('open', '')):
                     with self.tag('summary'):
@@ -216,8 +216,8 @@ class AppClass:
     
     def format_business_units(self, business_units, search_terms):
         for business_unit in business_units:   
-            new_search_terms = search_terms[:]
-            new_search_terms.append({'bu':business_unit})
+            new_search_terms = search_terms.copy()
+            new_search_terms['bu'] = business_unit
             with self.tag('li'):
                 with self.tag('details'):
                     with self.tag('summary'):
@@ -227,13 +227,13 @@ class AppClass:
 
     def format_apps(self, apps, search_terms):
         if len(apps.keys()) == 1 and '' in apps:
-            new_search_terms = search_terms[:]
-            new_search_terms.append({'app':''})
+            new_search_terms = search_terms.copy()
+            new_search_terms['app'] = ''
             self.format_environments(apps[''], new_search_terms)
         else:
             for app in apps:   
-                new_search_terms = search_terms[:]
-                new_search_terms.append({'app':app})
+                new_search_terms = search_terms.copy()
+                new_search_terms['app'] = app
                 with self.tag('li'):
                     with self.tag('details'):
                         with self.tag('summary'):
@@ -243,8 +243,8 @@ class AppClass:
 
     def format_environments(self, environments, search_terms):
         for environment in environments:
-            new_search_terms = search_terms[:]
-            new_search_terms.append({'env':environment})
+            new_search_terms = search_terms.copy()
+            new_search_terms['env'] = environment
             with self.tag('li'):
                 with self.tag('details'):
                     with self.tag('summary'):
@@ -254,13 +254,13 @@ class AppClass:
 
     def format_subapps(self, subapps, search_terms):
         if len(subapps.keys()) == 1 and '' in subapps:
-            new_search_terms = search_terms[:]
-            new_search_terms.append({'subapp':''})            
+            new_search_terms = search_terms.copy()
+            new_search_terms['subapp'] = ''
             self.format_clouds(subapps[''], new_search_terms)
         else:
             for subapp in subapps:
-                new_search_terms = search_terms[:]
-                new_search_terms.append({'subapp':subapp})
+                new_search_terms = search_terms.copy()
+                new_search_terms['subapp'] = subapp
                 with self.tag('li'):
                     with self.tag('details'):
                         with self.tag('summary'):
@@ -270,8 +270,8 @@ class AppClass:
 
     def format_clouds(self, clouds, search_terms):
         for cloud in clouds:
-            new_search_terms = search_terms[:]
-            new_search_terms.append({'cloud':cloud})            
+            new_search_terms = search_terms.copy()
+            new_search_terms['cloud'] = cloud
             with self.tag('li'):
                     with self.tag('details'):
                         with self.tag('summary'):
@@ -283,8 +283,8 @@ class AppClass:
         cloud_types = get_cloud_types()
         for region in regions:
             region_data = regions[region]
-            new_search_terms = search_terms[:]
-            new_search_terms.append({'region':region})   
+            new_search_terms = search_terms.copy()
+            new_search_terms['region'] = region
             with self.tag('li'):
                     with self.tag('details'):
                         with self.tag('summary'):
@@ -559,7 +559,7 @@ if __name__ == '__main__':
     args = argp(description="build html page of endpoints and mostly static information")
     config = Config(args.data_dir, debug=False)
 
-    items = config.get_clusters(args.filters)
+    items = config.get_clusters(args.filter)
     # pprint.pprint(items)
 
     APP = AppClass('html', items, config)
