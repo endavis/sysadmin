@@ -14,23 +14,17 @@ class argp:
 
         self.parser = argparse.ArgumentParser(description=self.description)
         self.parser.add_argument('-d', '--data_dir', type=str, help="config file", default='data')
-        self.parser.add_argument('-f', '--filters', nargs='+', help="""filters: Example: -f '{"div":"div1"}' '{"bu":"bu1"}' '{"tags":"tag1"}'""")        
+        self.parser.add_argument('-f', '--filter', type=str, help="""filter: Example: -f '{"bu":"Business", "env":"Prod", "tags":"active"}'""")        
     
         self.args = self.parser.parse_args(namespace=self)
 
-        if self.filters:
-            argp_logger.debug(f"All filters before conversion: {self.filters = }")
-            new_filters = []
-            for filter in self.filters:
-                argp_logger.debug(f"Before conversion: {type(filter) = } {filter = }")
-                converted_filter = self.parse_json(filter)
-                if converted_filter:
-                    new_filters.append(converted_filter)
-                    argp_logger.debug(f"After conversion: {type(converted_filter) = } {converted_filter = }")
-            self.filters = new_filters
-            argp_logger.debug(f"All filters after converstion: {self.filters = }")
+        if self.filter:
+            argp_logger.debug(f"filter before conversion: {self.filter = }")
+            converted_filter = self.parse_json(self.filter)
+            argp_logger.debug(f"After conversion: {type(converted_filter) = } {converted_filter = }")
+            self.filter = converted_filter
         else:
-            self.filters = []
+            self.filter = ''
 
     def parse_json(self, json_string):
         try:
