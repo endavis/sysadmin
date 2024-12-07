@@ -171,9 +171,9 @@ class Config:
     def get_clusters(self, search_terms):
         return self.search('clusters', search_terms)
 
-    def get_utilities(self, data_type, search_terms, ignore=None):
+    def match_exact(self, data_type, search_terms, ignore=None):
         config_logger.debug(f"match_exact {data_type = } {search_terms = }")
-        keys_to_ignore = ['name', 'url', 'ip']
+        keys_to_ignore = ['name', 'url', 'ip', 'tags']
         if ignore:
             keys_to_ignore.extend(ignore)
         search_terms_to_remove = []
