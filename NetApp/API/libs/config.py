@@ -1,10 +1,12 @@
 """
-# the below will check each item
--f '{"div":"div1"}' '{"bu":"bu1"}' '{"tags":"tag1"}'
-# the below will check if a tag matches one of the tags in the list
--f '{"div":"div1"}' '{"bu":"bu1"}' '{"tags":["tag1", "tag2"]}'
-# the below will only return items that have both tags
--f '{"div":"div1"}' '{"bu":"bu1"}' '{"tags":"tag1"} '{"tags":"tag2"}'
+# return any items match all 3 tags
+-f '{"bu":"Business", "env":"Prod", "tags":"active"}'
+# return any item that matches bu and env and has both 'active' and 'workload' as a tag 
+-f '{"bu":"Business", "env":"Prod", "tags":"active & workload"}'
+# return any item that matches bu, env, and tags and is app is one of app_name1 or app_name2
+-f '{"bu":"Business", "app": "app_name1 | app_name2", "env":"Prod", "tags":"active"}'
+# return any items with either name1 or name2
+-f '{"name":"name1 | name2"}]'
 
 a data toml has the following section:
 [settings]
@@ -104,140 +106,109 @@ class Config:
             if data_type in data:
                 self.data[data_type].update(data[data_type])
 
-    def search(self, data_type, search_terms):
+    def chk_and(self, search_term, values):
+        """
+        >>> chk_and(test, 'active & Document', ['active'])
+        ['active', 'Document']
+        False
+        >>> chk_and(test, 'active & Document', ['active', 'Document'])
+        ['active', 'Document']
+        True
+        >>> chk_and(test, 'active & Document & Tax', ['active', 'Document'])
+        ['active', 'Document', 'Tax']
+        False
+        >>> chk_and(test, 'Document & active', ['active', 'Document'])
+        ['Document', 'active']
+        """
+        # & only makes sense for lists
+        if not isinstance(values, list):
+            return False
+        terms = [item.strip() for item in search_term.split('&')]
+        return set(terms).issubset(values)
+
+    def chk_or(self, search_term, value):
+        """
+        >>> chk_or(test, 'active | Document', ['active'])
+        True
+        >>> chk_or(test, 'Tax | Document', ['active'])
+        False
+        >>> chk_or(test, 'Tax | Document | active', ['active'])
+        True
+        >>> chk_or(test, 'Document | active', ['active', 'Tax'])
+        True
+        >>> chk_or(test, 'Document | Test', ['active', 'Tax'])
+        """
+        terms = [item.strip() for item in search_term.split('|')]
+        if isinstance(value, list):
+            return any(item in value for item in terms)
+        else:
+            return any(item == value for item in terms)
+
+    def check_term(self, term, value):
+        if '|' in term:
+            return self.chk_or(term, value)
+        elif '&' in term:
+            return self.chk_and(term, value)
+        else:
+            if isinstance(value, list):
+                return term in value
+            else:
+                return term == value
+
+    def search(self, data_type, search_dict):
         """
         search for items that match the given fields
         each param should be a dictionary with field and value
 
         this is case insensitive
+
+        value can be {'tags':'active & Document'} or
+                     {'app': 'Axcess | ELF'}
+
+        {
+        'div' : 'TAA',
+        'bu' : 'Professional',
+        'app' : 'Axcess'
+        }
         """
-        config_logger.debug(f"{search_terms = }")
-        if not search_terms:
-            data_copy = self.data[data_type].copy()
-            if 'settings' in data_copy:
-                del(data_copy['settings'])
-            return data_copy
+        if not search_dict:
+            return self.data[data_type].copy()
+
         results = {}
         for item in self.data[data_type]:
-            if item == 'settings':
-                continue
             item_details = self.data[data_type][item]
-            config_logger.debug(f"{item_details = }")
             result_check = []
-            for term in search_terms:
-                config_logger.debug(f"{term = }")
-                for search_field,search_value in term.items():
-                    config_logger.debug(f"{search_field = } {search_value = }")
-                    if isinstance(item_details[search_field.lower()], list):
-                        if isinstance(v, list):
-                            found = False
-                            for i in search_value:
-                                if i in item_details[search_field.lower()]:
-                                    found = True
-                            config_logger.debug(f"checking list in list: {found}")
-                            result_check.append(found)
-                            continue
-                        else:
-                            if search_value in item_details[search_field.lower()]:
-                                config_logger.debug('item_details[search_field.lower()] is a list and search_value is in it')
-                                result_check.append(True)
-                                continue
-                    else:
-                        if isinstance(search_value, list):
-                            if item_details[search_field.lower()].lower() in search_value:
-                                config_logger.debug('search_value == item_details[search_field.lower()]')
-                                result_check.append(True)
-                                continue
-                            if item_details[search_field.lower()] in search_value:
-                                config_logger.debug('search_Value in item_details[search_field.lower()]')
-                                result_check.append(True)
-                                continue
-                        else:
-                            if search_value == item_details[search_field.lower()].lower():
-                                config_logger.debug('search_value == item_details[search_field.lower()]')
-                                result_check.append(True)
-                                continue
-                            if search_value in item_details[search_field.lower()]:
-                                config_logger.debug('search_Value in item_details[search_field.lower()]')
-                                result_check.append(True)
-                                continue
-                    config_logger.debug("unsuccessful")
+            for key in search_dict:
+                if key not in item_details:
                     result_check.append(False)
+                    break
+                result_check.append(self.check_term(search_dict[key], item_details[key]))
 
             if all(result_check):
                 results[item] = item_details
+
         return results
 
     def get_clusters(self, search_terms):
         return self.search('clusters', search_terms)
 
-    def match_exact(self, data_type, search_terms, ignore=None):
-        config_logger.debug(f"match_exact {data_type = } {search_terms = }")
-        keys_to_ignore = ['name', 'url', 'ip', 'tags']
-        if ignore:
-            keys_to_ignore.extend(ignore)
-        search_terms_to_remove = []
-        for i, search_item in enumerate(search_terms):
-            for key in keys_to_ignore:
-                if key in search_item:
-                    search_terms_to_remove.append(search_item)
-        for item in search_terms_to_remove:
-            search_terms.remove(item)
-        search_result = self.search(data_type, search_terms)
-        found = []
-        for item in search_result:
-            config_logger.debug(f"  {item =}")
-            data_keys = list(self.data[data_type][item].keys())
-
-            # ignore keys that are not ints or strings
-            for key in data_keys:
-                if not isinstance(self.data[data_type][item][key], (str, int)):
-                    try:
-                        data_keys.remove(key)
-                    except ValueError:
-                        pass
-
-            # remove keys that should be ignored
-            for key in keys_to_ignore:
-                try:
-                    data_keys.remove(key)
-                except ValueError:
-                    pass
-
-            config_logger.debug(f"  match_exact: keys left to check: {data_keys}")
-
-            new_key_list = data_keys[:]
-            for key_to_check in data_keys:
-                if key_to_check not in self.data[data_type][item]:
-                    new_key_list.remove(key_to_check)
-                if self.data[data_type][item][key_to_check] in ['', None]:
-                    new_key_list.remove(key_to_check)
-            
-            for key_to_check in search_terms:
-                config_logger.debug(f"  {key_to_check}")
-                for key2 in key_to_check:
-                    if key2 in new_key_list:
-                        new_key_list.remove(key2)
-
-            if len(new_key_list) == 0:
-                found.append(self.data[data_type][item])
-                config_logger.debug(f"  match_exact found {item = }")
-            else:
-                config_logger.debug(f"  match_exact not_found {new_key_list = }", stack_info=True)
-                
-        config_logger.debug(f"{found = }")
-        return found
-            
     def find_closest(self, data_type: str, tree: dict):
-        if isinstance(tree, list):
-            tree = {k: v for d in tree for k, v in d.items()}
+        tree = tree.copy()
         key_order = ['div', 'bu', 'app', 'env', 'subapp', 'cloud', 'region']
-        match_list = []
+        key_order.reverse()
         closest = None
-        for key in key_order:
-            match_list.append({key:tree[key]})
-            results = self.match_exact(data_type, match_list)
-            if len(results) == 1:
-                closest = results[0]
+        # try matching tree as is
+        results = self.search(data_type, tree)
+        if len(results) == 1:
+            return results.popitem()[1]
 
-        return closest
+        # go through the key_order and delete keys until something is found
+        for key in key_order:
+            if key in tree:
+                del tree[key]
+            if tree:
+                results = self.search(data_type, tree)
+                if len(results) == 1:
+                    return results.popitem()[1]
+
+        return None
