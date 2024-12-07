@@ -221,11 +221,23 @@ class Config:
 
             if len(new_key_list) == 0:
                 found.append(self.data[data_type][item])
-                config_logger.debug(f"  match {item = }")
+                config_logger.debug(f"  match_exact found {item = }")
             else:
-                config_logger.debug(f"  {new_key_list = }", stack_info=True)
+                config_logger.debug(f"  match_exact not_found {new_key_list = }", stack_info=True)
                 
         config_logger.debug(f"{found = }")
         return found
             
+    def find_closest(self, data_type: str, tree: dict):
+        if isinstance(tree, list):
+            tree = {k: v for d in tree for k, v in d.items()}
+        key_order = ['div', 'bu', 'app', 'env', 'subapp', 'cloud', 'region']
+        match_list = []
+        closest = None
+        for key in key_order:
+            match_list.append({key:tree[key]})
+            results = self.match_exact(data_type, match_list)
+            if len(results) == 1:
+                closest = results[0]
 
+        return closest
