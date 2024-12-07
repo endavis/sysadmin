@@ -84,76 +84,39 @@ class AppClass:
             else:
                 self.counts['sn'] += 1
 
-            # key = f"{cluster.div}"
             if cluster.div not in self.divisions:
-                # print(f"  division '{key}' did not exist")
                 self.divisions[cluster.div] = {}
-            # else:
-                # print(f"  division '{key}' exists")
             div = self.divisions[cluster.div]
-            # print(f"  {cluster.name = } {key} {div}")
 
-            # key = f"{key}:{cluster.bu}"
             if cluster.bu not in div:
-                # print(f"  bu '{key}' did not exist")
                 div[cluster.bu] = {}
-            # else:
-                # print(f"  bu '{key}' exists")
             bu = div[cluster.bu]
-            # print(f"  {cluster.name = } '{key}' {bu}")
 
-            # key = f"{key}:{cluster.app}"
             if cluster.app not in bu:
-                # print(f"  app '{key}' did not exist")
                 bu[cluster.app] = {}
-            # else:
-                # print(f"  app '{key}' exists")
             app = bu[cluster.app]
-            # print(f"  {cluster.name = } '{key}' {app}")
 
-            # key = f"{key}:{cluster.env}"
             if cluster.env not in app:
-                # print(f"  env '{key}' did not exist")
                 app[cluster.env] = {}
-            # else:
-                # print(f"  env '{key}' exists")
             env = app[cluster.env]
-            # print(f"  {cluster.name = } '{key}' {env}")            
 
-            # key = f"{key}:{cluster.subapp or repr('')}"
             if cluster.subapp not in env:
-                # print(f"  subapp '{key}' did not exist")
                 env[cluster.subapp] = {}
-            # else:
-                # print(f"  subapp '{key}' exists")
             env = env[cluster.subapp]
-            # print(f"  {cluster.name = } '{key}' {env}")            
 
-            # key = f"{key}:{cluster.cloud}"
             if cluster.cloud not in env:
-                # print(f"  subapp '{key}' did not exist")
                 env[cluster.cloud] = {}
-            # else:
-                # print(f"  subapp '{key}' exists")
             cloud = env[cluster.cloud]
 
-            # key = f"{key}:{cluster.region}"            
             if cluster.region not in cloud:
-                # print(f"  region '{key}' did not exist")
                 cloud[cluster.region] = {}
-            # else:
-                # print(f"  region ''{key}' exists")
             region = cloud[cluster.region]
-            # print(f"  {cluster.name = } '{key}' {region}")  
 
-            # print(f"  appending {cluster.name} to '{key}'")
             region[cluster.name] = cluster
-            # print(f"  {cluster.name = } '{key}' {region}")
 
         # pprint.pprint(self.divisions)
                 
     def format_azure_info(self, azure_info):
-        # print(f"{azure_info =}")
         self.format_table_row_text('Azure Subscription Name', azure_info['location'])
         self.format_table_row_text('Azure Subscription ID', self.config.data['azure'][azure_info['location']]['id'])
         sub_id = self.config.data['azure'][azure_info['location']]['id']
