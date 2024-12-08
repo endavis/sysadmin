@@ -115,13 +115,13 @@ class AppClass:
             region[cluster.name] = cluster
 
         # pprint.pprint(self.divisions)
-                
+
     def format_azure_info(self, azure_info):
         self.format_table_row_text('Azure Subscription Name', azure_info['location'])
         self.format_table_row_text('Azure Subscription ID', self.config.data['azure'][azure_info['location']]['id'])
         sub_id = self.config.data['azure'][azure_info['location']]['id']
         resource_group_id = build_azure_id(sub_id, azure_info['resource_group'])
-        resource_group_url = build_azure_portal_link(resource_group_id)            
+        resource_group_url = build_azure_portal_link(resource_group_id)
         self.format_table_row_link('Azure Resource Group', resource_group_id, resource_group_url)
         if 'vmname' in azure_info:
             self.format_table_row_text('Azure VM Name', azure_info['vmname'])
@@ -170,14 +170,14 @@ class AppClass:
     def format_utilities(self, search_terms):
         ci = self.config.find_closest('cloudinsights', search_terms)
         if ci:
-            self.format_ci(ci)    
+            self.format_ci(ci)
         aiqum = self.config.find_closest('aiqums', search_terms)
         if aiqum:
             self.format_generic_cloud_item('AIQUM', aiqum)
         connector = self.config.find_closest('connectors', search_terms)
         if connector:
             self.format_generic_cloud_item('Connector', connector)
-        # deploy = self.config.get_utilities('deployservers', search_terms, ignore=['cloud'])       
+        # deploy = self.config.get_utilities('deployservers', search_terms, ignore=['cloud'])
         # if deploy:
         #     self.format_deploy(deployservers)
 
@@ -319,10 +319,10 @@ class ClusterData:
     def gather_data(self):
         print(f'gathering data for {self.name}')
         self.build_cloud_info()
-        
+
         with HostConnection(self.ip, username=config.settings['settings']['user']['name'], password=config.settings['settings']['user']['enc'], verify=False):
             cluster = Cluster()
-            
+
             cluster.get()
             self.fetched_data['cluster'] = cluster.to_dict()
 
@@ -358,7 +358,7 @@ class ClusterData:
         with self.tag('li'):
             with self.tag('details'):
                 with self.tag('summary'):
-                    with self.tag('table'):                    
+                    with self.tag('table'):
                         with self.tag('tr'):
                             with self.tag('td'):
                                 self.text(self.name)
@@ -407,7 +407,7 @@ class ClusterData:
                             self.app_instance.format_table_row_link('System Manager', 'Link', management_link)
                             self.app_instance.format_table_row_link('SPI', 'Link', f"{management_link}/spi")
                     with self.tag('li'):
-                        with self.tag('details'):                        
+                        with self.tag('details'):
                             with self.tag('summary'):
                                 self.text('DNS')
                             with self.tag('ul'):
@@ -441,7 +441,7 @@ class ClusterData:
             with self.tag('li'):
                 with self.tag('details'):
                     with self.tag('summary'):
-                        self.text(f'vserver {svm_data["name"]}{state}')    
+                        self.text(f'vserver {svm_data["name"]}{state}')
                     with self.tag('ul'):
                         self.format_netapp_vserver_interfaces_info(svm_data)
                         self.format_netapp_vserver_dns_info(svm_data)
@@ -451,40 +451,40 @@ class ClusterData:
         if 'ip_interfaces' not in svm_data:
             return
         with self.tag('li'):
-            with self.tag('details'):                        
+            with self.tag('details'):
                 with self.tag('summary'):
                     self.text('Interfaces')
-                with self.tag('ul'):                        
+                with self.tag('ul'):
                     with self.tag('li'):
                         with self.tag('table', ('class', 'custom-table')):
-                            self.app_instance.format_table_row_text('LIF name', 'LIF IP', 'Home Node', header=True)      
+                            self.app_instance.format_table_row_text('LIF name', 'LIF IP', 'Home Node', header=True)
                             for svm_interface in svm_data['ip_interfaces']:
                                 ip_interface = self.fetched_data['interfaces'][svm_interface['name']]
-                                self.app_instance.format_table_row_text(ip_interface['name'], 
+                                self.app_instance.format_table_row_text(ip_interface['name'],
                                                         f"{ip_interface['ip']['address']}/{ip_interface['ip']['netmask']}",
-                                                        ip_interface['location']['home_node']['name']) 
-    
+                                                        ip_interface['location']['home_node']['name'])
+
     def format_netapp_vserver_dns_info(self, svm_data):
         with self.tag('li'):
-            with self.tag('details'):                        
+            with self.tag('details'):
                 with self.tag('summary'):
                     self.text('DNS')
-                with self.tag('ul'):                        
+                with self.tag('ul'):
                     with self.tag('li'):
                         with self.tag('table', ('class', 'custom-table')):
-                            self.app_instance.format_table_row_text('Domains', ', '.join(svm_data['dns']['domains']))                                    
+                            self.app_instance.format_table_row_text('Domains', ', '.join(svm_data['dns']['domains']))
                             for i, name_server in enumerate(svm_data['dns']['servers']):
-                                self.app_instance.format_table_row_text(f"Server {i + 1}", name_server)                
+                                self.app_instance.format_table_row_text(f"Server {i + 1}", name_server)
 
     def format_netapp_vserver_smb_server_info(self, svm_data):
         if 'name' not in svm_data['cifs']:
             return
         cifs_data = self.fetched_data['cifs'][svm_data['cifs']['name']]
         with self.tag('li'):
-            with self.tag('details'):                        
+            with self.tag('details'):
                 with self.tag('summary'):
                     self.text('SMB Server')
-                with self.tag('ul'):                        
+                with self.tag('ul'):
                     with self.tag('li'):
                         with self.tag('table', ('class', 'custom-table')):
                             self.app_instance.format_table_row_text('Enabled', cifs_data['enabled'])
@@ -492,7 +492,7 @@ class ClusterData:
                             self.app_instance.format_table_row_text('Domain', cifs_data['ad_domain']['fqdn'])
                             self.app_instance.format_table_row_text('Domain', cifs_data['ad_domain']['organizational_unit'])
                     with self.tag('li'):
-                        with self.tag('details'):                        
+                        with self.tag('details'):
                             with self.tag('summary'):
                                 self.text('Security')
                             with self.tag('ul'):
@@ -523,19 +523,19 @@ class ClusterData:
 
 
     def format_netapp_node(self, node_data):
-        management_link = f"https://{node_data['management_interfaces'][0]['ip']['address']}"        
+        management_link = f"https://{node_data['management_interfaces'][0]['ip']['address']}"
         vm_id = None
         vm_url = None
         match self.cloud:
             case 'azure':
                 short_name = node_data['name'].split('-')[0]
-                node_number = int(node_data['name'].split('-')[1])            
+                node_number = int(node_data['name'].split('-')[1])
                 vm_type = 'Azure VM'
                 vm_name = f"{short_name}-vm{node_number}"
                 if hasattr(self, 'azure'):
                     vm_id = build_azure_id(self.azure['sub_id'], self.azure['resource_group'], resource_name=vm_name)
                     vm_url = build_azure_portal_link(vm_id)
-            
+
             case _:
                 vm_name = 'Unknown'
 
@@ -553,7 +553,7 @@ class ClusterData:
                             self.app_instance.format_table_row_link('SPI', 'Link', f"{management_link}/spi")
                             if 'vm_name' != 'Unknown' and vm_id and vm_url:
                                 self.app_instance.format_table_row_text(f'{vm_type} Name', vm_name)
-                                self.app_instance.format_table_row_link(vm_type, vm_id, vm_url)                            
+                                self.app_instance.format_table_row_link(vm_type, vm_id, vm_url)
 
 if __name__ == '__main__':
     args = argp(description="build html page of endpoints and mostly static information")
