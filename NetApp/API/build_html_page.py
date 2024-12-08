@@ -21,37 +21,38 @@ style_file = 'style.txt'
 #logging.basicConfig(level=logging.DEBUG)
 #utils.LOG_ALL_API_CALLS = 1
 
-# env_table[div][bu][env][region]
-# <html>
-# <header>
-# </header>
-# with body:
-#   with <ul class='tree'>
-#       for each $div:
-#           with <li>:
-#               with <details open>:
-#                   <summary>$div</summary>
-#                   with <ul class='tree'>
-#                       for each $bu:
-#                           with <li>
-#                               with <details open>:
-#                                   <summary>$bu</summary>
-#                                   with <ul class='tree'>
-#                                       for each $env
-#                                           with <li>
-#                                               with <details open>:
-#                                                   <summary>$env</summary>
-#                                                   with <ul class='tree'>
-#                                                       <li cloudinsights>
-#                                                       for each $region
-#                                                           with <li>:
-#                                                               with <details open>:
-#                                                                   <summary>$region</summary>
-#                                                                   <li bluexp_connector>
-#                                                                   <li AIQUM>
-#                                                                   for each $netapp:
-#                                                                       <li $netapp>
-#                   
+script = """
+        const envButtons = document.querySelectorAll('.env-button');
+
+        envButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                openActiveTrees(this.id);
+            });
+        });
+        function openActiveTrees(buttonid) {
+            active_class = '.' + buttonid.replace('button', 'active')
+            //stop_class = buttonid.replace('button', 'stop')
+            stop_class = 'button-stop'
+            const activeElements = document.querySelectorAll(active_class);
+            activeElements.forEach(element => {
+                open_flag = !element.open
+                let parent = element.closest('details');
+
+                while (parent) {
+                    if (!open_flag && parent.classList.contains(stop_class)) {
+                        parent.open = true
+                        break
+                    } else {
+                        parent.open = open_flag;
+                    }
+                    parent = parent.parentElement.closest('details');
+                }
+                if (parent) {
+                    parent.open = open_flag
+                }
+            });
+        }
+"""
 
 APP = None
 
@@ -196,6 +197,8 @@ class AppClass:
                 with self.tag('body'):
                     with self.tag('ul', ('class', 'tree')):
                         self.format_divisions()
+                    with self.tag('script'):
+                        self.doc.asis(script)
 
         result = indent(self.doc.getvalue())
         with open('test.html', 'w') as tfile:
@@ -212,57 +215,117 @@ class AppClass:
                     with self.tag('summary'):
                         self.text(division)
                     with self.tag('ul'):
-                        self.format_business_units(self.divisions[division], search_terms)
-    
-    def format_business_units(self, business_units, search_terms):
-        for business_unit in business_units:   
+                        self.format_business_units(division, self.divisions[division], search_terms)
+
+    def create_button_ids(self, division, business_unit, tree):
+        print(division)
+        pprint.pprint(tree)
+        BUs = list(tree.keys())
+        buttons = []
+        for app in tree:
+            app_d = tree[app]
+            for env in app_d:
+                env_d = app_d[env]
+                for subapp in env_d:
+                    if env and subapp:
+                        last = subapp
+                    else:
+                        last = env
+                    name = f"{f'{app}-' if app else ''}{last}"
+                    if subapp:
+                        level = 'subapp'
+                    elif app:
+                        level = 'app'
+                    else:
+                        level = 'env'
+
+                    buttons.append((level, name, f"{division.replace('&', '')}{f'-{business_unit}-' if business_unit else ''}{f'{app}-' if app else ''}{env}{f'-{subapp}' if subapp else ''}-active"))
+        buttons = list(set(buttons))
+        pprint.pprint(buttons)
+        return buttons
+
+    def format_business_units(self, division, business_units, search_terms):
+        """
+            ele_class = f"{self.div}-{self.bu}-{self.env}-active" #{f"-{self.subapp}" if self.subapp}"
+                <summary>
+                    <table>
+                        <tr>
+                            <td>Ovid</td>
+                            <td><button class="env-button" id="health-ovid-prod-button">Prod</button></td>
+                            <td><button class="env-button" id="health-ovid-qa-button">QA</button></td>
+                        </tr>
+                    </table>
+                </summary>
+        """
+        for business_unit in business_units:
             new_search_terms = search_terms.copy()
             new_search_terms['bu'] = business_unit
+            buttons = self.create_button_ids(division, business_unit, business_units[business_unit])
             with self.tag('li'):
                 with self.tag('details'):
                     with self.tag('summary'):
-                        self.text(business_unit)
-                    with self.tag('ul'):
-                        self.format_apps(business_units[business_unit], new_search_terms)
+                        with self.tag('table)'):
+                            with self.tag('tr'):
+                                with self.tag('td'):
+                                    self.text(business_unit)
+                                for level, button_name, button_id in buttons:
+                                    with self.tag('td'):
+                                        with self.tag('button', ('class', 'env-button'), ('id', button_id)):
+                                            self.text(button_name)
 
-    def format_apps(self, apps, search_terms):
+                    with self.tag('ul'):
+                        self.format_apps(business_units[business_unit], buttons, new_search_terms)
+
+    def format_apps(self, apps, buttons, search_terms):
         if len(apps.keys()) == 1 and '' in apps:
             new_search_terms = search_terms.copy()
             new_search_terms['app'] = ''
-            self.format_environments(apps[''], new_search_terms)
+            self.format_environments(apps[''], buttons, new_search_terms)
         else:
-            for app in apps:   
+            for app in apps:
+                det_class = ''
+                for level, name, button_id in buttons:
+                    if level == 'app' and name == app:
+                        det_class = 'button-stop'
                 new_search_terms = search_terms.copy()
                 new_search_terms['app'] = app
                 with self.tag('li'):
-                    with self.tag('details'):
+                    with self.tag('details', ('class', det_class)):
                         with self.tag('summary'):
                             self.text(app)
                         with self.tag('ul'):
-                            self.format_environments(apps[app], new_search_terms)
+                            self.format_environments(apps[app], buttons, new_search_terms)
 
-    def format_environments(self, environments, search_terms):
+    def format_environments(self, environments, buttons, search_terms):
         for environment in environments:
+            det_class = ''
+            for level, name, button_id in buttons:
+                if level == 'env' and name == environment:
+                    det_class = 'button-stop'
             new_search_terms = search_terms.copy()
             new_search_terms['env'] = environment
             with self.tag('li'):
-                with self.tag('details'):
+                with self.tag('details', ('class', det_class)):
                     with self.tag('summary'):
                         self.text(environment)
                     with self.tag('ul'):
-                        self.format_subapps(environments[environment], new_search_terms)
+                        self.format_subapps(environments[environment], buttons, new_search_terms)
 
-    def format_subapps(self, subapps, search_terms):
+    def format_subapps(self, subapps, buttons, search_terms):
         if len(subapps.keys()) == 1 and '' in subapps:
             new_search_terms = search_terms.copy()
             new_search_terms['subapp'] = ''
             self.format_clouds(subapps[''], new_search_terms)
         else:
             for subapp in subapps:
+                det_class = ''
+                for level, name, button_id in buttons:
+                    if level == 'subapp' and name == subapp:
+                        det_class = 'button-stop'
                 new_search_terms = search_terms.copy()
                 new_search_terms['subapp'] = subapp
                 with self.tag('li'):
-                    with self.tag('details'):
+                    with self.tag('details', ('class', det_class)):
                         with self.tag('summary'):
                             self.text(subapp)
                         with self.tag('ul'):
@@ -353,10 +416,13 @@ class ClusterData:
         self.tag = tag
         self.text = text
         active = False
+        ele_class = ''
         if hasattr(self, 'tags') and 'active' in self.tags:
             active = True
+            # ele_class = f"{self.div}-{self.bu}-{self.env}-active" #{f"-{self.subapp}" if self.subapp}"
+            ele_class = f"{self.div}{f'-{self.bu}' if self.bu else ''}{f'-{self.app}' if self.app else ''}-{self.env}{f'-{self.subapp}' if self.subapp else ''}-active"
         with self.tag('li'):
-            with self.tag('details'):
+            with self.tag('details', ('class', ele_class)):
                 with self.tag('summary'):
                     with self.tag('table'):
                         with self.tag('tr'):
