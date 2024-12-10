@@ -630,7 +630,10 @@ class ClusterData:
                 short_name = node_data['name'].split('-')[0]
                 node_number = int(node_data['name'].split('-')[1])
                 vm_type = 'Azure VM'
-                vm_name = f"{short_name}-vm{node_number}"
+                if len(self.fetched_data['nodes']) > 1:
+                    vm_name = f"{short_name}-vm{node_number}"
+                else:
+                    vm_name = f"{short_name}"
                 if hasattr(self, 'azure'):
                     vm_id = build_azure_id(self.azure['sub_id'], self.azure['resource_group'], resource_name=vm_name)
                     vm_url = build_azure_portal_link(vm_id)
