@@ -199,8 +199,10 @@ class AppClass:
 
     def gather_data(self):
         self.doc.asis('<!DOCTYPE html>')
-        with self.tag('html'):
+        with self.tag('html', ('lang', 'en')):
                 with self.tag('head'):
+                    self.doc.asis('<meta charset="utf-8">')
+                    self.doc.asis('<meta name="viewport" content="width=device-width, initial-scale=1.0">')
                     with self.tag('title'):
                         self.text('GBS NetApps')
                     with self.tag('base', ('target', '_blank'), ('rel', 'noopener noreferrer')):
