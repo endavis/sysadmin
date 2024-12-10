@@ -23,12 +23,28 @@ style_file = 'style.txt'
 
 script = """
         const envButtons = document.querySelectorAll('.env-button');
+        document.addEventListener('DOMContentLoaded', function() {
+            openDetailsToButtons();
+        }, false);
 
         envButtons.forEach(button => {
             button.addEventListener('click', function() {
                 openActiveTrees(this.id);
             });
         });
+        function openDetailsToButtons() {
+            const activeElements = document.querySelectorAll('.button-stop');
+            activeElements.forEach(element => {
+                let open_flag = true;
+                let parent = element.closest('details');
+                parent = parent.parentElement.closest('details');
+                while (parent) {
+                    parent.open = true;
+                    parent = parent.parentElement.closest('details');
+                }
+            });
+        }
+
         function openActiveTrees(buttonid) {
             active_class = '.' + buttonid.replace('button', 'active')
             //stop_class = buttonid.replace('button', 'stop')
