@@ -83,6 +83,7 @@ class AppClass:
         self.counts['sn'] = 0
         self.counts['aiqums'] = 0
         self.counts['connectors'] = 0
+        self.button_ids =[]
 
         self.doc, self.tag, self.text = Doc().tagtext()
         self.build_app()
@@ -129,6 +130,8 @@ class AppClass:
             region = cloud[cluster.region]
 
             region[cluster.name] = cluster
+            if cluster.ele_class:
+                self.button_ids.append(cluster.ele_class)
 
         # pprint.pprint(self.divisions)
 
@@ -236,107 +239,81 @@ class AppClass:
                     with self.tag('ul'):
                         self.format_business_units(division, self.divisions[division], search_terms)
 
-    def create_button_ids(self, division, business_unit, tree):
-        print(division)
-        pprint.pprint(tree)
-        BUs = list(tree.keys())
-        buttons = []
-        for app in tree:
-            app_d = tree[app]
-            for env in app_d:
-                env_d = app_d[env]
-                for subapp in env_d:
-                    if env and subapp:
-                        last = subapp
-                    else:
-                        last = env
-                    name = f"{f'{app}-' if app else ''}{last}"
-                    if subapp:
-                        level = 'subapp'
-                    elif app:
-                        level = 'app'
-                    else:
-                        level = 'env'
-
-                    buttons.append((level, name, f"{division.replace('&', '')}{f'-{business_unit}-' if business_unit else ''}{f'{app}-' if app else ''}{env}{f'-{subapp}' if subapp else ''}-active"))
-        buttons = list(set(buttons))
-        pprint.pprint(buttons)
-        return buttons
-
-    def format_business_units(self, division, business_units, search_terms):
-        """
-            ele_class = f"{self.div}-{self.bu}-{self.env}-active" #{f"-{self.subapp}" if self.subapp}"
-                <summary>
-                    <table>
-                        <tr>
-                            <td>Ovid</td>
-                            <td><button class="env-button" id="health-ovid-prod-button">Prod</button></td>
-                            <td><button class="env-button" id="health-ovid-qa-button">QA</button></td>
-                        </tr>
-                    </table>
-                </summary>
-        """
+    def format_business_units(self, where, business_units, search_terms):
         business_units_list = list(business_units.keys())
         business_units_list.sort()
         for business_unit in business_units_list:
             new_search_terms = search_terms.copy()
             new_search_terms['bu'] = business_unit
-            buttons = self.create_button_ids(division, business_unit, business_units[business_unit])
+            new_where = f"{where}-{business_unit}"
             with self.tag('li'):
                 with self.tag('details'):
                     with self.tag('summary'):
-                        with self.tag('table)'):
+                        with self.tag('table', ('class', 'noborder-table')):
                             with self.tag('tr'):
                                 with self.tag('td'):
                                     self.text(business_unit)
-                                for level, button_name, button_id in buttons:
-                                    with self.tag('td'):
-                                        with self.tag('button', ('class', 'env-button'), ('id', button_id)):
-                                            self.text(button_name)
 
                     with self.tag('ul'):
-                        self.format_apps(business_units[business_unit], buttons, new_search_terms)
+                        self.format_apps(new_where, business_units[business_unit], new_search_terms)
 
-    def format_apps(self, apps, buttons, search_terms):
+    def format_buttons(self, where):
+        with self.tag('td'):
+            with self.tag('button', ('class', 'env-button'), ('id', f"{where}-active")):
+                self.text('Go to Active Cluster(s)')
+
+    def format_apps(self, where, apps, search_terms):
         if len(apps.keys()) == 1 and '' in apps:
+            new_where = f"{where}-"
             new_search_terms = search_terms.copy()
             new_search_terms['app'] = ''
-            self.format_environments(apps[''], buttons, new_search_terms)
+            self.format_environments(new_where, apps[''], new_search_terms)
         else:
             apps_list = list(apps.keys())
             apps_list.sort()
             for app in apps_list:
+                new_where = f"{where}-{app}"
                 det_class = ''
-                for level, name, button_id in buttons:
-                    if level == 'app' and name == app:
-                        det_class = 'button-stop'
+                if new_where in self.button_ids:
+                    det_class='button-stop'
                 new_search_terms = search_terms.copy()
                 new_search_terms['app'] = app
                 with self.tag('li'):
                     with self.tag('details', ('class', det_class)):
                         with self.tag('summary'):
-                            self.text(app)
+                            with self.tag('table', ('class', 'noborder-table')):
+                                with self.tag('tr'):
+                                    with self.tag('td'):
+                                        self.text(app)
+                                    if det_class:
+                                        self.format_buttons(new_where)
                         with self.tag('ul'):
-                            self.format_environments(apps[app], buttons, new_search_terms)
+                            self.format_environments(new_where, apps[app], new_search_terms)
 
-    def format_environments(self, environments, buttons, search_terms):
+    def format_environments(self, where, environments, search_terms):
         environments_list = list(environments.keys())
         environments_list.sort()
         for environment in environments_list:
             det_class = ''
-            for level, name, button_id in buttons:
-                if level == 'env' and name == environment:
-                    det_class = 'button-stop'
+            new_where = f"{where}-{environment}".replace('/', '').replace('&', '')
+            if new_where in self.button_ids:
+                det_class='button-stop'
+
             new_search_terms = search_terms.copy()
             new_search_terms['env'] = environment
             with self.tag('li'):
                 with self.tag('details', ('class', det_class)):
                     with self.tag('summary'):
-                        self.text(environment)
+                        with self.tag('table', ('class', 'noborder-table')):
+                            with self.tag('tr'):
+                                with self.tag('td'):
+                                    self.text(environment)
+                                if det_class:
+                                    self.format_buttons(new_where)
                     with self.tag('ul'):
-                        self.format_subapps(environments[environment], buttons, new_search_terms)
+                        self.format_subapps(new_where, environments[environment], new_search_terms)
 
-    def format_subapps(self, subapps, buttons, search_terms):
+    def format_subapps(self, where, subapps, search_terms):
         if len(subapps.keys()) == 1 and '' in subapps:
             new_search_terms = search_terms.copy()
             new_search_terms['subapp'] = ''
@@ -345,16 +322,21 @@ class AppClass:
             subapps_list = list(subapps.keys())
             subapps_list.sort()
             for subapp in subapps_list:
+                new_where = f"{where}-{subapp}"
                 det_class = ''
-                for level, name, button_id in buttons:
-                    if level == 'subapp' and name == subapp:
-                        det_class = 'button-stop'
+                if new_where in self.button_ids:
+                    det_class='button-stop'
                 new_search_terms = search_terms.copy()
                 new_search_terms['subapp'] = subapp
                 with self.tag('li'):
                     with self.tag('details', ('class', det_class)):
                         with self.tag('summary'):
-                            self.text(subapp)
+                            with self.tag('table', ('class', 'noborder-table')):
+                                with self.tag('tr'):
+                                    with self.tag('td'):
+                                        self.text(subapp)
+                                    if det_class:
+                                        self.format_buttons(new_where)
                         with self.tag('ul'):
                             self.format_clouds(subapps[subapp], new_search_terms)
 
@@ -400,6 +382,10 @@ class ClusterData:
         self.app_instance = app_instance
         self.html_tag = self.app_instance.tag
         self.html_text = self.app_instance.text
+        self.ele_class = ''
+        if hasattr(self, 'tags') and 'active' in self.tags:
+            ele_class = f"{self.div}-{self.bu}-{self.app}-{self.env}{f'-{self.subapp}' if self.subapp else ''}"
+            self.ele_class = ele_class.replace('&', '').replace('/', '')
 
         self.gather_data()
 
@@ -445,13 +431,10 @@ class ClusterData:
     def format(self, tag, text):
         print(f"Cluster: {self.name}")
         active = False
-        ele_class = ''
         if hasattr(self, 'tags') and 'active' in self.tags:
             active = True
-            # ele_class = f"{self.div}-{self.bu}-{self.env}-active" #{f"-{self.subapp}" if self.subapp}"
-            ele_class = f"{self.div}{f'-{self.bu}' if self.bu else ''}{f'-{self.app}' if self.app else ''}-{self.env}{f'-{self.subapp}' if self.subapp else ''}-active"
         with self.html_tag('li'):
-            with self.tag('details', ('class', ele_class)):
+            with self.html_tag('details', ('class', f'{self.ele_class}-active' if self.ele_class else '')):
                 with self.html_tag('summary'):
                     with self.html_tag('table'):
                         with self.html_tag('tr'):
