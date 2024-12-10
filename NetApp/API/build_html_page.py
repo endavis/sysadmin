@@ -225,7 +225,9 @@ class AppClass:
         print(f"   HA          : {self.counts['ha']}")
 
     def format_divisions(self):
-        for division in self.divisions:
+        divisions = list(self.divisions.keys())
+        divisions.sort()
+        for division in divisions:
             search_terms = {'div':division}
             with self.tag('li'):
                 with self.tag('details', ('open', '')):
@@ -274,7 +276,9 @@ class AppClass:
                     </table>
                 </summary>
         """
-        for business_unit in business_units:
+        business_units_list = list(business_units.keys())
+        business_units_list.sort()
+        for business_unit in business_units_list:
             new_search_terms = search_terms.copy()
             new_search_terms['bu'] = business_unit
             buttons = self.create_button_ids(division, business_unit, business_units[business_unit])
@@ -299,7 +303,9 @@ class AppClass:
             new_search_terms['app'] = ''
             self.format_environments(apps[''], buttons, new_search_terms)
         else:
-            for app in apps:
+            apps_list = list(apps.keys())
+            apps_list.sort()
+            for app in apps_list:
                 det_class = ''
                 for level, name, button_id in buttons:
                     if level == 'app' and name == app:
@@ -314,7 +320,9 @@ class AppClass:
                             self.format_environments(apps[app], buttons, new_search_terms)
 
     def format_environments(self, environments, buttons, search_terms):
-        for environment in environments:
+        environments_list = list(environments.keys())
+        environments_list.sort()
+        for environment in environments_list:
             det_class = ''
             for level, name, button_id in buttons:
                 if level == 'env' and name == environment:
@@ -334,7 +342,9 @@ class AppClass:
             new_search_terms['subapp'] = ''
             self.format_clouds(subapps[''], new_search_terms)
         else:
-            for subapp in subapps:
+            subapps_list = list(subapps.keys())
+            subapps_list.sort()
+            for subapp in subapps_list:
                 det_class = ''
                 for level, name, button_id in buttons:
                     if level == 'subapp' and name == subapp:
@@ -349,7 +359,9 @@ class AppClass:
                             self.format_clouds(subapps[subapp], new_search_terms)
 
     def format_clouds(self, clouds, search_terms):
-        for cloud in clouds:
+        clouds_list = list(clouds.keys())
+        clouds_list.sort()
+        for cloud in clouds_list:
             new_search_terms = search_terms.copy()
             new_search_terms['cloud'] = cloud
             with self.tag('li'):
@@ -360,8 +372,9 @@ class AppClass:
                             self.format_regions(clouds[cloud], new_search_terms)
 
     def format_regions(self, regions, search_terms):
-        cloud_types = get_cloud_types()
-        for region in regions:
+        regions_list = list(regions.keys())
+        regions_list.sort()
+        for region in regions_list:
             region_data = regions[region]
             new_search_terms = search_terms.copy()
             new_search_terms['region'] = region
@@ -514,7 +527,9 @@ class ClusterData:
 
 
     def format_netapp_vservers_info(self):
-        for svm in self.fetched_data['svms']:
+        svm_list = list(self.fetched_data['svms'].keys())
+        svm_list.sort()
+        for svm in svm_list:
             svm_data = self.fetched_data['svms'][svm]
             print(f"  SVM: {svm_data['name']}")
             if svm_data['state'] == 'stopped':
@@ -600,7 +615,9 @@ class ClusterData:
                                                 self.app_instance.format_table_row_text(header, cifs_data['security'][key])
 
     def format_netapp_nodes(self):
-        for node in self.fetched_data['nodes']:
+        node_list = list(self.fetched_data['nodes'].keys())
+        node_list.sort()
+        for node in node_list:
             node_data = self.fetched_data['nodes'][node]
             self.format_netapp_node(node_data)
 
