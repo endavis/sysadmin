@@ -46,28 +46,27 @@ script = """
         }
 
         function openActiveTrees(buttonid) {
-            active_class = '.' + buttonid.replace('button', 'active')
-            //stop_class = buttonid.replace('button', 'stop')
-            stop_class = 'button-stop'
+            active_class = '.' + buttonid.replace('button', 'active');
+            stop_class = 'button-stop';
             const activeElements = document.querySelectorAll(active_class);
             activeElements.forEach(element => {
-                open_flag = !element.open
+                open_flag = !element.open;
                 let parent = element.closest('details');
 
                 while (parent) {
                     if (!open_flag && parent.classList.contains(stop_class)) {
-                        parent.open = true
-                        break
+                        parent.open = true;
+                        break;
                     } else {
                         parent.open = open_flag;
                     }
                     parent = parent.parentElement.closest('details');
                 }
                 if (parent) {
-                    parent.open = open_flag
+                    parent.open = open_flag;
                 }
             });
-        }
+        };
 """
 
 APP = None
