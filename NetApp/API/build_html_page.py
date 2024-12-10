@@ -398,8 +398,9 @@ class ClusterData:
             setattr(self, name, value)
         self.fetched_data = {}
         self.app_instance = app_instance
-        self.tag = self.app_instance.tag
-        self.text = self.app_instance.text
+        self.html_tag = self.app_instance.tag
+        self.html_text = self.app_instance.text
+
         self.gather_data()
 
     def build_cloud_info(self):
@@ -443,27 +444,25 @@ class ClusterData:
 
     def format(self, tag, text):
         print(f"Cluster: {self.name}")
-        self.tag = tag
-        self.text = text
         active = False
         ele_class = ''
         if hasattr(self, 'tags') and 'active' in self.tags:
             active = True
             # ele_class = f"{self.div}-{self.bu}-{self.env}-active" #{f"-{self.subapp}" if self.subapp}"
             ele_class = f"{self.div}{f'-{self.bu}' if self.bu else ''}{f'-{self.app}' if self.app else ''}-{self.env}{f'-{self.subapp}' if self.subapp else ''}-active"
-        with self.tag('li'):
+        with self.html_tag('li'):
             with self.tag('details', ('class', ele_class)):
-                with self.tag('summary'):
-                    with self.tag('table'):
-                        with self.tag('tr'):
-                            with self.tag('td'):
-                                self.text(self.name)
+                with self.html_tag('summary'):
+                    with self.html_tag('table'):
+                        with self.html_tag('tr'):
+                            with self.html_tag('td'):
+                                self.html_text(self.name)
                             if active:
-                                with self.tag('td', ('class', 'active')):
-                                    self.text('Active')
+                                with self.html_tag('td', ('class', 'active')):
+                                    self.html_text('Active')
 
-                    # self.text(f"{self.name}{active}")
-                with self.tag('ul'):
+                    # self.html_text(f"{self.name}{active}")
+                with self.html_tag('ul'):
                     # format cloud data
                     self.format_netapp_cloud_info()
                     self.format_netapp_cluster_info()
@@ -473,13 +472,13 @@ class ClusterData:
     def format_netapp_cloud_info(self):
         for cloud in get_cloud_types():
             if hasattr(self, cloud):
-                with self.tag('li'):
-                    with self.tag('details'):
-                        with self.tag('summary'):
-                            self.text(f"{cloud.title()} Information")
-                        with self.tag('ul'):
-                            with self.tag('li'):
-                                with self.tag('table', ('class', 'custom-table')):
+                with self.html_tag('li'):
+                    with self.html_tag('details'):
+                        with self.html_tag('summary'):
+                            self.html_text(f"{cloud.title()} Information")
+                        with self.html_tag('ul'):
+                            with self.html_tag('li'):
+                                with self.html_tag('table', ('class', 'custom-table')):
                                     func_name = f"format_{cloud}_info"
                                     try:
                                         func = getattr(self.app_instance, func_name)
@@ -490,35 +489,35 @@ class ClusterData:
 
     def format_netapp_cluster_info(self):
         management_link = f"https://{self.fetched_data['cluster']['management_interfaces'][0]['ip']['address']}"
-        with self.tag('li'):
-            with self.tag('details'):
-                with self.tag('summary'):
-                    with self.tag('a', ('href', management_link)):
-                        self.text('Cluster')
-                with self.tag('ul'):
-                    with self.tag('li'):
-                        with self.tag('table', ('class', 'custom-table')):
+        with self.html_tag('li'):
+            with self.html_tag('details'):
+                with self.html_tag('summary'):
+                    with self.html_tag('a', ('href', management_link)):
+                        self.html_text('Cluster')
+                with self.html_tag('ul'):
+                    with self.html_tag('li'):
+                        with self.html_tag('table', ('class', 'custom-table')):
                             self.app_instance.format_table_row_text('Version', self.fetched_data['cluster']['version']['full'])
                             self.app_instance.format_table_row_text('Cluster Management IP', self.fetched_data['cluster']['management_interfaces'][0]['ip']['address'])
                             self.app_instance.format_table_row_link('System Manager', 'Link', management_link)
                             self.app_instance.format_table_row_link('SPI', 'Link', f"{management_link}/spi")
-                    with self.tag('li'):
-                        with self.tag('details'):
-                            with self.tag('summary'):
-                                self.text('DNS')
-                            with self.tag('ul'):
-                                with self.tag('li'):
-                                    with self.tag('table', ('class', 'custom-table')):
+                    with self.html_tag('li'):
+                        with self.html_tag('details'):
+                            with self.html_tag('summary'):
+                                self.html_text('DNS')
+                            with self.html_tag('ul'):
+                                with self.html_tag('li'):
+                                    with self.html_tag('table', ('class', 'custom-table')):
                                         self.app_instance.format_table_row_text('Domains', ', '.join(self.fetched_data['cluster']['dns_domains']))
                                         for i, name_server in enumerate(self.fetched_data['cluster']['name_servers']):
                                             self.app_instance.format_table_row_text(f"Server {i + 1}", name_server)
-                    with self.tag('li'):
-                        with self.tag('details'):
-                            with self.tag('summary'):
-                                self.text('NTP')
-                            with self.tag('ul'):
-                                with self.tag('li'):
-                                    with self.tag('table', ('class', 'custom-table')):
+                    with self.html_tag('li'):
+                        with self.html_tag('details'):
+                            with self.html_tag('summary'):
+                                self.html_text('NTP')
+                            with self.html_tag('ul'):
+                                with self.html_tag('li'):
+                                    with self.html_tag('table', ('class', 'custom-table')):
                                         if 'ntp_servers' in self.fetched_data['cluster']:
                                             for i, name_server in enumerate(self.fetched_data['cluster']['ntp_servers']):
                                                 self.app_instance.format_table_row_text(f"Server {i + 1}", name_server)
@@ -536,11 +535,11 @@ class ClusterData:
                 state = " - State: Stopped"
             else:
                 state = ''
-            with self.tag('li'):
-                with self.tag('details'):
-                    with self.tag('summary'):
-                        self.text(f'vserver {svm_data["name"]}{state}')
-                    with self.tag('ul'):
+            with self.html_tag('li'):
+                with self.html_tag('details'):
+                    with self.html_tag('summary'):
+                        self.html_text(f'vserver {svm_data["name"]}{state}')
+                    with self.html_tag('ul'):
                         self.format_netapp_vserver_interfaces_info(svm_data)
                         self.format_netapp_vserver_dns_info(svm_data)
                         self.format_netapp_vserver_smb_server_info(svm_data)
@@ -548,13 +547,13 @@ class ClusterData:
     def format_netapp_vserver_interfaces_info(self, svm_data):
         if 'ip_interfaces' not in svm_data:
             return
-        with self.tag('li'):
-            with self.tag('details'):
-                with self.tag('summary'):
-                    self.text('Interfaces')
-                with self.tag('ul'):
-                    with self.tag('li'):
-                        with self.tag('table', ('class', 'custom-table')):
+        with self.html_tag('li'):
+            with self.html_tag('details'):
+                with self.html_tag('summary'):
+                    self.html_text('Interfaces')
+                with self.html_tag('ul'):
+                    with self.html_tag('li'):
+                        with self.html_tag('table', ('class', 'custom-table')):
                             self.app_instance.format_table_row_text('LIF name', 'LIF IP', 'Home Node', header=True)
                             for svm_interface in svm_data['ip_interfaces']:
                                 ip_interface = self.fetched_data['interfaces'][svm_interface['name']]
@@ -563,13 +562,13 @@ class ClusterData:
                                                         ip_interface['location']['home_node']['name'])
 
     def format_netapp_vserver_dns_info(self, svm_data):
-        with self.tag('li'):
-            with self.tag('details'):
-                with self.tag('summary'):
-                    self.text('DNS')
-                with self.tag('ul'):
-                    with self.tag('li'):
-                        with self.tag('table', ('class', 'custom-table')):
+        with self.html_tag('li'):
+            with self.html_tag('details'):
+                with self.html_tag('summary'):
+                    self.html_text('DNS')
+                with self.html_tag('ul'):
+                    with self.html_tag('li'):
+                        with self.html_tag('table', ('class', 'custom-table')):
                             self.app_instance.format_table_row_text('Domains', ', '.join(svm_data['dns']['domains']))
                             for i, name_server in enumerate(svm_data['dns']['servers']):
                                 self.app_instance.format_table_row_text(f"Server {i + 1}", name_server)
@@ -578,24 +577,24 @@ class ClusterData:
         if 'name' not in svm_data['cifs']:
             return
         cifs_data = self.fetched_data['cifs'][svm_data['cifs']['name']]
-        with self.tag('li'):
-            with self.tag('details'):
-                with self.tag('summary'):
-                    self.text('SMB Server')
-                with self.tag('ul'):
-                    with self.tag('li'):
-                        with self.tag('table', ('class', 'custom-table')):
+        with self.html_tag('li'):
+            with self.html_tag('details'):
+                with self.html_tag('summary'):
+                    self.html_text('SMB Server')
+                with self.html_tag('ul'):
+                    with self.html_tag('li'):
+                        with self.html_tag('table', ('class', 'custom-table')):
                             self.app_instance.format_table_row_text('Enabled', cifs_data['enabled'])
                             self.app_instance.format_table_row_text('Name', cifs_data['name'])
                             self.app_instance.format_table_row_text('Domain', cifs_data['ad_domain']['fqdn'])
                             self.app_instance.format_table_row_text('Domain', cifs_data['ad_domain']['organizational_unit'])
-                    with self.tag('li'):
-                        with self.tag('details'):
-                            with self.tag('summary'):
-                                self.text('Security')
-                            with self.tag('ul'):
-                                with self.tag('li'):
-                                    with self.tag('table', ('class', 'custom-table')):
+                    with self.html_tag('li'):
+                        with self.html_tag('details'):
+                            with self.html_tag('summary'):
+                                self.html_text('Security')
+                            with self.html_tag('ul'):
+                                with self.html_tag('li'):
+                                    with self.html_tag('table', ('class', 'custom-table')):
                                         items = [('Is Signing Required', 'smb_signing'),
                                                  ('Use start_tls for AD LDAP connection', 'use_start_tls'),
                                                  ('LM Compatibility Level', 'lm_compatibility_level'),
@@ -639,14 +638,14 @@ class ClusterData:
             case _:
                 vm_name = 'Unknown'
 
-        with self.tag('li'):
-            with self.tag('details'):
-                with self.tag('summary'):
-                    with self.tag('a', ('href', management_link)):
-                        self.text(node_data['name'])
-                with self.tag('ul'):
-                    with self.tag('li'):
-                        with self.tag('table', ('class', 'custom-table')):
+        with self.html_tag('li'):
+            with self.html_tag('details'):
+                with self.html_tag('summary'):
+                    with self.html_tag('a', ('href', management_link)):
+                        self.html_text(node_data['name'])
+                with self.html_tag('ul'):
+                    with self.html_tag('li'):
+                        with self.html_tag('table', ('class', 'custom-table')):
                             self.app_instance.format_table_row_text('Node Management IP', node_data['management_interfaces'][0]['ip']['address'])
                             self.app_instance.format_table_row_text('Serial Number', node_data['serial_number'])
                             self.app_instance.format_table_row_link('System Manager', 'Link', management_link)
