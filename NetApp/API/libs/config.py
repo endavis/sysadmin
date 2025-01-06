@@ -40,7 +40,7 @@ import pprint
 import pathlib
 from .log import setup_logger
 
-config_logger = setup_logger('toml-data')
+config_logger = setup_logger(pathlib.Path(__file__).name)
 
 class Config:
     def __init__(self, data_dir, debug=False):
@@ -62,18 +62,17 @@ class Config:
             self.parse_toml(file)
             loaded_tomls.append(file.stem)
 
-        config_logger.debug(f"loaded the following files: {', '.join(loaded_tomls)}")
-        print(f"loaded the following files: {', '.join(loaded_tomls)}")        
+        config_logger.info(f"loaded the following files: {', '.join(loaded_tomls)}")
         self.add_searchable_keys()
 
     def parse_toml(self, file):
         with open(file, "rb") as f:
             data = tomllib.load(f)
             if 'settings' in data and 'type' in data['settings'] and data['settings']['type'] == 'data':
-                print(f'data file: {file.stem}')
+                config_logger.info(f'data file: {file.stem}')
                 self.load_data(data)
-            else: 
-                print(f'config file: {file.stem}')
+            else:
+                config_logger.info(f'config file: {file.stem}')
                 if file.stem not in self.settings:
                     self.settings[file.stem] = data
                 else:
@@ -97,13 +96,14 @@ class Config:
                         self.data[data_type][item]['name'] = item
                     for key in default_keys:
                         if key not in self.data[data_type][item]:
-                            self.data[data_type][item][key] = ''        
+                            self.data[data_type][item][key] = ''
 
     def load_data(self, data):
         for data_type in self.data_types:
             if data_type not in self.data:
                 self.data[data_type] = {}
             if data_type in data:
+                config_logger.info(f"adding {len(data[data_type])} {data_type} items")
                 self.data[data_type].update(data[data_type])
 
     def chk_and(self, search_term, values):
@@ -173,19 +173,28 @@ class Config:
         """
         if not search_dict:
             return self.data[data_type].copy()
-
+        config_logger.debug("    search:")
+        config_logger.debug(f"     {data_type = }")
+        config_logger.debug(f"     {search_dict = }")
         results = {}
         for item in self.data[data_type]:
             item_details = self.data[data_type][item]
+            config_logger.debug(f"      search: item - {item_details['name']}")
             result_check = []
             for key in search_dict:
+                config_logger.debug(f"      search: checking {key}")
                 if key not in item_details:
                     result_check.append(False)
+                    config_logger.debug(f"      search: {key} not in item details, did not match")
                     break
+                config_logger.debug(f"      search: check_term {search_dict[key]}, {item_details[key]} returned {self.check_term(search_dict[key], item_details[key])}")
                 result_check.append(self.check_term(search_dict[key], item_details[key]))
 
             if all(result_check):
+                config_logger.debug(f"      search: item - {item_details['name']} matched")
                 results[item] = item_details
+            else:
+                config_logger.debug(f"      search: item - {item_details['name']} did not match")
 
         return results
 
@@ -193,6 +202,9 @@ class Config:
         return self.search('clusters', search_terms)
 
     def find_closest(self, data_type: str, tree: dict):
+        config_logger.debug("find_closest")
+        config_logger.debug(f"  {data_type = }")
+        config_logger.debug(f"  {tree = }")
         tree = tree.copy()
         key_order = ['div', 'bu', 'app', 'env', 'subapp', 'cloud', 'region']
         key_order.reverse()
