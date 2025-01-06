@@ -1,12 +1,12 @@
 """
 # return any items match all 3 tags
 -f '{"bu":"Business", "env":"Prod", "tags":"active"}'
-# return any item that matches bu and env and has both 'active' and 'workload' as a tag 
--f '{"bu":"Business", "env":"Prod", "tags":"active & workload"}'
+# return any item that matches bu and env and has both 'active' and 'workload' as a tag
+-f '{"bu":"Business", "env":"Prod", "tags":"active && workload"}'
 # return any item that matches bu, env, and tags and is app is one of app_name1 or app_name2
--f '{"bu":"Business", "app": "app_name1 | app_name2", "env":"Prod", "tags":"active"}'
+-f '{"bu":"Business", "app": "app_name1 || app_name2", "env":"Prod", "tags":"active"}'
 # return any items with either name1 or name2
--f '{"name":"name1 | name2"}]'
+-f '{"name":"name1 || name2"}'
 
 a data toml has the following section:
 [settings]
@@ -108,46 +108,46 @@ class Config:
 
     def chk_and(self, search_term, values):
         """
-        >>> chk_and(test, 'active & Document', ['active'])
+        >>> chk_and(test, 'active && Document', ['active'])
         ['active', 'Document']
         False
-        >>> chk_and(test, 'active & Document', ['active', 'Document'])
+        >>> chk_and(test, 'active && Document', ['active', 'Document'])
         ['active', 'Document']
         True
-        >>> chk_and(test, 'active & Document & Tax', ['active', 'Document'])
+        >>> chk_and(test, 'active && Document && Tax', ['active', 'Document'])
         ['active', 'Document', 'Tax']
         False
-        >>> chk_and(test, 'Document & active', ['active', 'Document'])
+        >>> chk_and(test, 'Document && active', ['active', 'Document'])
         ['Document', 'active']
         """
-        # & only makes sense for lists
+        # && only makes sense for lists
         if not isinstance(values, list):
             return False
-        terms = [item.strip() for item in search_term.split('&')]
+        terms = [item.strip() for item in search_term.split(' && ')]
         return set(terms).issubset(values)
 
     def chk_or(self, search_term, value):
         """
-        >>> chk_or(test, 'active | Document', ['active'])
+        >>> chk_or(test, 'active || Document', ['active'])
         True
-        >>> chk_or(test, 'Tax | Document', ['active'])
+        >>> chk_or(test, 'Tax || Document', ['active'])
         False
-        >>> chk_or(test, 'Tax | Document | active', ['active'])
+        >>> chk_or(test, 'Tax || Document || active', ['active'])
         True
-        >>> chk_or(test, 'Document | active', ['active', 'Tax'])
+        >>> chk_or(test, 'Document || active', ['active', 'Tax'])
         True
-        >>> chk_or(test, 'Document | Test', ['active', 'Tax'])
+        >>> chk_or(test, 'Document || Test', ['active', 'Tax'])
         """
-        terms = [item.strip() for item in search_term.split('|')]
+        terms = [item.strip() for item in search_term.split(' || ')]
         if isinstance(value, list):
             return any(item in value for item in terms)
         else:
             return any(item == value for item in terms)
 
     def check_term(self, term, value):
-        if '|' in term:
+        if ' || ' in term:
             return self.chk_or(term, value)
-        elif '&' in term:
+        elif ' && ' in term:
             return self.chk_and(term, value)
         else:
             if isinstance(value, list):
@@ -162,8 +162,8 @@ class Config:
 
         this is case insensitive
 
-        value can be {'tags':'active & Document'} or
-                     {'app': 'Axcess | ELF'}
+        value can be {'tags':'active && Document'} or
+                     {'app': 'Axcess || ELF'}
 
         {
         'div' : 'TAA',

@@ -1,9 +1,10 @@
 
 import argparse
 import json
+import pathlib
 from .log import setup_logger
 
-argp_logger = setup_logger('argp')
+argp_logger = setup_logger(pathlib.Path(__file__).name)
 
 class argp:
     def __init__(self, description="default description", debug=False):
@@ -14,8 +15,9 @@ class argp:
 
         self.parser = argparse.ArgumentParser(description=self.description)
         self.parser.add_argument('-d', '--data_dir', type=str, help="config file", default='data')
-        self.parser.add_argument('-f', '--filter', type=str, help="""filter: Example: -f '{"bu":"Business", "env":"Prod", "tags":"active"}'""")        
-    
+        self.parser.add_argument('-f', '--filter', type=str, help="""filter: Example: -f '{"bu":"Business", "env":"Prod", "tags":"active"}'""")
+        self.parser.add_argument('-de', '--debug', type=bool, default=False, help="""turn on debugging, default False""")
+
         self.args = self.parser.parse_args(namespace=self)
 
         if self.filter:
@@ -33,6 +35,6 @@ class argp:
             return arg_dict
         except json.JSONDecodeError as e:
             argp_logger.error(f"Error decoding JSON: {e}")
-            
+
         return None
 
