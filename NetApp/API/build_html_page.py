@@ -400,7 +400,7 @@ class ClusterData:
         print(f'gathering data for {self.name}')
         self.build_cloud_info()
 
-        with HostConnection(self.ip, username=config.settings['settings']['user']['name'], password=config.settings['settings']['user']['enc'], verify=False):
+        with HostConnection(self.ip, username='cvomon', password=config.settings['users']['cvomon']['enc'], verify=False):
             cluster = Cluster()
 
             cluster.get()
