@@ -108,17 +108,17 @@ class Config:
 
     def chk_and(self, search_term, values):
         """
-        >>> chk_and(test, 'active && Document', ['active'])
-        ['active', 'Document']
+        >>> chk_and(test, 'active && workload1', ['active'])
+        ['active', 'workload1']
         False
-        >>> chk_and(test, 'active && Document', ['active', 'Document'])
-        ['active', 'Document']
+        >>> chk_and(test, 'active && workload1', ['active', 'workload1'])
+        ['active', 'workload1']
         True
-        >>> chk_and(test, 'active && Document && Tax', ['active', 'Document'])
-        ['active', 'Document', 'Tax']
+        >>> chk_and(test, 'active && workload1 && workload2', ['active', 'workload1'])
+        ['active', 'workload1', 'workload2']
         False
-        >>> chk_and(test, 'Document && active', ['active', 'Document'])
-        ['Document', 'active']
+        >>> chk_and(test, 'workload1 && active', ['active', 'workload1'])
+        ['workload1', 'active']
         """
         # && only makes sense for lists
         if not isinstance(values, list):
@@ -128,15 +128,15 @@ class Config:
 
     def chk_or(self, search_term, value):
         """
-        >>> chk_or(test, 'active || Document', ['active'])
+        >>> chk_or(test, 'active || workload1', ['active'])
         True
-        >>> chk_or(test, 'Tax || Document', ['active'])
+        >>> chk_or(test, 'workload1 || workload2', ['active'])
         False
-        >>> chk_or(test, 'Tax || Document || active', ['active'])
+        >>> chk_or(test, 'workload1 || workload2 || active', ['active'])
         True
-        >>> chk_or(test, 'Document || active', ['active', 'Tax'])
+        >>> chk_or(test, 'workload1 || active', ['active', 'workload2'])
         True
-        >>> chk_or(test, 'Document || Test', ['active', 'Tax'])
+        >>> chk_or(test, 'workload1 || Test', ['active', 'workload2'])
         """
         terms = [item.strip() for item in search_term.split(' || ')]
         if isinstance(value, list):
@@ -162,14 +162,9 @@ class Config:
 
         this is case insensitive
 
-        value can be {'tags':'active && Document'} or
-                     {'app': 'Axcess || ELF'}
+        value can be {'tags':'active && Workload'} or
+                     {'app': 'App1 || App2'}
 
-        {
-        'div' : 'TAA',
-        'bu' : 'Professional',
-        'app' : 'Axcess'
-        }
         """
         if not search_dict:
             return self.data[data_type].copy()
