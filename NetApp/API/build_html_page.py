@@ -1,24 +1,24 @@
 """
 
 """
-import logging
-import pprint
-from string import Template
+from pathlib import Path
 
 from yattag import Doc, indent
 
 #from workbook import SpaceWorkbook
 from netapp_ontap import HostConnection, utils
-from netapp_ontap.resources import Disk, Cluster, Volume, Node, Aggregate, Svm, IpInterface, CifsService
+from netapp_ontap.resources import Cluster, Node, Svm, IpInterface, CifsService
 
 from libs.config import Config
 from libs.parseargs import argp
-from libs.size_utils import approximate_size_specific, convert_size
-from libs.cloud_utils import build_azure_id, build_azure_portal_link, get_cloud_types, get_cloud_account_name
+from libs.cloud_utils import build_azure_id, build_azure_portal_link, get_cloud_types
+from libs.log import setup_logger
+
 
 style_file = 'style.txt'
 
-#logging.basicConfig(level=logging.DEBUG)
+logger = setup_logger(Path(__file__).name)
+logger.setLevel('INFO')
 #utils.LOG_ALL_API_CALLS = 1
 
 script = """
@@ -92,7 +92,6 @@ class AppClass:
         self.counts['aiqums'] = self.config.count('aiqums', 'ip')
         self.counts['connectors'] = self.config.count('connectors', 'ip')
         for item in self.cluster_details:
-            # print(f"adding {item}")
             self.clusterdata[item] = ClusterData(item, self, **self.cluster_details[item])
             cluster = self.clusterdata[item]
 
@@ -132,8 +131,6 @@ class AppClass:
             region[cluster.name] = cluster
             if cluster.ele_class:
                 self.button_ids.append(cluster.ele_class)
-
-        # pprint.pprint(self.divisions)
 
     def format_azure_info(self, azure_info):
         self.format_table_row_text('Azure Subscription Name', azure_info['location'])
@@ -223,9 +220,9 @@ class AppClass:
         result = indent(self.doc.getvalue())
         with open('test.html', 'w') as tfile:
             tfile.write(result)
-        print(f"Processed {self.counts['ha'] + self.counts['sn']} clusters")
-        print(f"   Single Node : {self.counts['sn']}")
-        print(f"   HA          : {self.counts['ha']}")
+        logger.info(f"Processed {self.counts['ha'] + self.counts['sn']} clusters")
+        logger.info(f"   Single Node : {self.counts['sn']}")
+        logger.info(f"   HA          : {self.counts['ha']}")
 
     def format_divisions(self):
         divisions = list(self.divisions.keys())
@@ -397,7 +394,7 @@ class ClusterData:
             self.azure['resource_group_url'] = build_azure_portal_link(self.azure['resource_group_id'])
 
     def gather_data(self):
-        print(f'gathering data for {self.name}')
+        logger.info(f'gathering data for {self.name}')
         self.build_cloud_info()
 
         with HostConnection(self.ip, username='cvomon', password=config.settings['users']['cvomon']['enc'], verify=False):
@@ -429,7 +426,7 @@ class ClusterData:
             # pprint.pprint(self.fetched_data)
 
     def format(self, tag, text):
-        print(f"Cluster: {self.name}")
+        logger.info(f"Cluster: {self.name}")
         active = False
         if hasattr(self, 'tags') and 'active' in self.tags:
             active = True
@@ -513,7 +510,7 @@ class ClusterData:
         svm_list.sort()
         for svm in svm_list:
             svm_data = self.fetched_data['svms'][svm]
-            print(f"  SVM: {svm_data['name']}")
+            logger.info(f"  SVM: {svm_data['name']}")
             if svm_data['state'] == 'stopped':
                 state = " - State: Stopped"
             else:
