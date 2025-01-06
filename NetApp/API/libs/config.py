@@ -196,19 +196,33 @@ class Config:
         tree = tree.copy()
         key_order = ['div', 'bu', 'app', 'env', 'subapp', 'cloud', 'region']
         key_order.reverse()
-        closest = None
+        found = None
+
+        # remove empty keys
+        for key in key_order:
+            if tree[key] == "":
+                del tree[key]
+
+        config_logger.debug(f"  initial search {tree = }")
         # try matching tree as is
         results = self.search(data_type, tree)
         if len(results) == 1:
-            return results.popitem()[1]
+            found = results.popitem()[1]
 
-        # go through the key_order and delete keys until something is found
-        for key in key_order:
-            if key in tree:
-                del tree[key]
-            if tree:
-                results = self.search(data_type, tree)
-                if len(results) == 1:
-                    return results.popitem()[1]
+        else:
+            # go through the key_order and delete keys until something is found
+            for key in key_order:
+                if key in tree:
+                    config_logger.debug(f"  removing {key} and searching {tree = }")
+                    del tree[key]
+                else:
+                    continue
+                if tree:
+                    results = self.search(data_type, tree)
+                    config_logger.debug(f"  search_returned {results}")
+                    if len(results) == 1:
+                        found = results.popitem()[1]
+                        break
 
-        return None
+        config_logger.debug(f"  {found = }")
+        return found
