@@ -642,7 +642,7 @@ class ClusterData:
 
 if __name__ == '__main__':
     args = argp(description="build html page of endpoints and mostly static information")
-    config = Config(args.data_dir, debug=False)
+    config = Config(args.data_dir, debug=args.debug)
 
     items = config.get_clusters(args.filter)
     # pprint.pprint(items)
