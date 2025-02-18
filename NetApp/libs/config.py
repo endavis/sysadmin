@@ -38,19 +38,15 @@ import tomllib
 import logging
 import pprint
 import pathlib
-from .log import setup_logger
 
-config_logger = setup_logger(pathlib.Path(__file__).name)
+file_name = pathlib.Path(__file__).name
 
 class Config:
-    def __init__(self, data_dir, debug=False):
+    def __init__(self, data_dir):
         self.data = {}
         self.data_dir = pathlib.Path.cwd() / data_dir
         self.data_types = ['aiqums', 'connectors', 'cloudinsights', 'clusters', 'azure']
         self.settings = {}
-        if debug:
-            config_logger.setLevel(logging.DEBUG)
-            config_logger.debug('toml-config: setting logging to debug')
         self.parse_data()
 
     def parse_data(self):
@@ -58,21 +54,21 @@ class Config:
         all_tomls = self.data_dir.rglob('*.toml')
         loaded_tomls = []
         for file in all_tomls:
-            config_logger.debug(f"parsing {file}")
+            logging.debug(f"{file_name} : parsing {file}")
             self.parse_toml(file)
             loaded_tomls.append(file.stem)
 
-        config_logger.info(f"loaded the following files: {', '.join(loaded_tomls)}")
+        logging.debug(f"{file_name} :loaded the following files: {', '.join(loaded_tomls)}")
         self.add_searchable_keys()
 
     def parse_toml(self, file):
         with open(file, "rb") as f:
             data = tomllib.load(f)
             if 'settings' in data and 'type' in data['settings'] and data['settings']['type'] == 'data':
-                config_logger.info(f'data file: {file.stem}')
+                logging.debug(f"{file_name} : data file: {file.stem}")
                 self.load_data(data)
             else:
-                config_logger.info(f'config file: {file.stem}')
+                logging.debug(f"{file_name} : config file: {file.stem}")
                 if file.stem not in self.settings:
                     self.settings[file.stem] = data
                 else:
@@ -103,7 +99,7 @@ class Config:
             if data_type not in self.data:
                 self.data[data_type] = {}
             if data_type in data:
-                config_logger.info(f"adding {len(data[data_type])} {data_type} items")
+                logging.debug(f"{file_name} : adding {len(data[data_type])} {data_type} items")
                 self.data[data_type].update(data[data_type])
 
     def chk_and(self, search_term, values):
@@ -168,38 +164,39 @@ class Config:
         """
         if not search_dict:
             return self.data[data_type].copy()
-        config_logger.debug("    search:")
-        config_logger.debug(f"     {data_type = }")
-        config_logger.debug(f"     {search_dict = }")
+        logging.debug(f"{file_name} :    search:")
+        logging.debug(f"{file_name} :     {data_type = }")
+        logging.debug(f"{file_name} :     {search_dict = }")
         results = {}
         for item in self.data[data_type]:
             item_details = self.data[data_type][item]
-            config_logger.debug(f"      search: item - {item_details['name']}")
+            logging.debug(f"{file_name} :      search: item - {item_details['name']}")
             result_check = []
             for key in search_dict:
-                config_logger.debug(f"      search: checking {key}")
+                logging.debug(f"{file_name} :      search: checking {key}")
                 if key not in item_details:
                     result_check.append(False)
-                    config_logger.debug(f"      search: {key} not in item details, did not match")
+                    logging.debug(f"{file_name} :      search: {key} not in item details, did not match")
                     break
-                config_logger.debug(f"      search: check_term {search_dict[key]}, {item_details[key]} returned {self.check_term(search_dict[key], item_details[key])}")
+                logging.debug(f"{file_name} :      search: check_term {search_dict[key]}, {item_details[key]} returned {self.check_term(search_dict[key], item_details[key])}")
                 result_check.append(self.check_term(search_dict[key], item_details[key]))
 
             if all(result_check):
-                config_logger.debug(f"      search: item - {item_details['name']} matched")
+                logging.debug(f"{file_name} :      search: item - {item_details['name']} matched")
                 results[item] = item_details
             else:
-                config_logger.debug(f"      search: item - {item_details['name']} did not match")
+                logging.debug(f"{file_name} :      search: item - {item_details['name']} did not match")
 
+        logging.debug(f"{file_name} : search - {results = }")
         return results
 
     def get_clusters(self, search_terms):
         return self.search('clusters', search_terms)
 
     def find_closest(self, data_type: str, tree: dict):
-        config_logger.debug("find_closest")
-        config_logger.debug(f"  {data_type = }")
-        config_logger.debug(f"  {tree = }")
+        logging.debug(f"{file_name} :find_closest")
+        logging.debug(f"{file_name} :  {data_type = }")
+        logging.debug(f"{file_name} :  {tree = }")
         tree = tree.copy()
         key_order = ['div', 'bu', 'app', 'env', 'subapp', 'cloud', 'region']
         key_order.reverse()
@@ -210,7 +207,7 @@ class Config:
             if tree[key] == "":
                 del tree[key]
 
-        config_logger.debug(f"  initial search {tree = }")
+        logging.debug(f"{file_name} :  initial search {tree = }")
         # try matching tree as is
         results = self.search(data_type, tree)
         if len(results) == 1:
@@ -220,16 +217,16 @@ class Config:
             # go through the key_order and delete keys until something is found
             for key in key_order:
                 if key in tree:
-                    config_logger.debug(f"  removing {key} and searching {tree = }")
+                    logging.debug(f"{file_name} :  removing {key} and searching {tree = }")
                     del tree[key]
                 else:
                     continue
                 if tree:
                     results = self.search(data_type, tree)
-                    config_logger.debug(f"  search_returned {results}")
+                    logging.debug(f"{file_name} :  search_returned {results}")
                     if len(results) == 1:
                         found = results.popitem()[1]
                         break
 
-        config_logger.debug(f"  {found = }")
+        logging.debug(f"{file_name} : find_closest - {found = }")
         return found

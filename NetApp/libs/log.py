@@ -1,16 +1,21 @@
 import logging
+from datetime import datetime
 
 def setup_logger(loggername):
-    temp_logger = logging.getLogger(loggername)
-    # create a console handler
-    console_handler = logging.StreamHandler()
-    # set the handler's level
-    console_handler.setLevel(logging.DEBUG)
-    # create a formatter
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    # set the formatter for the handler
-    console_handler.setFormatter(formatter)
-    # add the handler to the logger
-    temp_logger.addHandler(console_handler)
+    root_logger = logging.getLogger()
+    root_logger.setLevel(logging.DEBUG)
 
-    return temp_logger
+    # create a formatter
+    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+
+    # add a console handler, default INFO
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.INFO)
+    console_handler.setFormatter(formatter)
+    root_logger.addHandler(console_handler)
+
+    # add a file handler, default DEBUG
+    log_filename = datetime.now().strftime(f'logs/{loggername}_%Y-%m-%d_%H-%M-%S.log')
+    file_handler = logging.FileHandler(log_filename)
+    file_handler.setLevel(logging.DEBUG)
+    root_logger.addHandler(file_handler)

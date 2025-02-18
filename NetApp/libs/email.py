@@ -1,11 +1,10 @@
 import smtplib
 import pathlib
+import logging
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-from .log import setup_logger
-
-smtp_logger = setup_logger(pathlib.Path(__file__).name)
+file_name = pathlib.Path(__file__).name
 
 def send_email(config, subject='', body='', mailto=None, mailfrom=None, high_priority=False):
 
@@ -17,9 +16,9 @@ def send_email(config, subject='', body='', mailto=None, mailfrom=None, high_pri
     auth = config.settings['settings']['SMTP']['auth']
 
     if not mailto:
-        smtp_logger.error("No To Email address specified")
+        logging.error(f"{file_name} : No To Email address specified")
     if not mailfrom:
-        smtp_logger.error("No From Email address specified")
+        logging.error(f"{file_name} : No From Email address specified")
 
     # Create the email message
     msg = MIMEMultipart()
@@ -40,4 +39,4 @@ def send_email(config, subject='', body='', mailto=None, mailfrom=None, high_pri
         server.sendmail(mailfrom, mailto, msg.as_string())
         server.quit()
     except Exception as e:
-        print(f'Failed to send email: {smtp_server} {e}')
+        logging.error(f"{file_name} : Failed to send email: {smtp_server} {e}")

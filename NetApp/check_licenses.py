@@ -3,6 +3,7 @@
 """
 from pathlib import Path
 from datetime import datetime, timedelta, timezone
+import logging
 
 from netapp_ontap import HostConnection
 from netapp_ontap.resources import LicensePackage, Node
@@ -12,9 +13,10 @@ from libs.parseargs import argp
 from libs.log import setup_logger
 from libs.email import send_email
 
-logger = setup_logger(Path(__file__).name)
-logger.setLevel('INFO')
+setup_logger(Path(__file__).name)
 #utils.LOG_ALL_API_CALLS = 1
+
+file_name = Path(__file__).name
 
 APP = None
 
@@ -87,6 +89,7 @@ class ClusterData:
                 self.fetched_data['nodes'][node['name']]['valid_license'] = False
 
     def process_data(self):
+        logging.info(f"{file_name} : Checking {self.name}")
         days_to_check = 30
         license_type = 'ONTAP BYOL'
         current_time = datetime.now(timezone.utc)
@@ -107,7 +110,6 @@ class ClusterData:
 
                     # ONTAP select licenses have no expiration
                     case sn if sn.startswith('3200'):
-                        days_to_check = 13
                         license_type = 'ONTAP Select'
 
                 if item['owner'] in self.fetched_data['nodes']:
@@ -149,7 +151,7 @@ class ClusterData:
 
 if __name__ == '__main__':
     args = argp(description="check clusters for licensing issues")
-    config = Config(args.data_dir, debug=args.debug)
+    config = Config(args.data_dir)
 
     items = config.get_clusters(args.filter)
 

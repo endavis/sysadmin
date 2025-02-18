@@ -2,15 +2,13 @@
 import argparse
 import json
 import pathlib
-from .log import setup_logger
+import logging
 
-argp_logger = setup_logger(pathlib.Path(__file__).name)
+file_name = pathlib.Path(__file__).name
 
 class argp:
-    def __init__(self, description="default description", debug=False):
+    def __init__(self, description="default description"):
 
-        if debug:
-            argp_logger.setLevel('DEBUG')
         self.description = description
 
         self.parser = argparse.ArgumentParser(description=self.description)
@@ -21,12 +19,16 @@ class argp:
         self.args = self.parser.parse_args(namespace=self)
 
         if self.filter:
-            argp_logger.debug(f"filter before conversion: {self.filter = }")
+            logging.debug(f"{file_name} : filter before conversion: {self.filter = }")
             converted_filter = self.parse_json(self.filter)
-            argp_logger.debug(f"After conversion: {type(converted_filter) = } {converted_filter = }")
+            logging.debug(f"{file_name} : After conversion: {type(converted_filter) = } {converted_filter = }")
             self.filter = converted_filter
         else:
             self.filter = ''
+
+        if self.debug:
+            for handler in logging.getLogger().handlers:
+                handler.setLevel(logging.DEBUG)
 
     def parse_json(self, json_string):
         try:
@@ -34,7 +36,7 @@ class argp:
             arg_dict = json.loads(json_string)
             return arg_dict
         except json.JSONDecodeError as e:
-            argp_logger.error(f"Error decoding JSON: {e}")
+            logging.error(f"{file_name} : Error decoding JSON: {e}")
 
         return None
 
