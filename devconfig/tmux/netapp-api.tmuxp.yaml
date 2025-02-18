@@ -7,8 +7,8 @@
 #   Window 1: to run git commands
 #   Window 2: to search files from the command line
 #   Window 3: a python interpreter in the venv
-session_name: Python NetApp API
-start_directory: /home/endavis/src/sysadmin/NetApp/API
+session_name: Python NetApp Scripts
+start_directory: /home/endavis/src/sysadmin/NetApp
 environment:
   EDITOR: /usr/bin/vim
 windows:
