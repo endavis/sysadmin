@@ -94,4 +94,8 @@ ENV/
 na.ini
 .python*
 *.ini
+*.csv
+*.xls
+NetApp/data
+NetApp/output
 
