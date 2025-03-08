@@ -13,10 +13,8 @@ from libs.config import Config
 from libs.parseargs import argp
 from libs.log import setup_logger
 
-setup_logger(Path(__file__).name)
+setup_logger()
 #utils.LOG_ALL_API_CALLS = 1
-
-file_name = Path(__file__).name
 
 APP = None
 
@@ -41,7 +39,7 @@ class AppClass:
             cluster.gather_data()
             cluster.process_data()
 
-        with open('output/ems_output.csv', 'w') as output:
+        with open(self.config.output_dir / 'ems_output.csv', 'w') as output:
             for line in self.output:
                 if line:
                     output.write(line + '\n')
@@ -100,7 +98,7 @@ class ClusterData:
 
 if __name__ == '__main__':
     args = argp(description="check clusters for licensing issues")
-    config = Config(args.data_dir)
+    config = Config(args.config_dir)
 
     items = config.get_clusters(args.filter)
 
