@@ -38,20 +38,28 @@ import tomllib
 import logging
 import pprint
 import pathlib
+import sys
+import os
 
 file_name = pathlib.Path(__file__).name
 
 class Config:
-    def __init__(self, data_dir):
+    def __init__(self, config_dir):
         self.data = {}
-        self.data_dir = pathlib.Path.cwd() / data_dir
+        self.config_dir = pathlib.Path.cwd() / config_dir
         self.data_types = ['aiqums', 'connectors', 'cloudinsights', 'clusters', 'azure']
         self.settings = {}
         self.parse_data()
+        self.script_name = pathlib.Path(sys.argv[0]).stem
+        self.output_dir = pathlib.Path(os.getcwd()) / 'output' / self.script_name
+        self.db_dir = self.output_dir / 'db'
+        os.makedirs(self.output_dir, exist_ok=True)
+        os.makedirs(self.db_dir, exist_ok=True)
+
 
     def parse_data(self):
 
-        all_tomls = self.data_dir.rglob('*.toml')
+        all_tomls = self.config_dir.rglob('*.toml')
         loaded_tomls = []
         for file in all_tomls:
             logging.debug(f"{file_name} : parsing {file}")

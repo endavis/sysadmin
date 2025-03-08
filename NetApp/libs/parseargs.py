@@ -12,7 +12,7 @@ class argp:
         self.description = description
 
         self.parser = argparse.ArgumentParser(description=self.description)
-        self.parser.add_argument('-d', '--data_dir', type=str, help="config file", default='data')
+        self.parser.add_argument('-c', '--config_dir', type=str, help="configuration directory", default='config')
         self.parser.add_argument('-f', '--filter', type=str, help="""filter: Example: -f '{"bu":"Business", "env":"Prod", "tags":"active"}'""")
         self.parser.add_argument('-de', '--debug', type=bool, default=False, help="""turn on debugging, default False""")
 

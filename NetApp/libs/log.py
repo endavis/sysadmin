@@ -1,7 +1,10 @@
+import pathlib
 import logging
+import sys
 from datetime import datetime
 
-def setup_logger(loggername):
+def setup_logger():
+    loggername = pathlib.Path(sys.argv[0]).stem
     root_logger = logging.getLogger()
     root_logger.setLevel(logging.DEBUG)
 
