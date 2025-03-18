@@ -62,7 +62,7 @@ class ClusterData:
 
 if __name__ == '__main__':
     args = argp(description="validate netapp connectivity and config")
-    config = Config(args.data_dir, debug=False)
+    config = Config(args.config_dir, debug=False)
 
     items = config.get_clusters(args.filters)
     # pprint.pprint(items)

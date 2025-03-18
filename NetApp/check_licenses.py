@@ -151,7 +151,7 @@ class ClusterData:
 
 if __name__ == '__main__':
     args = argp(description="check clusters for licensing issues")
-    config = Config(args.data_dir)
+    config = Config(args.config_dir)
 
     items = config.get_clusters(args.filter)
 

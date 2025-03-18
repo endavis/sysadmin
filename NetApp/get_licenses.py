@@ -88,7 +88,7 @@ class ClusterData:
 
 if __name__ == '__main__':
     args = argp(description="build html page of endpoints and mostly static information")
-    config = Config(args.data_dir, debug=args.debug)
+    config = Config(args.config_dir, debug=args.debug)
 
     items = config.get_clusters(args.filter)
     # aiqums = config.search('aiqums', {'bu':'PUMA'})
