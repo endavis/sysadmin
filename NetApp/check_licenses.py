@@ -13,7 +13,7 @@ from libs.parseargs import argp
 from libs.log import setup_logger
 from libs.email import send_email
 
-setup_logger(Path(__file__).name)
+setup_logger()
 #utils.LOG_ALL_API_CALLS = 1
 
 file_name = Path(__file__).name

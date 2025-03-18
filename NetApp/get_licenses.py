@@ -16,7 +16,7 @@ from libs.cloud_utils import build_azure_id, build_azure_portal_link, get_cloud_
 from libs.log import setup_logger
 
 
-logger = setup_logger(Path(__file__).name)
+logger = setup_logger()
 logger.setLevel('INFO')
 #utils.LOG_ALL_API_CALLS = 1
 

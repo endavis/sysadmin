@@ -17,7 +17,7 @@ from libs.log import setup_logger
 
 style_file = 'style.txt'
 
-logger = setup_logger(Path(__file__).name)
+logger = setup_logger()
 logger.setLevel('INFO')
 #utils.LOG_ALL_API_CALLS = 1
 
