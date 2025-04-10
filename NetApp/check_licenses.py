@@ -51,7 +51,11 @@ class AppClass:
             email_body.append('The following licenses should be checked')
             email_body.append("")
             for item in self.license_issues:
-                email_body.append(f"- {item['cluster']} - {item['owner']} - {item['serial number']} - {item['license type']} expires in less than {item['days checked']} days   ")
+                owner = item['owner'] if 'owner' in item else 'Unknown'
+                serial = item['serial number'] if 'serial number' in item else 'Unknown'
+                license_type = item['license type'] if 'license type' in item else 'Unknown'
+                days = item['days checked'] if 'days checked' in item else 'Unknown'
+                email_body.append(f"- {item['cluster']} - {owner} - {serial} - {license_type} expires in less than {days} days   ")
 
             str_body = "\r\n".join(email_body)
             message_subject = f"{datetime.now().date()} : Licensing issues found"
@@ -137,13 +141,13 @@ class ClusterData:
 
         for node in self.fetched_data['nodes']:
 
-            if not self.fetched_data['nodes'][node]['has_license']:
+            if not 'has_license' in self.fetched_data['nodes'][node] or not self.fetched_data['nodes'][node]['has_license']:
 
                 self.app_instance.license_issues.append({'cluster':self.name,
                                                         'node': node,
                                                         'error': 'No License',
                                                         'days checked': -1,
-                                                        'serial number': self.fetched_data['nodes'][node]['serial_number'],
+                                                        'serial number': self.fetched_data['nodes'][node]['serial_number'] if 'serial_number' in self.fetched_data['nodes'][node] else 'Unknown',
                                                         'expires': -1,
                                                         'license type': 'None'})
 
