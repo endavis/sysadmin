@@ -82,22 +82,36 @@ class ClusterData:
         self.app_instance = app_instance
 
     def gather_data(self):
-        with HostConnection(self.ip, username='cvomon', password=config.settings['users']['cvomon']['enc'], verify=False):
-            self.fetched_data['licenses'] = []
-            for license in LicensePackage.get_collection(fields="*"):
-                self.fetched_data['licenses'].append(license.to_dict())
+        logging.info(f"{file_name} : Checking {self.name}")
+        try:
+            with HostConnection(self.ip, username='cvomon', password=config.settings['users']['cvomon']['enc'], verify=False):
+                self.fetched_data['licenses'] = []
+                for license in LicensePackage.get_collection(fields="*"):
+                    self.fetched_data['licenses'].append(license.to_dict())
 
-            self.fetched_data['nodes'] = {}
-            for node in Node.get_collection(fields="*"):
-                self.fetched_data['nodes'][node['name']] = node.to_dict()
-                self.fetched_data['nodes'][node['name']]['valid_license'] = False
+                self.fetched_data['nodes'] = {}
+                for node in Node.get_collection(fields="*"):
+                    self.fetched_data['nodes'][node['name']] = node.to_dict()
+                    self.fetched_data['nodes'][node['name']]['valid_license'] = False
+        except Exception as e:
+            logging.error(f"Could not retrieve events for {self.name} {e}")
+
 
     def process_data(self):
-        logging.info(f"{file_name} : Checking {self.name}")
         days_to_check = 30
         license_type = 'ONTAP BYOL'
         current_time = datetime.now(timezone.utc)
         midnight_time = current_time.replace(hour=0, minute=0, second=0, microsecond=0)
+        if not self.fetched_data['licenses']:
+            self.app_instance.license_issues.append({'cluster':self.name,
+                                                        'owner': '',
+                                                        'error': 'Could not get licenses',
+                                                        'days checked': -1,
+                                                        'serial number':-1,
+                                                        'expires':-1,
+                                                        'license type': -1})
+            return
+
         for license in self.fetched_data['licenses']:
             for item in license['licenses']:
                 serial_number = item['serial_number']
