@@ -55,7 +55,7 @@ class AppClass:
                 serial = item['serial number'] if 'serial number' in item else 'Unknown'
                 license_type = item['license type'] if 'license type' in item else 'Unknown'
                 days = item['days checked'] if 'days checked' in item else 'Unknown'
-                email_body.append(f"- {item['cluster']} - {owner} - {serial} - {license_type} expires in less than {days} days   ")
+                email_body.append(f"- {item['cluster']} - {owner} - {serial} - {license_type} expires in less than {days} days on {item['expires']}  ")
 
             str_body = "\r\n".join(email_body)
             message_subject = f"{datetime.now().date()} : Licensing issues found"
@@ -147,7 +147,7 @@ class ClusterData:
                                                                  'error': 'Expiring license',
                                                                  'days checked': days_to_check,
                                                                  'serial number':item['serial_number'],
-                                                                 'expires':item['expiry_time'],
+                                                                 'expires':expiry_time,
                                                                  'license type': license_type})
                         # print(f"{self.name} {item['owner']} : expiry_time is less than {days_to_check} days in the future.")
                     # else:
