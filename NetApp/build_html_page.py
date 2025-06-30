@@ -2,6 +2,7 @@
 
 """
 from pathlib import Path
+import logging
 
 from yattag import Doc, indent
 
@@ -18,7 +19,6 @@ from libs.log import setup_logger
 style_file = 'style.txt'
 
 logger = setup_logger()
-logger.setLevel('INFO')
 #utils.LOG_ALL_API_CALLS = 1
 
 script = """
@@ -220,9 +220,9 @@ class AppClass:
         result = indent(self.doc.getvalue())
         with open('test.html', 'w') as tfile:
             tfile.write(result)
-        logger.info(f"Processed {self.counts['ha'] + self.counts['sn']} clusters")
-        logger.info(f"   Single Node : {self.counts['sn']}")
-        logger.info(f"   HA          : {self.counts['ha']}")
+        logging.info(f"Processed {self.counts['ha'] + self.counts['sn']} clusters")
+        logging.info(f"   Single Node : {self.counts['sn']}")
+        logging.info(f"   HA          : {self.counts['ha']}")
 
     def format_divisions(self):
         divisions = list(self.divisions.keys())
@@ -394,7 +394,7 @@ class ClusterData:
             self.azure['resource_group_url'] = build_azure_portal_link(self.azure['resource_group_id'])
 
     def gather_data(self):
-        logger.info(f'gathering data for {self.name}')
+        logging.info(f'gathering data for {self.name}')
         self.build_cloud_info()
 
         with HostConnection(self.ip, username='cvomon', password=config.settings['users']['cvomon']['enc'], verify=False):
@@ -426,7 +426,7 @@ class ClusterData:
             # pprint.pprint(self.fetched_data)
 
     def format(self, tag, text):
-        logger.info(f"Cluster: {self.name}")
+        logging.info(f"Cluster: {self.name}")
         active = False
         if hasattr(self, 'tags') and 'active' in self.tags:
             active = True
@@ -510,7 +510,7 @@ class ClusterData:
         svm_list.sort()
         for svm in svm_list:
             svm_data = self.fetched_data['svms'][svm]
-            logger.info(f"  SVM: {svm_data['name']}")
+            logging.info(f"  SVM: {svm_data['name']}")
             if svm_data['state'] == 'stopped':
                 state = " - State: Stopped"
             else:
@@ -639,7 +639,7 @@ class ClusterData:
 
 if __name__ == '__main__':
     args = argp(description="build html page of endpoints and mostly static information")
-    config = Config(args.config_dir, debug=args.debug)
+    config = Config(args.config_dir)
 
     items = config.get_clusters(args.filter)
     # pprint.pprint(items)
