@@ -28,7 +28,7 @@ class AppClass:
         self.clusterdata = {}
         self.build_app()
         self.config = config
-  
+
 
     def build_app(self):
         for item in self.cluster_details:
@@ -43,13 +43,13 @@ class ClusterData:
         self.name = clustername
         self.cluster_type = ''
         for name, value in kwargs.items():
-            setattr(self, name, value)            
+            setattr(self, name, value)
 
     def gather_data(self):
         try:
-            with HostConnection(self.ip, username=config.settings['settings']['user']['name'], password=config.settings['settings']['user']['enc'], verify=False):
+            with HostConnection(self.ip, username='cvomon', password=config.settings['users']['cvomon']['enc'], verify=False):
                 cluster = Cluster()
-                
+
                 cluster.get()
                 print(f'Config {self.name} connected successfully')
 
@@ -61,10 +61,10 @@ class ClusterData:
 
 
 if __name__ == '__main__':
-    args = argp(description="validate netapp connectivity and config")
-    config = Config(args.config_dir, debug=False)
+    args = argp(description="build html page of endpoints and mostly static information")
+    config = Config(args.config_dir)
 
-    items = config.get_clusters(args.filters)
+    items = config.get_clusters(args.filter)
     # pprint.pprint(items)
 
     APP = AppClass('validate', items, config)
