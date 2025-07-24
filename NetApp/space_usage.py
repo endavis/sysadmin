@@ -12,19 +12,18 @@ import pprint
 import traceback
 from datetime import datetime
 
-from netapp_ontap import HostConnection, utils
-from netapp_ontap.resources import Disk, Cluster, Volume, Node
-from openpyxl import Workbook
-from openpyxl.utils import get_column_letter
-from openpyxl.worksheet.table import Table, TableStyleInfo
+from netapp_ontap import HostConnection
+from netapp_ontap.resources import Cluster, Volume
+# from openpyxl import Workbook
+# from openpyxl.utils import get_column_letter
+# from openpyxl.worksheet.table import Table, TableStyleInfo
 import xlsxwriter
 
 
 from libs.config import Config
 from libs.parseargs import argp
 from libs.log import setup_logger
-from libs.size_utils import approximate_size_specific, convert_size
-from libs.excel import fix_column_widths, set_font, filter_sheet, get_column_mapping
+from libs.size_utils import approximate_size_specific
 
 setup_logger()
 
@@ -40,12 +39,18 @@ class AppClass:
     def __init__(self, name, clusters):
         self.name = name
         self.cluster_details = clusters
-        self.clusterdata = {}        
-        self.wb = Workbook()
-        self.usage_sheet = self.wb.active
-        self.usage_sheet.title = "Usage"
-        self.volume_sheet = self.wb.create_sheet('Volumes')
-        self.volume_sheet.append(["Division", "BU", "Cluster", "App", "Environment", "SubApp", "Cloud", "Region", "Volume", "Tags", "State", "Provisioned Size [TiB]", "Used Size [TiB]"])
+        self.clusterdata = {} 
+        timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")            
+        self.filename = config.output_dir / f"space_usage_{timestamp}.xlsx"              
+
+        self.workbook = xlsxwriter.Workbook(self.filename)
+        self.usage_ws = self.workbook.add_worksheet("Usage")
+        self.volumes_ws = self.workbook.add_worksheet("Volumes")
+        self.volume_data = []
+
+        # Define common format with Cascadia Mono font size 10
+        self.cell_format = self.workbook.add_format({'font_name': 'Cascadia Mono', 'font_size': 10})
+
         self.divisions = {}
         self.build_app()
 
@@ -75,101 +80,108 @@ class AppClass:
 
             self.clusterdata[item] = ClusterData(item, self, **self.cluster_details[item])
 
-        pprint.pprint(self.divisions)
-
     def go(self):
         for cluster in self.clusterdata.values():
             cluster.gather_data()
 
+        self.build_volume_sheet()
         self.build_usage_sheet()
+        
+        self.workbook.close()
+        logging.info(f"Data saved to {self.filename}")       
 
-        set_font(self.wb)
-        filter_sheet(self.volume_sheet)        
-        filter_sheet(self.usage_sheet)        
-        fix_column_widths(self.wb)
+    def build_volume_sheet(self):
+        
+        # Headers for Volumes sheet
+        volumes_headers = [
+            "Division", "BU", "Cluster", "App", "Environment", "SubApp", "Cloud",
+            "Region", "Volume", "Tags", "State", "Provisioned Size [TiB]", "Used Size [TiB]"
+        ]
 
-        timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")            
-        filename = config.output_dir / f"volumes_{timestamp}.xlsx"
-        self.wb.save(filename)
+        # Write headers to Volumes sheet
+        for col_num, header in enumerate(volumes_headers):
+            self.volumes_ws.write(0, col_num, header, self.cell_format)
 
-        self.add_usage_table()
-        logging.info(f"Data saved to {filename}")       
+        # Write data and track max column width
+        volumes_col_widths = [len(header) + 1 for header in volumes_headers]
+        for row_num, row_data in enumerate(self.volume_data, start=1):
+            for col_num, cell in enumerate(row_data):
+                self.volumes_ws.write(row_num, col_num, cell, self.cell_format)
+                cell_length = len(str(cell))
+                if cell_length > volumes_col_widths[col_num]:
+                    volumes_col_widths[col_num] = cell_length
 
-    def add_usage_table(self):
-        # Define the table range (e.g., A1:C4)
-        # print(f"Tableref: A1:{get_column_letter(self.usage_sheet.max_column)}{self.usage_sheet.max_row}")
-        # table = Table(displayName="Usage", ref=f"A1:{get_column_letter(self.usage_sheet.max_column)}{self.usage_sheet.max_row}")
+        # Apply autofilter to Volumes sheet
+        self.volumes_ws.autofilter(0, 0, len(self.volume_data), len(volumes_headers) - 1)
 
-        # # Add a style to the table
-        # style = TableStyleInfo(
-        #     name="TableStyleMedium9", showFirstColumn=False,
-        #                showLastColumn=False, showRowStripes=True, showColumnStripes=False
-        # )
-        # table.tableStyleInfo = style
+        # Auto-size columns for Volumes sheet
+        for col_num, width in enumerate(volumes_col_widths):
+            self.volumes_ws.set_column(col_num, col_num, width + 4)
 
-        # Add the table to the worksheet
-        # self.usage_sheet.add_table(table)
-        # column_mapping = get_column_mapping(self.usage_sheet)
-        # provisioned_col = column_mapping[provision_col_header]
-        # used_col = column_mapping[used_col_header]
+        # self.volumes_ws.autofit()
 
-        # row_num = self.usage_sheet.max_row + 1
-        # sanitized_prov_col_header = provision_col_header.replace('[', "'[").replace(']', "']")
-        # sanitized_used_col_header = used_col_header.replace('[', "'[").replace(']', "']")
-        # self.usage_sheet[f"{provisioned_col}{row_num}"] = f"=SUBTOTAL(109,[{sanitized_prov_col_header}])"
-        # self.usage_sheet[f"{used_col}{row_num}"] = f"=SUBTOTAL(109,[{sanitized_used_col_header}])"        
-        pass
 
     def build_usage_sheet(self):
         provision_col_header = "Provisioned [TiB]"
         used_col_header = "Used [TiB]"
-        self.usage_sheet.append(["Division", "BU", "App", "Environment", "SubApp", "Cloud", "Region", provision_col_header, used_col_header])
-        last_row = self.volume_sheet.max_row
-        """
-            div = self.cluster_details[item]['div']
-            bu = self.cluster_details[item]['bu']
-            app = self.cluster_details[item]['app']
-            env = self.cluster_details[item]['env']
-            subapp = self.cluster_details[item]['subapp']
-            cloud = self.cluster_details[item]['cloud']
-            region = self.cluster_details[item]['region']
-        """
+        usage_headers = ["Division", "BU", "App", "Environment", "SubApp", "Cloud", "Region", provision_col_header, used_col_header]
+
+        volume_last_row = len(self.volume_data) + 1
+        usage_data = []
+
+
+        # Write headers to Usage sheet
+        for col_num, header in enumerate(usage_headers):
+            self.usage_ws.write(0, col_num, header, self.cell_format)
+      
+        # get the totals
         for div in self.divisions:
-            # self.usage_sheet.append([div, "", "", "", "", "", "",
-            #                         f'=SUMIFS(Volumes!$L$2:$L${last_row},Volumes!$A$2:$A${last_row},"{div}")',
-            #                         f'=SUMIFS(Volumes!$M$2:$M${last_row},Volumes!$A$2:$A${last_row},"{div}")'])
-
             for bu in self.divisions[div]:
-                # self.usage_sheet.append([div, bu, "", "", "", "", "",
-                #                     f'=SUMIFS(Volumes!$L$2:$L${last_row},Volumes!$A$2:$A${last_row},"{div}",Volumes!$B$2:$B${last_row},"{bu}")',
-                #                     f'=SUMIFS(Volumes!$M$2:$M${last_row},Volumes!$A$2:$A${last_row},"{div}",Volumes!$B$2:$B${last_row},"{bu}")'])
-
                 for app in self.divisions[div][bu]:
-                    # if app:
-                        # self.usage_sheet.append([div, bu, app, "", "", "", "",
-                        #                  f'=SUMIFS(Volumes!$L$2:$L${last_row},Volumes!$A$2:$A${last_row},"{div}",Volumes!$B$2:$B${last_row},"{bu}",Volumes!$D$2:$D${last_row},"{app}")',
-                        #                  f'=SUMIFS(Volumes!$M$2:$M${last_row},Volumes!$A$2:$A${last_row},"{div}",Volumes!$B$2:$B${last_row},"{bu}",Volumes!$D$2:$D${last_row},"{app}")'])
-
                     for env in self.divisions[div][bu][app]:
-                        # self.usage_sheet.append([div, bu, app, env, "", "", "",
-                        #                     f'=SUMIFS(Volumes!$L$2:$L${last_row},Volumes!$A$2:$A${last_row},"{div}",Volumes!$B$2:$B${last_row},"{bu}",Volumes!$D$2:$D${last_row},"{app}",Volumes!$E$2:$E${last_row},"{env}")',
-                        #                     f'=SUMIFS(Volumes!$M$2:$M${last_row},Volumes!$A$2:$A${last_row},"{div}",Volumes!$B$2:$B${last_row},"{bu}",Volumes!$D$2:$D${last_row},"{app}",Volumes!$E$2:$E${last_row},"{env}")'])
-
                         for subapp in self.divisions[div][bu][app][env]:
-                            # if subapp:
-                            #     self.usage_sheet.append([div, bu, app, env, subapp, "", "",
-                            #                     f'=SUMIFS(Volumes!$L$2:$L${last_row},Volumes!$A$2:$A${last_row},"{div}",Volumes!$B$2:$B${last_row},"{bu}",Volumes!$D$2:$D${last_row},"{app}",Volumes!$E$2:$E${last_row},"{env}",Volumes!$F$2:$F${last_row},"{subapp}")',
-                            #                     f'=SUMIFS(Volumes!$M$2:$M${last_row},Volumes!$A$2:$A${last_row},"{div}",Volumes!$B$2:$B${last_row},"{bu}",Volumes!$D$2:$D${last_row},"{app}",Volumes!$E$2:$E${last_row},"{env}",Volumes!$F$2:$F${last_row},"{subapp}")'])
-
                             for cloud in self.divisions[div][bu][app][env][subapp]:
-                                # self.usage_sheet.append([div, bu, app, env, subapp, cloud, "",
-                                #                     f'=SUMIFS(Volumes!$L$2:$L${last_row},Volumes!$A$2:$A${last_row},"{div}",Volumes!$B$2:$B${last_row},"{bu}",Volumes!$D$2:$D${last_row},"{app}",Volumes!$E$2:$E${last_row},"{env}",Volumes!$F$2:$F${last_row},"{subapp}",Volumes!$G$2:$G${last_row},"{cloud}")',
-                                #                     f'=SUMIFS(Volumes!$M$2:$M${last_row},Volumes!$A$2:$A${last_row},"{div}",Volumes!$B$2:$B${last_row},"{bu}",Volumes!$D$2:$D${last_row},"{app}",Volumes!$E$2:$E${last_row},"{env}",Volumes!$F$2:$F${last_row},"{subapp}",Volumes!$G$2:$G${last_row},"{cloud}")'])
-
                                 for region in self.divisions[div][bu][app][env][subapp][cloud]:
-                                    self.usage_sheet.append([div, bu, app, env, subapp, cloud, region, 0, 0])
-                                                        # f'=SUMIFS(Volumes!$L$2:$L${last_row},Volumes!$A$2:$A${last_row},"{div}",Volumes!$B$2:$B${last_row},"{bu}",Volumes!$D$2:$D${last_row},"{app}",Volumes!$E$2:$E${last_row},"{env}",Volumes!$F$2:$F${last_row},"{subapp}",Volumes!$G$2:$G${last_row},"{cloud}",Volumes!$H$2:$H${last_row},"{region}")',
-                                                        # f'=SUMIFS(Volumes!$M$2:$M${last_row},Volumes!$A$2:$A${last_row},"{div}",Volumes!$B$2:$B${last_row},"{bu}",Volumes!$D$2:$D${last_row},"{app}",Volumes!$E$2:$E${last_row},"{env}",Volumes!$F$2:$F${last_row},"{subapp}",Volumes!$G$2:$G${last_row},"{cloud}",Volumes!$H$2:$H${last_row},"{region}")'])
+                                    usage_data.append([div, bu, app, env, subapp, cloud, region, 
+                                                        f'=SUMIFS(Volumes!$L$2:$L${volume_last_row},Volumes!$A$2:$A${volume_last_row},"{div}",Volumes!$B$2:$B${volume_last_row},"{bu}",Volumes!$D$2:$D${volume_last_row},"{app}",Volumes!$E$2:$E${volume_last_row},"{env}",Volumes!$F$2:$F${volume_last_row},"{subapp}",Volumes!$G$2:$G${volume_last_row},"{cloud}",Volumes!$H$2:$H${volume_last_row},"{region}")',
+                                                        f'=SUMIFS(Volumes!$M$2:$M${volume_last_row},Volumes!$A$2:$A${volume_last_row},"{div}",Volumes!$B$2:$B${volume_last_row},"{bu}",Volumes!$D$2:$D${volume_last_row},"{app}",Volumes!$E$2:$E${volume_last_row},"{env}",Volumes!$F$2:$F${volume_last_row},"{subapp}",Volumes!$G$2:$G${volume_last_row},"{cloud}",Volumes!$H$2:$H${volume_last_row},"{region}")'])
+
+
+        # Write data and track max column width
+        usage_col_widths = [len(header) + 1 for header in usage_headers]
+        for row_num, row_data in enumerate(usage_data, start=1):
+            for col_num, cell in enumerate(row_data):
+                self.usage_ws.write(row_num, col_num, cell, self.cell_format)
+                cell_length = len(str(cell))
+                if (not str(cell).startswith('=')) and cell_length > usage_col_widths[col_num]:
+                    usage_col_widths[col_num] = cell_length
+
+
+        # Add table with style and total row
+        table_range = f"A1:I{len(usage_data)+2}"
+        self.usage_ws.add_table(table_range, {
+
+        'columns': [
+            {'header': "Division", 'total_string': 'Totals'},
+            {'header': "BU", 'total_string': ''},
+            {'header': "App", 'total_string': ''},
+            {'header': "Environment", 'total_string': ''},
+            {'header': "SubApp", 'total_string': ''},
+            {'header': "Cloud", 'total_string': ''},
+            {'header': "Region", 'total_string': ''},
+            {'header': "Provisioned [TiB]", 'total_function': 'sum'},
+            {'header': "Used [TiB]", 'total_function': 'sum'}
+        ],
+
+            'style': 'Table Style Medium 9',
+            'autofilter': True,
+            'total_row': True
+        })
+
+        # Auto-size columns for Usage sheet
+        for col_num, width in enumerate(usage_col_widths):
+            self.usage_ws.set_column(col_num, col_num, width + 2)
+
 
 class ClusterData:
     def __init__(self, clustername: str, app_instance: AppClass, **kwargs):
@@ -195,8 +207,8 @@ class ClusterData:
                     if volume['state'] == 'offline':
                         used = 0
                     else:
-                        used = float(f"{approximate_size_specific(volume['space']['used'], 'TiB', withsuffix=False):.2f}")
-                    self.app_instance.volume_sheet.append([self.div,
+                        used = float(f"{approximate_size_specific(volume['space']['used'], 'TiB', withsuffix=False):.3f}")
+                    self.app_instance.volume_data.append([self.div,
                                                  self.bu,
                                                  self.name,
                                                  self.app,
@@ -207,13 +219,9 @@ class ClusterData:
                                                  volume['name'],
                                                  volume['state'],
                                                  ",".join(self.tags),
-                                                 float(f"{approximate_size_specific(volume['size'], 'TiB', withsuffix=False):.2f}"),
+                                                 float(f"{approximate_size_specific(volume['size'], 'TiB', withsuffix=False):.3f}"),
                                                  used])
                     
-                    # set to numbers format with 2 decimal places
-                    self.app_instance.volume_sheet[f'K{self.app_instance.volume_sheet.max_row}'].number_format = '#,##0.00'
-                    self.app_instance.volume_sheet[f'L{self.app_instance.volume_sheet.max_row}'].number_format = '#,##0.00'
-
         except Exception as e:
             logging.error(f"Could not retrieve data for {self.name} {volume['name']} {e}", exc_info=e)
 
@@ -222,9 +230,7 @@ if __name__ == '__main__':
     args = argp(description="gather volume and cluster stats, provisioned size and savings if changing to 80% and 90% autosize thresholds")
     config = Config(args.config_dir)
 
-    #filter = '{"bu":"Professional", "app":"Axcess", "env":"Prod"}'
     items = config.get_clusters(args.filter)    
-    #items = config.get_clusters(filter)
 
     APP = AppClass('Provisioned', items)
     APP.go()
