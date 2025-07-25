@@ -14,9 +14,6 @@ from datetime import datetime
 
 from netapp_ontap import HostConnection
 from netapp_ontap.resources import Cluster, Volume
-# from openpyxl import Workbook
-# from openpyxl.utils import get_column_letter
-# from openpyxl.worksheet.table import Table, TableStyleInfo
 import xlsxwriter
 
 
@@ -50,6 +47,11 @@ class AppClass:
 
         # Define common format with Cascadia Mono font size 10
         self.cell_format = self.workbook.add_format({'font_name': 'Cascadia Mono', 'font_size': 10})
+        self.cell_format_number = self.workbook.add_format({'font_name': 'Cascadia Mono', 'font_size': 10, })
+        self.cell_format_number.set_num_format('0.000')
+        self.cell_format_red = self.workbook.add_format({'font_name': 'Cascadia Mono', 'font_size': 10})
+        self.cell_format_red.set_bg_color("red")
+        self.cell_format_red.set_font_color("white")
 
         self.divisions = {}
         self.build_app()
@@ -95,9 +97,9 @@ class AppClass:
         # Headers for Volumes sheet
         volumes_headers = [
             "Division", "BU", "Cluster", "App", "Environment", "SubApp", "Cloud",
-            "Region", "Volume", "Tags", "State", "Provisioned Size [TiB]", "Used Size [TiB]"
+            "Region", "Volume", "State", "Tags", "Provisioned Size [TiB]", "Used Size TiB", "%% used"
         ]
-
+        number_format = ["Provisioned Size [TiB]", "Used Size TiB", "%% used"]
         # Write headers to Volumes sheet
         for col_num, header in enumerate(volumes_headers):
             self.volumes_ws.write(0, col_num, header, self.cell_format)
@@ -106,7 +108,10 @@ class AppClass:
         volumes_col_widths = [len(header) + 1 for header in volumes_headers]
         for row_num, row_data in enumerate(self.volume_data, start=1):
             for col_num, cell in enumerate(row_data):
-                self.volumes_ws.write(row_num, col_num, cell, self.cell_format)
+                cell_format = self.cell_format
+                if volumes_headers[col_num] in number_format:
+                    cell_format = self.cell_format_number
+                self.volumes_ws.write(row_num, col_num, cell, cell_format)
                 cell_length = len(str(cell))
                 if cell_length > volumes_col_widths[col_num]:
                     volumes_col_widths[col_num] = cell_length
@@ -119,12 +124,14 @@ class AppClass:
             self.volumes_ws.set_column(col_num, col_num, width + 4)
 
         # self.volumes_ws.autofit()
+        self.volumes_ws.conditional_format(f"N2:N{len(self.volume_data) + 1}", {"type": "cell", "criteria": ">=", "value": 90, "format": self.cell_format_red})
 
 
     def build_usage_sheet(self):
-        provision_col_header = "Provisioned [TiB]"
-        used_col_header = "Used [TiB]"
-        usage_headers = ["Division", "BU", "App", "Environment", "SubApp", "Cloud", "Region", provision_col_header, used_col_header]
+        provision_col_header = "Provisioned TiB"
+        used_col_header = "Used TiB"
+        usage_headers = ["Division", "BU", "App", "Environment", "SubApp", "Cloud", "Region", provision_col_header, used_col_header, '%% Used']
+        numbers_format = [provision_col_header, used_col_header, '%% Used']
 
         volume_last_row = len(self.volume_data) + 1
         usage_data = []
@@ -144,43 +151,52 @@ class AppClass:
                                 for region in self.divisions[div][bu][app][env][subapp][cloud]:
                                     usage_data.append([div, bu, app, env, subapp, cloud, region, 
                                                         f'=SUMIFS(Volumes!$L$2:$L${volume_last_row},Volumes!$A$2:$A${volume_last_row},"{div}",Volumes!$B$2:$B${volume_last_row},"{bu}",Volumes!$D$2:$D${volume_last_row},"{app}",Volumes!$E$2:$E${volume_last_row},"{env}",Volumes!$F$2:$F${volume_last_row},"{subapp}",Volumes!$G$2:$G${volume_last_row},"{cloud}",Volumes!$H$2:$H${volume_last_row},"{region}")',
-                                                        f'=SUMIFS(Volumes!$M$2:$M${volume_last_row},Volumes!$A$2:$A${volume_last_row},"{div}",Volumes!$B$2:$B${volume_last_row},"{bu}",Volumes!$D$2:$D${volume_last_row},"{app}",Volumes!$E$2:$E${volume_last_row},"{env}",Volumes!$F$2:$F${volume_last_row},"{subapp}",Volumes!$G$2:$G${volume_last_row},"{cloud}",Volumes!$H$2:$H${volume_last_row},"{region}")'])
+                                                        f'=SUMIFS(Volumes!$M$2:$M${volume_last_row},Volumes!$A$2:$A${volume_last_row},"{div}",Volumes!$B$2:$B${volume_last_row},"{bu}",Volumes!$D$2:$D${volume_last_row},"{app}",Volumes!$E$2:$E${volume_last_row},"{env}",Volumes!$F$2:$F${volume_last_row},"{subapp}",Volumes!$G$2:$G${volume_last_row},"{cloud}",Volumes!$H$2:$H${volume_last_row},"{region}")',
+                                                        ""])
 
 
         # Write data and track max column width
         usage_col_widths = [len(header) + 1 for header in usage_headers]
         for row_num, row_data in enumerate(usage_data, start=1):
             for col_num, cell in enumerate(row_data):
-                self.usage_ws.write(row_num, col_num, cell, self.cell_format)
+                cell_format = self.cell_format
+                if usage_headers[col_num] in numbers_format:
+                    cell_format = self.cell_format_number
+                self.usage_ws.write(row_num, col_num, cell, cell_format)
                 cell_length = len(str(cell))
                 if (not str(cell).startswith('=')) and cell_length > usage_col_widths[col_num]:
                     usage_col_widths[col_num] = cell_length
-
+            
+        
+        formula = f"=[@[{used_col_header}]]/[@[{provision_col_header}]] * 100"
 
         # Add table with style and total row
-        table_range = f"A1:I{len(usage_data)+2}"
+        table_range = f"A1:J{len(usage_data)+2}"
         self.usage_ws.add_table(table_range, {
 
         'columns': [
-            {'header': "Division", 'total_string': 'Totals'},
+            {'header': "Division", 'total_string': ''},
             {'header': "BU", 'total_string': ''},
             {'header': "App", 'total_string': ''},
             {'header': "Environment", 'total_string': ''},
             {'header': "SubApp", 'total_string': ''},
             {'header': "Cloud", 'total_string': ''},
             {'header': "Region", 'total_string': ''},
-            {'header': "Provisioned [TiB]", 'total_function': 'sum'},
-            {'header': "Used [TiB]", 'total_function': 'sum'}
-        ],
+            {'header': provision_col_header, 'total_function': 'sum'},
+            {'header': used_col_header, 'total_function': 'sum'},
+            {'header': "% Used", 'formula': formula, 'total_function': 'average', 'format':self.cell_format_number}],
 
             'style': 'Table Style Medium 9',
             'autofilter': True,
-            'total_row': True
+            'total_row': True,
+            'name':'usage_table'
         })
 
         # Auto-size columns for Usage sheet
         for col_num, width in enumerate(usage_col_widths):
             self.usage_ws.set_column(col_num, col_num, width + 2)
+
+        self.usage_ws.conditional_format(f"J2:N{len(usage_data) + 2}", {"type": "cell", "criteria": ">=", "value": 90, "format": self.cell_format_red})
 
 
 class ClusterData:
@@ -204,10 +220,11 @@ class ClusterData:
                                         
                 volumes = list(Volume.get_collection(**volume_args))
                 for volume in volumes:
+                    size = float(f"{approximate_size_specific(volume['size'], 'TiB', withsuffix=False):.7f}")
                     if volume['state'] == 'offline':
                         used = 0
                     else:
-                        used = float(f"{approximate_size_specific(volume['space']['used'], 'TiB', withsuffix=False):.3f}")
+                        used = float(f"{approximate_size_specific(volume['space']['used'], 'TiB', withsuffix=False):.7f}")
                     self.app_instance.volume_data.append([self.div,
                                                  self.bu,
                                                  self.name,
@@ -219,8 +236,9 @@ class ClusterData:
                                                  volume['name'],
                                                  volume['state'],
                                                  ",".join(self.tags),
-                                                 float(f"{approximate_size_specific(volume['size'], 'TiB', withsuffix=False):.3f}"),
-                                                 used])
+                                                 size,
+                                                 used,
+                                                 float(f"{(used / size) * 100:.3f}")])
                     
         except Exception as e:
             logging.error(f"Could not retrieve data for {self.name} {volume['name']} {e}", exc_info=e)
