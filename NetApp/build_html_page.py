@@ -15,7 +15,7 @@ from libs.parseargs import argp
 from libs.cloud_utils import build_azure_id, build_azure_portal_link, get_cloud_types
 from libs.log import setup_logger
 
-
+script_name = Path(__file__).stem
 style_file = 'style.txt'
 
 logger = setup_logger()
@@ -638,12 +638,11 @@ class ClusterData:
                                 self.app_instance.format_table_row_link(vm_type, vm_id, vm_url)
 
 if __name__ == '__main__':
-    args = argp(description="build html page of endpoints and mostly static information")
-    config = Config(args.config_dir)
+    args = argp(script_name=script_name, description="build html page of endpoints and mostly static information")
+    config = Config(args.config_dir, args.output_dir)
 
     items = config.get_clusters(args.filter)
-    # pprint.pprint(items)
 
-    APP = AppClass('html', items, config)
+    APP = AppClass(script_name, items, config)
     APP.gather_data()
 
