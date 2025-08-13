@@ -44,14 +44,14 @@ import os
 file_name = pathlib.Path(__file__).name
 
 class Config:
-    def __init__(self, config_dir):
+    def __init__(self, config_dir, output_dir):
         self.data = {}
         self.config_dir = pathlib.Path.cwd() / config_dir
         self.data_types = ['aiqums', 'connectors', 'cloudinsights', 'clusters', 'azure']
         self.settings = {}
         self.parse_data()
         self.script_name = pathlib.Path(sys.argv[0]).stem
-        self.output_dir = pathlib.Path(os.getcwd()) / 'output' / self.script_name
+        self.output_dir = pathlib.Path(os.getcwd()) / output_dir
         self.db_dir = self.output_dir / 'db'
         os.makedirs(self.output_dir, exist_ok=True)
         os.makedirs(self.db_dir, exist_ok=True)

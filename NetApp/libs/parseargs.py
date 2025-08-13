@@ -7,7 +7,7 @@ import logging
 file_name = pathlib.Path(__file__).name
 
 class argp:
-    def __init__(self, description="default description"):
+    def __init__(self, script_name='unknown', description="default description"):
 
         self.description = description
 
@@ -15,6 +15,7 @@ class argp:
         self.parser.add_argument('-c', '--config_dir', type=str, help="configuration directory", default='config')
         self.parser.add_argument('-f', '--filter', type=str, help="""filter: Example: -f '{"bu":"Business", "env":"Prod", "tags":"active"}'""")
         self.parser.add_argument('-de', '--debug', type=bool, default=False, help="""turn on debugging, default False""")
+        self.parser.add_argument('-o', '--output_dir', type=str, help="output directory", default=f"output/{script_name}")
 
         self.args = self.parser.parse_args(namespace=self)
 
