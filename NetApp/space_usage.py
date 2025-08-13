@@ -238,7 +238,7 @@ class AppClass:
 
 
         # Add table with style and total row
-        last_column = xlsxwriter.utility.xl_col_to_name(len(columns))
+        last_column = xlsxwriter.utility.xl_col_to_name(len(columns) - 1)
         table_range = f"A1:{last_column}{len(usage_data)+2}"
         self.usage_ws.add_table(table_range, {
             'columns': columns,
