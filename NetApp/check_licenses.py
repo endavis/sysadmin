@@ -16,7 +16,7 @@ from libs.email import send_email
 setup_logger()
 #utils.LOG_ALL_API_CALLS = 1
 
-file_name = Path(__file__).name
+script_name = Path(__file__).stem
 
 APP = None
 
@@ -82,7 +82,7 @@ class ClusterData:
         self.app_instance = app_instance
 
     def gather_data(self):
-        logging.info(f"{file_name} : Checking {self.name}")
+        logging.info(f"{script_name} : Checking {self.name}")
         try:
             with HostConnection(self.ip, username='cvomon', password=config.settings['users']['cvomon']['enc'], verify=False):
                 self.fetched_data['licenses'] = []
@@ -168,11 +168,12 @@ class ClusterData:
 
 
 if __name__ == '__main__':
-    args = argp(description="check clusters for licensing issues")
-    config = Config(args.config_dir)
+
+    args = argp(script_name=script_name, description="check clusters for licensing issues")
+    config = Config(args.config_dir, args.output_dir)
 
     items = config.get_clusters(args.filter)
 
-    APP = AppClass('check_license', items, config)
+    APP = AppClass(script_name, items, config)
     APP.go()
 
