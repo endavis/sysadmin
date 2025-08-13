@@ -19,7 +19,7 @@ from libs.ems_db import EmsEventsDB
 setup_logger()
 #utils.LOG_ALL_API_CALLS = 1
 
-file_name = Path(__file__).name
+script_name = Path(__file__).stem
 
 APP = None
 
@@ -107,6 +107,7 @@ class ClusterData:
         self.current_azevent = ''
 
     def gather_data(self):
+        logging.info(f"{script_name} : Checking {self.name}")
         try:
             self.fetched_data['azmaints'] = {}
             self.fetched_data['ems_events'] = []
@@ -285,11 +286,11 @@ class ClusterData:
 
 
 if __name__ == '__main__':
-    args = argp(description="check clusters for licensing issues")
-    config = Config(args.config_dir)
+    args = argp(script_name=script_name, description="save maintenance events to a sqlite db")
+    config = Config(args.config_dir, args.output_dir)
 
     items = config.get_clusters(args.filter)
 
-    APP = AppClass('check_license', items, config)
+    APP = AppClass(script_name, items, config)
     APP.go()
 
