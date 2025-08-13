@@ -137,7 +137,7 @@ class AppClass:
             self.volumes_ws.write(0, col_num, header['header'], self.cell_format)
 
         # Write data and track max column width
-        volumes_col_widths = [len(header) + 1 for header in columns]
+        volumes_col_widths = [len(header['header']) + 1 for header in columns]
         for row_num, row_data in enumerate(self.volume_data, start=1):
             for col_num, cell in enumerate(row_data):
                 cell_format = self.cell_format
@@ -172,7 +172,6 @@ class AppClass:
     def build_usage_sheet(self):
         provision_col_header = "Provisioned (Licensing) TiB"
         used_col_header = "Used TiB"
-        #usage_headers = ["Division", "BU", "App", "Environment", "SubApp", "Cloud", "Region", "Cluster Type", "Data Type", provision_col_header, used_col_header, '%% Used']
         numbers_format = [provision_col_header, used_col_header, '%% Used']
 
         percentused_formula = f"=[@[{used_col_header}]]/[@[{provision_col_header}]] * 100"
