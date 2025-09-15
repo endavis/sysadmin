@@ -6,7 +6,7 @@ from email.mime.text import MIMEText
 
 file_name = pathlib.Path(__file__).name
 
-def send_email(config, subject='', body='', mailto=None, mailfrom=None, high_priority=False):
+def send_email(config, subject='', body='', body_type='plain', mailto=None, mailfrom=None, high_priority=False):
 
     # Email configuration
     smtp_server = config.settings['settings']['SMTP']['server']
@@ -28,7 +28,7 @@ def send_email(config, subject='', body='', mailto=None, mailfrom=None, high_pri
     if high_priority:
         msg['X-Priority'] = '1'  # High priority
         msg['X-MSMail-Priority'] = 'High'  # High priority for MS Outlook
-    msg.attach(MIMEText(body, 'plain'))
+    msg.attach(MIMEText(body, body_type))
 
     # Send the email
     try:
