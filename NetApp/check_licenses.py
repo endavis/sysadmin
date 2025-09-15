@@ -55,7 +55,10 @@ class AppClass:
                 serial = item['serial number'] if 'serial number' in item else 'Unknown'
                 license_type = item['license type'] if 'license type' in item else 'Unknown'
                 days = item['days checked'] if 'days checked' in item else 'Unknown'
-                email_body.append(f"- {item['cluster']} - {owner} - {serial} - {license_type} expires in less than {days} days on {item['expires']}  ")
+                if days < 0:
+                    email_body.append(f"- {item['cluster']} - {owner} - {serial} - {license_type} has expired {abs(days)} days ago on {item['expires']}!  ")
+                else:
+                    email_body.append(f"- {item['cluster']} - {owner} - {serial} - {license_type} expires in {days} days on {item['expires']}  ")
 
             str_body = "\r\n".join(email_body)
             message_subject = f"{datetime.now().date()} : Licensing issues found"
@@ -139,13 +142,17 @@ class ClusterData:
 
                     expiry_time = datetime.fromisoformat(item['expiry_time'])
 
-                    future_time = midnight_time + timedelta(days=days_to_check)
+                    # Calculate the difference
+                    delta = expiry_time - current_time
 
-                    if expiry_time < future_time:
+                    # Get the number of days
+                    days_difference = delta.days
+
+                    if days_difference < days_to_check:
                         self.app_instance.license_issues.append({'cluster':self.name,
                                                                  'owner': item['owner'],
                                                                  'error': 'Expiring license',
-                                                                 'days checked': days_to_check,
+                                                                 'days checked': days_difference,
                                                                  'serial number':item['serial_number'],
                                                                  'expires':expiry_time,
                                                                  'license type': license_type})
