@@ -20,6 +20,29 @@ script_name = Path(__file__).stem
 
 APP = None
 
+html_first = """
+<html>
+<head>
+    <style>
+    .red-white {
+        background-color: red;
+        color: white;
+        padding: 5px;
+        font-weight: bold;
+    }
+    .yellow-black {
+        background-color: yellow;
+        color: black;
+        padding: 5px;
+        font-weight: bold;
+    }
+    </style>
+</head>
+<body>"""
+
+html_last = """</body>
+</html>"""
+
 class AppClass:
     def __init__(self, name, clusters, config):
         # print(clusters)
@@ -47,19 +70,21 @@ class AppClass:
         high_priority = False
 
         if self.license_issues:
-            email_body = []
-            email_body.append('The following licenses should be checked')
-            email_body.append("")
+            email_body = [html_first]
+            email_body.append('    <p>The following licenses should be checked</p>')
             for item in self.license_issues:
                 owner = item['owner'] if 'owner' in item else 'Unknown'
                 serial = item['serial number'] if 'serial number' in item else 'Unknown'
                 license_type = item['license type'] if 'license type' in item else 'Unknown'
                 days = item['days checked'] if 'days checked' in item else 'Unknown'
                 if days < 0:
-                    email_body.append(f"- {item['cluster']} - {owner} - {serial} - {license_type} has expired {abs(days)} days ago on {item['expires']}!  ")
+                    #email_body.append(f"- {item['cluster']} - {owner} - {serial} - {license_type} has expired {abs(days)} days ago on {item['expires']}!  ")
+                    email_body.append(f"    <p class='red-white'>{item['cluster']} - {owner} - {serial} - {license_type} has expired {abs(days)} days ago on {item['expires']}!</p>")
                 else:
-                    email_body.append(f"- {item['cluster']} - {owner} - {serial} - {license_type} expires in {days} days on {item['expires']}  ")
+                    #email_body.append(f"- {item['cluster']} - {owner} - {serial} - {license_type} expires in {days} days on {item['expires']}  ")
+                    email_body.append(f"    <p class='yellow-black'>{item['cluster']} - {owner} - {serial} - {license_type} expires in {days} days on {item['expires']}.</p>")
 
+            email_body.append(html_last)
             str_body = "\r\n".join(email_body)
             message_subject = f"{datetime.now().date()} : Licensing issues found"
             high_priority=True
@@ -70,6 +95,7 @@ class AppClass:
         send_email(self.config,
                     subject=message_subject,
                     body=str_body,
+                    body_type='html',
                     mailfrom=mailfrom,
                     mailto=mailto,
                     high_priority=high_priority)
