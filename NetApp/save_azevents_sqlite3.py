@@ -5,9 +5,11 @@ from pathlib import Path
 from datetime import datetime, timezone
 import logging
 import pprint
+import traceback
+import os
 
 from netapp_ontap import HostConnection
-from netapp_ontap.resources import EmsEvent
+from netapp_ontap.resources import EmsEvent, Node
 import netapp_ontap.error
 
 from libs.config import Config
@@ -30,6 +32,7 @@ class AppClass:
         self.name = name
         self.cluster_details = clusters
         self.cluster_data = {}
+        self.dt_now = datetime.now()
         self.maint_db = AzEventsDB(config=self.config)
 
         self.build_app()
@@ -57,6 +60,7 @@ class ClusterData:
             setattr(self, name, value)
         self.fetched_data = {}
         self.app_instance = app_instance
+        self.invalid_maintenace = False
         self.required_timings = [
                     'az maint not before',
                     'az maint scheduled',
@@ -106,8 +110,23 @@ class ClusterData:
             self.fetched_data['azmaints'][azmaint['event_id']] = azmaint
         self.current_azevent = ''
 
+    def save_emsevents(self, db_name):
+        if os.path.exists(db_name):
+            logging.info(f"{db_name} already exists")
+            return
+        emsdb = EmsEventsDB(config=self.app_instance.config, db_name=db_name, overwrite=False)
+        if not emsdb.exists:
+            for emsevent in self.fetched_data['ems_events']:
+                emsdb.insert_event(emsevent)
+            emsdb.conn.close()
+            logging.error(f"All events saved to {db_name}")
+        else:
+            logging.info(f"Events already saved to {db_name}")
+
     def gather_data(self):
         logging.info(f"{script_name} : Checking {self.name}")
+        emsevent = None
+        azevent_id = 'Unknown'
         try:
             self.fetched_data['azmaints'] = {}
             self.fetched_data['ems_events'] = []
@@ -162,6 +181,13 @@ class ClusterData:
                 # failback complete:
                 #       2/18/2025 23:17:08  somenode-02
                 #                      NOTICE        callhome.reboot.giveback: Call home for REBOOT (after giveback)
+
+                nodes = list(Node.get_collection(fields="ha"))
+                if len(nodes) > 1 and nodes[0]['ha']['enabled']:
+                    self.cluster_type = 'CVO HA'
+                else:
+                    self.cluster_type = 'CVO'
+
                 events_to_get = ['vsa.scheduledEvent.scheduled', 'vsa.scheduledEvent.update']
 
                 scheduled = list(EmsEvent.get_collection(**{"message.name": ",".join(events_to_get)}, order_by="time",fields="*"))
@@ -170,11 +196,13 @@ class ClusterData:
                     logging.info(f"{self.name} : No maintenance events")
                 else:
                     logging.info(f"{self.name} : Found maintenance events")
-                    for emsevent in EmsEvent.get_collection(order_by="time",fields="*"):
+                    for emsevent in EmsEvent.get_collection(**{"message.severity": "*"}, order_by="time",fields="*"):
 
-                        # pprint.pprint(emsevent.to_dict())
+                        logging.debug(emsevent.to_dict())
+                        self.add_emsevent(emsevent)
 
                         if 'vsa.scheduled' in emsevent['message']['name']:
+                            logging.debug(f"Found vsa.scheduled {emsevent.to_dict()}")
                             azevent_id = next((item['value'] for item in emsevent['parameters'] if item['name'] == 'event_id'), None)
                             event_type = next((item['value'] for item in emsevent['parameters'] if item['name'] == 'event_type'), None)
                             node = next((item['value'] for item in emsevent['parameters'] if item['name'] == 'node'), None)
@@ -184,6 +212,7 @@ class ClusterData:
                         match emsevent['message']['name']:
 
                             case 'vsa.scheduledEvent.scheduled':
+                                logging.debug(f"Found vsa.scheduledEvent.scheduled for {emsevent.to_dict()}")
                                 # found a new event
                                 # did not find callhome.reboot.giveback for last az event
                                 if azevent_dict['event_id'] != 'Unknown':
@@ -191,17 +220,26 @@ class ClusterData:
                                     self.add_azmaint(azevent_dict)
                                     azevent_dict = self.empty_azevent()
 
-                                self.current_azevent = azevent_id
-
                                 # add the relevant bits from ems log event
-                                azevent_dict['event_id'] = azevent_id
-                                azevent_dict['node'] = node
-                                azevent_dict['type'] = event_type
-                                azevent_dict['cluster'] = self.name
-                                azevent_dict['az_maint_not_before'] = datetime.strptime(not_before_time, '%m/%d/%Y %H:%M:%S').replace(tzinfo=timezone.utc)
-                                azevent_dict['az_maint_scheduled'] = emsevent['time']
+                                try:
+                                    azevent_dict['az_maint_not_before'] = datetime.strptime(not_before_time, '%m/%d/%Y %H:%M:%S').replace(tzinfo=timezone.utc)
+                                    azevent_dict['event_id'] = azevent_id
+                                    azevent_dict['node'] = node
+                                    azevent_dict['type'] = event_type
+                                    azevent_dict['cluster'] = self.name
+                                    azevent_dict['az_maint_scheduled'] = emsevent['time']
+
+                                    self.current_azevent = azevent_id
+
+                                except Exception as e:
+                                    self.current_azevent = 'Unknown'
+                                    logging.error(f"Got an invalid maintenance event {emsevent.to_dict()}")
+                                    self.invalid_maintenace = True
 
                             case 'vsa.scheduledEvent.update':
+                                logging.debug(f"Found vsa.scheduledEvent.update for {emsevent.to_dict()}")
+
+
                                 # will catch started and complete
 
                                 # found an az ems event that is not the event that is being processed
@@ -220,32 +258,38 @@ class ClusterData:
                                 else:
                                     azevent_dict[f"az_maint_{status}"] = emsevent['time']
 
-                            case 'sfo.takenOver.relocDone':
+                                if status == 'complete' and self.cluster_type == 'CVO':
+                                    self.add_azmaint(azevent_dict)
+                                    azevent_dict = self.empty_azevent()
+
+                            case 'cf.fsm.nfo.startingGracefulShutdown':
+                                logging.debug(f"Found cf.fsm.nfo.startingGracefulShutdown for {azevent_id}")
                                 # takeover complete
                                 azevent_dict['node_takeover_complete'] = emsevent['time']
 
-                            # case 'vifmgr.lifmoved.nodedown':
-                            #     # takeover complete
-                            #     if 'node takeover complete' not in azevent_dict:
-                            #         azevent_dict['node takeover complete'] = emsevent['time']
-
                             case 'kern.shutdown':
+                                logging.debug(f"Found kern.shutdown for {azevent_id}")
+
                                 # node starts rebooting
                                 azevent_dict['node_reboot_starts'] = emsevent['time']
 
                             case 'mgr.boot.disk_done':
+                                logging.debug(f"Found mgr.boot.disk_done for {azevent_id}")
                                 # node finished rebooting
                                 azevent_dict['node_reboot_complete'] = emsevent['time']
 
                             case 'cf.fsm.takeoverOfPartnerEnabled':
+                                logging.debug(f"Found cf.fsm.takeoverOfPartnerEnabledfor {azevent_id}")
                                 # node ready for giveback
                                 azevent_dict['node_ready_for_giveback'] = emsevent['time']
 
                             case 'clam.valid.config':
+                                logging.debug(f"Found clam.valid.config for {azevent_id}")
                                 # not failback starts
                                 azevent_dict['node_giveback_starts'] = emsevent['time']
 
                             case 'callhome.reboot.giveback':
+                                logging.debug(f"Found callhome.reboot.giveback for {azevent_id}")
                                 # the event is all done
                                 # node failback is complete
                                 azevent_dict['node_giveback_complete'] = emsevent['time']
@@ -259,31 +303,46 @@ class ClusterData:
                                 self.current_azevent = ''
                                 azevent_dict = self.empty_azevent()
 
-                        self.add_emsevent(emsevent)
-
                     if azevent_dict['event_id'] != 'Unknown':
                         logging.error(f"AZ event was left on stack")
                         logging.error(f"{azevent_dict}")
                         self.add_azmaint(azevent_dict)
+
             # pprint.pprint(self.fetched_data['azmaints'])
         except Exception as e:
             logging.error(f"Could not retrieve events for {self.name} {e}")
+            logging.error(traceback.format_exc(e))
+            if emsevent:
+                logging.error(f"last ems event was {emsevent}")
 
     def process_data(self):
+        if self.invalid_maintenace:
+            db_name = f"{self.name}_invalidmaint_{self.app_instance.dt_now:%Y-%m-%d-%H-%M-%S}.db"
+            self.save_emsevents(db_name)
+
         for azevent in self.fetched_data['azmaints'].values():
             logging.info(f"Cluster {self.name} adding {azevent['event_id']} for node {azevent['node']}")
             self.app_instance.maint_db.upsert_event(azevent)
 
-        if self.fetched_data['ems_events']:
-            dt_now = datetime.now()
+            if azevent['event_id'] == 'Unknown':
+                db_name = f"{self.name}_Unknown_{self.app_instance.dt_now:%d-%m-%Y-%H-%M-%S}.db"
+                logging.error(f"Found an event without an id {azevent}")
+                self.save_emsevents(db_name)
+            else:
+                azevent_from_db = dict(self.app_instance.maint_db.get_event_by_id(azevent['event_id']))
 
-            # this is where we save the self.fetched_data['ems_events'] to a seperate database
-            logging.info(f"{self.name} : saving ems events for {self.name}")
-            emsdb = EmsEventsDB(config=self.app_instance.config, db_name=f"{self.name}-{dt_now:%d-%m-%Y}.db")
-            for emsevent in self.fetched_data['ems_events']:
-                emsdb.insert_event(emsevent)
-            emsdb.conn.close()
+                if azevent_from_db['az_maint_not_before'] == "" \
+                       or azevent_from_db['az_maint_scheduled'] == "" \
+                       or azevent_from_db['az_maint_started'] == "" \
+                       or azevent_from_db['az_maint_complete'] == "":
+                    db_name = f"{self.name}_{azevent_from_db['event_id']}_nomaint_{self.app_instance.dt_now:%d-%m-%Y-%H-%M-%S}.db"
+                    logging.error(f"Found an event without maintenance fields {azevent_from_db}")
+                    self.save_emsevents(db_name)
 
+                elif self.cluster_type == 'CVO HA' and any(value == "" for value in azevent_from_db.values()):
+                    db_name = f"{self.name}_{azevent_from_db['event_id']}_CVOHAmissingfields_{self.app_instance.dt_now:%d-%m-%Y-%H-%M-%S}.db"
+                    logging.error(f"Found a CVO HA maintenance event without failover/failback fields {azevent_from_db}")
+                    self.save_emsevents(db_name)
 
 if __name__ == '__main__':
     args = argp(script_name=script_name, description="save maintenance events to a sqlite db")
