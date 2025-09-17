@@ -315,9 +315,9 @@ class ClusterData:
                 logging.error(f"last ems event was {emsevent}")
 
     def process_data(self):
-        if self.invalid_maintenace:
-            db_name = f"{self.name}_invalidmaint_{self.app_instance.dt_now:%Y-%m-%d-%H-%M-%S}.db"
-            self.save_emsevents(db_name)
+        # if self.invalid_maintenace:
+        #     db_name = f"{self.name}_invalidmaint_{self.app_instance.dt_now:%Y-%m-%d-%H-%M-%S}.db"
+        #     self.save_emsevents(db_name)
 
         for azevent in self.fetched_data['azmaints'].values():
             logging.info(f"Cluster {self.name} adding {azevent['event_id']} for node {azevent['node']}")
