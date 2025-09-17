@@ -263,33 +263,32 @@ class ClusterData:
                                     azevent_dict = self.empty_azevent()
 
                             case 'cf.fsm.nfo.startingGracefulShutdown':
-                                logging.debug(f"Found cf.fsm.nfo.startingGracefulShutdown for {azevent_id}")
+                                # logging.debug(f"Found cf.fsm.nfo.startingGracefulShutdown for {azevent_id}")
                                 # takeover complete
                                 azevent_dict['node_takeover_complete'] = emsevent['time']
 
                             case 'kern.shutdown':
-                                logging.debug(f"Found kern.shutdown for {azevent_id}")
-
+                                # logging.debug(f"Found kern.shutdown for {azevent_id}")
                                 # node starts rebooting
                                 azevent_dict['node_reboot_starts'] = emsevent['time']
 
                             case 'mgr.boot.disk_done':
-                                logging.debug(f"Found mgr.boot.disk_done for {azevent_id}")
+                                # logging.debug(f"Found mgr.boot.disk_done for {azevent_id}")
                                 # node finished rebooting
                                 azevent_dict['node_reboot_complete'] = emsevent['time']
 
                             case 'cf.fsm.takeoverOfPartnerEnabled':
-                                logging.debug(f"Found cf.fsm.takeoverOfPartnerEnabledfor {azevent_id}")
+                                # logging.debug(f"Found cf.fsm.takeoverOfPartnerEnabledfor {azevent_id}")
                                 # node ready for giveback
                                 azevent_dict['node_ready_for_giveback'] = emsevent['time']
 
                             case 'clam.valid.config':
-                                logging.debug(f"Found clam.valid.config for {azevent_id}")
+                                # logging.debug(f"Found clam.valid.config for {azevent_id}")
                                 # not failback starts
                                 azevent_dict['node_giveback_starts'] = emsevent['time']
 
                             case 'callhome.reboot.giveback':
-                                logging.debug(f"Found callhome.reboot.giveback for {azevent_id}")
+                                # logging.debug(f"Found callhome.reboot.giveback for {azevent_id}")
                                 # the event is all done
                                 # node failback is complete
                                 azevent_dict['node_giveback_complete'] = emsevent['time']
