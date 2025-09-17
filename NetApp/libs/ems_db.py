@@ -15,12 +15,17 @@ sqlite3.register_adapter(datetime, adapt_datetime)
 sqlite3.register_converter("time", convert_datetime)
 
 class EmsEventsDB:
-    def __init__(self, config, db_name='ems_events.db'):
+    def __init__(self, config, db_name='ems_events.db', overwrite=True):
         db_dir = config.db_dir / 'emsevents'
         os.makedirs(db_dir, exist_ok=True)
         db_location = db_dir / db_name
+        self.overwrite = overwrite
+        self.exists = False
         if os.path.exists(db_location):
-            os.remove(db_location)
+            self.exists = True
+            if self.overwrite:
+                os.remove(db_location)
+
         self.conn = sqlite3.connect(db_location, detect_types=sqlite3.PARSE_DECLTYPES)
         self.create_table()
 
