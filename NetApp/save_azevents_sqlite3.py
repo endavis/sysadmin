@@ -198,7 +198,7 @@ class ClusterData:
                     logging.info(f"{self.name} : Found maintenance events")
                     for emsevent in EmsEvent.get_collection(**{"message.severity": "*"}, order_by="time",fields="*"):
 
-                        logging.debug(emsevent.to_dict())
+                        #logging.debug(emsevent.to_dict())
                         self.add_emsevent(emsevent)
 
                         if 'vsa.scheduled' in emsevent['message']['name']:
