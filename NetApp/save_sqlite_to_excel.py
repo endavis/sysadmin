@@ -13,7 +13,7 @@ setup_logger()
 script_name = pathlib.Path(__file__).stem
 
 def save_database(database_file, table_name, output_file):
-    logging.info
+    logging.info(f"Saving table {table_name} from db {database_file} to {output_file}")
     # Connect to your SQLite database
     conn = sqlite3.connect(database_file)
 
