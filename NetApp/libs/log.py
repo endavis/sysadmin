@@ -20,5 +20,6 @@ def setup_logger():
     # add a file handler, default DEBUG
     log_filename = datetime.now().strftime(f'logs/{loggername}_%Y-%m-%d_%H-%M-%S.log')
     file_handler = logging.FileHandler(log_filename)
+    file_handler.setFormatter(formatter)
     file_handler.setLevel(logging.DEBUG)
     root_logger.addHandler(file_handler)
