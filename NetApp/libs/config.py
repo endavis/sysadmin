@@ -3,7 +3,7 @@
 -f '{"bu":"Business", "env":"Prod", "tags":"active"}'
 # return any item that matches bu and env and has both 'active' and 'workload' as a tag
 -f '{"bu":"Business", "env":"Prod", "tags":"active && workload"}'
-# return any item that matches bu, env, and tags and is app is one of app_name1 or app_name2
+# return any item that matches bu, env, and tags and app is one of app_name1 or app_name2
 -f '{"bu":"Business", "app": "app_name1 || app_name2", "env":"Prod", "tags":"active"}'
 # return any items with either name1 or name2
 -f '{"name":"name1 || name2"}'
@@ -44,8 +44,9 @@ import os
 file_name = pathlib.Path(__file__).name
 
 class Config:
-    def __init__(self, config_dir, output_dir):
+    def __init__(self, config_dir, output_dir, args=None):
         self.data = {}
+        self.args = args
         self.config_dir = pathlib.Path.cwd() / config_dir
         self.data_types = ['aiqums', 'connectors', 'cloudinsights', 'clusters', 'azure']
         self.settings = {}
@@ -56,6 +57,8 @@ class Config:
         os.makedirs(self.output_dir, exist_ok=True)
         os.makedirs(self.db_dir, exist_ok=True)
 
+    def get_schema_location(self, api_name):
+        return pathlib.Path(self.config_dir / "apis" / api_name)
 
     def parse_data(self):
 
