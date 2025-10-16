@@ -61,7 +61,6 @@ class Config:
         return pathlib.Path(self.config_dir / "apis" / api_name)
 
     def parse_data(self):
-
         all_tomls = self.config_dir.rglob('*.toml')
         loaded_tomls = []
         for file in all_tomls:
@@ -84,6 +83,32 @@ class Config:
                     self.settings[file.stem] = data
                 else:
                     self.settings[file.stem].update(data)
+
+    def get_user(self, utype="clusters", uobject=""):
+        user = None
+        enc = None
+
+        try:
+            user = self.settings['users'][utype]['user']
+            enc = self.settings['users'][utype]['enc']
+        except KeyError:
+            pass
+
+        try:
+            user = self.data[utype][uobject]['user']
+            enc = self.data[utype][uobject]['enc']
+        except KeyError:
+            pass
+
+        if not user:
+            logging.error(f"Could not find user for {utype} and {uobject}")
+            sys.exit(1)
+        if not enc:
+            logging.error(f"Could not find password for {utype} and {uobject}")
+            sys.exit(1)
+
+        return user, enc
+
 
     def count(self, section, id='name'):
         found = []
