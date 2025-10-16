@@ -10,6 +10,7 @@ CVO, DP volume
 import logging
 import pprint
 import traceback
+import pathlib
 
 #from workbook import SpaceWorkbook
 from netapp_ontap import HostConnection, utils
@@ -22,6 +23,8 @@ from libs.size_utils import approximate_size_specific, convert_size
 
 setup_logger()
 
+script_name = pathlib.Path(__file__).stem
+
 #logging.basicConfig(level=logging.DEBUG)
 #utils.LOG_ALL_API_CALLS = 1
 
@@ -30,12 +33,13 @@ config = None
 APP = None
 
 class AppClass:
-    def __init__(self, name, clusters):
+    def __init__(self, name, clusters, config):
         self.name = name
+        self.config = config
         self.cluster_details = clusters
         self.clusterdata = {}
         self.build_app()
-        self.vol_output_file = open(config.output_dir / 'vol-out.csv', 'w')
+        self.vol_output_file = open(self.config.output_dir / 'vol-out.csv', 'w')
         self.vol_output_file.write(",".join(['Cluster',
                                              "Division",
                                              "Business Unit",
@@ -53,7 +57,7 @@ class AppClass:
                                              "Savings (TiB)",
                                         "\n"])
                                 )
-        self.clus_output_file = open(config.output_dir / 'cluster-out.csv', 'w')
+        self.clus_output_file = open(self.config.output_dir / 'cluster-out.csv', 'w')
         self.clus_output_file.write(",".join(['Cluster',
                                               "Division",
                                               "Business Unit",
@@ -78,112 +82,121 @@ class AppClass:
 
     def build_app(self):
         for item in self.cluster_details:
-            self.clusterdata[item] = ClusterData(item, **self.cluster_details[item])
+            self.clusterdata[item] = ClusterData(item, self, **self.cluster_details[item])
 
     def gather_data(self, vol_output_file=None):
         for cluster in self.clusterdata.values():
             cluster.gather_data()
 
+        logging.info(f"Volume output: {config.output_dir / 'vol-out.csv'}")
+        logging.info(f"Cluster output: {config.output_dir / 'cluster-out.csv'}")
+
 class ClusterData:
-    def __init__(self, clustername, **kwargs):
+    def __init__(self, clustername, app_instance, **kwargs):
         self.name = clustername
+        self.app_instance = app_instance
         self.cluster_type = ''
         for name, value in kwargs.items():
             setattr(self, name, value)
 
     def gather_data(self):
         logging.info(f'Gathering data for {self.name}')
-        with HostConnection(self.ip, username='cvomon', password=config.settings['users']['cvomon']['enc'], verify=False):
-            cluster = Cluster()
+        user, enc = self.app_instance.config.get_user('clusters', self.name)        
+        try:
+            with HostConnection(self.ip, username=user, password=enc, verify=False):
+                cluster = Cluster()
 
-            cluster.get()
+                cluster.get()
 
-            nodes = list(Node.get_collection(fields="ha"))
-            if len(nodes) > 1 and nodes[0]['ha']['enabled']:
-                self.cluster_type = 'CVO HA'
-            else:
-                self.cluster_type = 'CVO'
+                nodes = list(Node.get_collection(fields="ha"))
+                if len(nodes) > 1 and nodes[0]['ha']['enabled']:
+                    self.cluster_type = 'CVO HA'
+                else:
+                    self.cluster_type = 'CVO'
 
-            buckets = {'CVO HA - DP': {'provisioned_size': 0, 'potential_savings': 0},
-                       'CVO HA - RW': {'provisioned_size': 0, 'potential_savings': 0},
-                       'CVO - DP': {'provisioned_size': 0, 'potential_savings': 0},
-                       'CVO - RW': {'provisioned_size': 0, 'potential_savings': 0}}
+                buckets = {'CVO HA - DP': {'provisioned_size': 0, 'potential_savings': 0},
+                        'CVO HA - RW': {'provisioned_size': 0, 'potential_savings': 0},
+                        'CVO - DP': {'provisioned_size': 0, 'potential_savings': 0},
+                        'CVO - RW': {'provisioned_size': 0, 'potential_savings': 0}}
 
-            args = {}
-            args['is_svm_root'] = False
-            args['fields'] = ','.join(['name',
-                                      'size',
-                                      'aggregates',
-                                      'space',
-                                      'autosize.*',
-                                      'guarantee',
-                                      'space.*',
-                                      'type',
-                                    ])
+                args = {}
+                args['is_svm_root'] = False
+                args['fields'] = ','.join(['name',
+                                        'size',
+                                        'aggregates',
+                                        'space',
+                                        'autosize.*',
+                                        'guarantee',
+                                        'space.*',
+                                        'type',
+                                        ])
 
-            volumes = list(Volume.get_collection(**args))
-            for volume in volumes:
-                bucket = self.cluster_type + ' - ' + volume['type'].upper()
-                size_set_as_80 = 0
-                savings = 0
-                try:
-                    if volume['space']['percent_used'] < 80 and volume['size'] > 1073741824:
-                            size_set_as_80 = volume['space']['used'] * 1.2
-                            savings = volume['size'] - size_set_as_80
-                    else:
-                        size_set_as_80 = volume['size']
-                except:
-                    logging.error(f'Error getting info for volume {volume["name"]} in cluster {self.name}')
-                    logging.error(traceback.format_exc())
-                    continue
-                APP.vol_output_file.write(",".join([self.name,
-                                                 self.div,
-                                                 self.bu,
-                                                 bucket,
-                                                 self.app,
-                                                 self.env,
-                                                 self.cloud,
-                                                 ";".join(self.tags),
-                                                volume['name'],
-                                                volume['type'].upper(),
-                                                f"{approximate_size_specific(volume['size'], 'TiB', withsuffix=False)}",
-                                                f"{approximate_size_specific(volume['space']['used'], 'TiB', withsuffix=False)}",
-                                                f"{volume['space']['percent_used']}",
-                                                f"{approximate_size_specific(size_set_as_80, 'TiB', withsuffix=False)}",
-                                                f"{approximate_size_specific(savings, 'TiB', withsuffix=False)}",
-                                                "\n"])
-                                        )
-                buckets[bucket]['provisioned_size'] += volume['size']
-                buckets[bucket]['potential_savings'] += savings
+                volumes = list(Volume.get_collection(**args))
+                for volume in volumes:
+                    bucket = self.cluster_type + ' - ' + volume['type'].upper()
+                    size_set_as_80 = 0
+                    savings = 0
+                    try:
+                        if volume['space']['percent_used'] < 80 and volume['size'] > 1073741824:
+                                size_set_as_80 = volume['space']['used'] * 1.2
+                                savings = volume['size'] - size_set_as_80
+                        else:
+                            size_set_as_80 = volume['size']
+                    except:
+                        logging.error(f'Error getting info for volume {volume["name"]} in cluster {self.name}')
+                        logging.error(traceback.format_exc())
+                        continue
+                    APP.vol_output_file.write(",".join([self.name,
+                                                    self.div,
+                                                    self.bu,
+                                                    bucket,
+                                                    self.app,
+                                                    self.env,
+                                                    self.cloud,
+                                                    ";".join(self.tags),
+                                                    volume['name'],
+                                                    volume['type'].upper(),
+                                                    f"{approximate_size_specific(volume['size'], 'TiB', withsuffix=False)}",
+                                                    f"{approximate_size_specific(volume['space']['used'], 'TiB', withsuffix=False)}",
+                                                    f"{volume['space']['percent_used']}",
+                                                    f"{approximate_size_specific(size_set_as_80, 'TiB', withsuffix=False)}",
+                                                    f"{approximate_size_specific(savings, 'TiB', withsuffix=False)}",
+                                                    "\n"])
+                                            )
+                    buckets[bucket]['provisioned_size'] += volume['size']
+                    buckets[bucket]['potential_savings'] += savings
 
-            APP.clus_output_file.write(",".join([self.name,
-                                                 self.div,
-                                                 self.bu,
-                                                 self.app,
-                                                 self.env,
-                                                 self.cloud,
-                                                 ";".join(self.tags),
-                                                 f"{approximate_size_specific(buckets['CVO - RW']['provisioned_size'], 'TiB', withsuffix=False)}",
-                                                 f"{approximate_size_specific(buckets['CVO - RW']['potential_savings'], 'TiB', withsuffix=False)}",
-                                                 f"{approximate_size_specific(buckets['CVO - RW']['provisioned_size'] - buckets['CVO - RW']['potential_savings'], 'TiB', withsuffix=False)}",
-                                                 f"{approximate_size_specific(buckets['CVO - DP']['provisioned_size'], 'TiB', withsuffix=False)}",
-                                                 f"{approximate_size_specific(buckets['CVO - DP']['potential_savings'], 'TiB', withsuffix=False)}",
-                                                 f"{approximate_size_specific(buckets['CVO - DP']['provisioned_size'] - buckets['CVO - DP']['potential_savings'], 'TiB', withsuffix=False)}",
-                                                 f"{approximate_size_specific(buckets['CVO HA - RW']['provisioned_size'], 'TiB', withsuffix=False)}",
-                                                 f"{approximate_size_specific(buckets['CVO HA - RW']['potential_savings'], 'TiB', withsuffix=False)}",
-                                                 f"{approximate_size_specific(buckets['CVO HA - RW']['provisioned_size'] - buckets['CVO HA - RW']['potential_savings'], 'TiB', withsuffix=False)}",
-                                                 f"{approximate_size_specific(buckets['CVO HA - DP']['provisioned_size'], 'TiB', withsuffix=False)}",
-                                                 f"{approximate_size_specific(buckets['CVO HA - DP']['potential_savings'], 'TiB', withsuffix=False)}",
-                                                 f"{approximate_size_specific(buckets['CVO HA - DP']['provisioned_size'] - buckets['CVO HA - DP']['potential_savings'], 'TiB', withsuffix=False)}",
-                                                "\n"])
-                                        )
+                APP.clus_output_file.write(",".join([self.name,
+                                                    self.div,
+                                                    self.bu,
+                                                    self.app,
+                                                    self.env,
+                                                    self.cloud,
+                                                    ";".join(self.tags),
+                                                    f"{approximate_size_specific(buckets['CVO - RW']['provisioned_size'], 'TiB', withsuffix=False)}",
+                                                    f"{approximate_size_specific(buckets['CVO - RW']['potential_savings'], 'TiB', withsuffix=False)}",
+                                                    f"{approximate_size_specific(buckets['CVO - RW']['provisioned_size'] - buckets['CVO - RW']['potential_savings'], 'TiB', withsuffix=False)}",
+                                                    f"{approximate_size_specific(buckets['CVO - DP']['provisioned_size'], 'TiB', withsuffix=False)}",
+                                                    f"{approximate_size_specific(buckets['CVO - DP']['potential_savings'], 'TiB', withsuffix=False)}",
+                                                    f"{approximate_size_specific(buckets['CVO - DP']['provisioned_size'] - buckets['CVO - DP']['potential_savings'], 'TiB', withsuffix=False)}",
+                                                    f"{approximate_size_specific(buckets['CVO HA - RW']['provisioned_size'], 'TiB', withsuffix=False)}",
+                                                    f"{approximate_size_specific(buckets['CVO HA - RW']['potential_savings'], 'TiB', withsuffix=False)}",
+                                                    f"{approximate_size_specific(buckets['CVO HA - RW']['provisioned_size'] - buckets['CVO HA - RW']['potential_savings'], 'TiB', withsuffix=False)}",
+                                                    f"{approximate_size_specific(buckets['CVO HA - DP']['provisioned_size'], 'TiB', withsuffix=False)}",
+                                                    f"{approximate_size_specific(buckets['CVO HA - DP']['potential_savings'], 'TiB', withsuffix=False)}",
+                                                    f"{approximate_size_specific(buckets['CVO HA - DP']['provisioned_size'] - buckets['CVO HA - DP']['potential_savings'], 'TiB', withsuffix=False)}",
+                                                    "\n"])
+                                            )
+        except Exception as e:
+            logging.error(f"Could not retrieve data for {self.name} {e}")
+
 
 if __name__ == '__main__':
-    args = argp(description="gather volume and cluster stats, provisioned size and savings if changing to 80% and 90% autosize thresholds")
-    config = Config(args.config_dir)
+    args = argp(script_name=script_name, description="gather volume and cluster stats, provisioned size and savings if changing to 80% and 90% autosize thresholds")
+    config = Config(args.config_dir, args.output_dir)
 
     items = config.get_clusters(args.filter)
 
-    APP = AppClass('Provisioned', items)
+    APP = AppClass('Provisioned', items, config)
     APP.gather_data()
 
