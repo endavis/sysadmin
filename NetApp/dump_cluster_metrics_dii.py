@@ -73,8 +73,9 @@ class ClusterData:
 
     def gather_data(self):
         logging.info(f'Gathering data for cluster {self.name}')
+        user, enc = self.app_instance.config.get_user('clusters', self.name)
         try:
-            with HostConnection(self.ip, username='cvomon', password=config.settings['users']['cvomon']['enc'], verify=False):
+            with HostConnection(self.ip, username=user, password=enc, verify=False):
                 volume_args = {}
                 volume_args['is_svm_root'] = False
                 volume_args['fields'] = '*'
@@ -85,6 +86,8 @@ class ClusterData:
                     self.gather_data_for_volume(volume['name'], volume['svm']['name'])
         except Exception as e:
             logging.error(f"Exception checking cluster {self.name}", exc_info=e)
+
+        logging.info(f"Database saved to {self.metrics_db.db_location}")
 
 
     def gather_data_for_volume(self, volume_name, vserver_name):
