@@ -131,7 +131,7 @@ class ClusterData:
         days_to_check = 30
         license_type = 'ONTAP BYOL'
         current_time = datetime.now(timezone.utc)
-        midnight_time = current_time.replace(hour=0, minute=0, second=0, microsecond=0)
+        
         if not self.fetched_data['licenses']:
             self.app_instance.license_issues.append({'cluster':self.name,
                                                         'owner': '',
@@ -183,9 +183,14 @@ class ClusterData:
                                                                  'serial number':item['serial_number'],
                                                                  'expires':expiry_time,
                                                                  'license type': license_type})
-                        # print(f"{self.name} {item['owner']} : expiry_time is less than {days_to_check} days in the future.")
-                    # else:
-                    #     print(f"{self.name} {item['owner']} : expiry_time is {days_to_check} days in the future or more.")
+                        if days_difference < 0:
+                            #email_body.append(f"- {item['cluster']} - {owner} - {serial} - {license_type} has expired {abs(days)} days ago on {item['expires']}!  ")
+                            logging.info(f"{self.name} - {item['owner']} - {item['serial_number']} - {license_type} has expired {abs(days_difference)} days ago on {expiry_time}!")
+                        else:
+                            #email_body.append(f"- {item['cluster']} - {owner} - {serial} - {license_type} expires in {days} days on {item['expires']}  ")
+                            logging.info(f"{self.name} - {item['owner']} - {item['serial_number']} - {license_type} expires in {days_difference} days on {expiry_time}")
+
+
 
         for node in self.fetched_data['nodes']:
 
