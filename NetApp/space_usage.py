@@ -36,12 +36,13 @@ config = None
 APP = None
 
 class AppClass:
-    def __init__(self, name, clusters):
+    def __init__(self, name, clusters, config):
         self.name = name
+        self.config = config
         self.cluster_details = clusters
         self.clusterdata = {}
         timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        self.filename = config.output_dir / f"{script_name}_{timestamp}.xlsx"
+        self.filename = self.config.output_dir / f"{script_name}_{timestamp}.xlsx"
 
         self.workbook = xlsxwriter.Workbook(self.filename)
         self.usage_ws = self.workbook.add_worksheet("Usage")
@@ -322,6 +323,6 @@ if __name__ == '__main__':
 
     items = config.get_clusters(args.filter)
 
-    APP = AppClass(script_name, items)
+    APP = AppClass(script_name, items, config=config)
     APP.go()
 
