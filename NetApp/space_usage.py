@@ -271,8 +271,9 @@ class ClusterData:
 
     def gather_data(self):
         logging.info(f'Gathering data for {self.name}')
+        user, enc = self.app_instance.config.get_user('clusters', self.name)
         try:
-            with HostConnection(self.ip, username='cvomon', password=config.settings['users']['cvomon']['enc'], verify=False):
+            with HostConnection(self.ip, username=user, password=enc, verify=False):
                 cluster = Cluster()
 
                 cluster.get()
