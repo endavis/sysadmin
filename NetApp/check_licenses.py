@@ -112,8 +112,9 @@ class ClusterData:
 
     def gather_data(self):
         logging.info(f"{script_name} : Checking {self.name}")
+        user, enc = self.app_instance.config.get_user('clusters', self.name)        
         try:
-            with HostConnection(self.ip, username='cvomon', password=config.settings['users']['cvomon']['enc'], verify=False):
+            with HostConnection(self.ip, username=user, password=enc, verify=False):
                 self.fetched_data['licenses'] = []
                 for license in LicensePackage.get_collection(fields="*"):
                     self.fetched_data['licenses'].append(license.to_dict())
