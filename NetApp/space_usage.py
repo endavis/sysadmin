@@ -45,17 +45,20 @@ class AppClass:
         self.filename = self.config.output_dir / f"{script_name}_{timestamp}.xlsx"
 
         self.workbook = xlsxwriter.Workbook(self.filename)
-        self.usage_ws = self.workbook.add_worksheet("Usage")
+        self.totals_ws = self.workbook.add_worksheet("Totals")
+        self.usage_ws = self.workbook.add_worksheet("Usage Breakdown")
         self.volumes_ws = self.workbook.add_worksheet("Volumes")
         self.volume_data = []
 
         # Define common format with Cascadia Mono font size 10
         self.cell_format = self.workbook.add_format({'font_name': 'Cascadia Mono', 'font_size': 10})
         self.cell_format_number = self.workbook.add_format({'font_name': 'Cascadia Mono', 'font_size': 10, })
-        self.cell_format_number.set_num_format('0.000')
+        self.cell_format_number.set_num_format('0.00000')
         self.cell_format_red = self.workbook.add_format({'font_name': 'Cascadia Mono', 'font_size': 10})
         self.cell_format_red.set_bg_color("red")
         self.cell_format_red.set_font_color("white")
+        self.cell_format_percentage = self.workbook.add_format({'font_name': 'Cascadia Mono', 'font_size': 10})
+        self.cell_format_percentage.set_num_format('0.00%')
 
         self.divisions = {}
         self.build_app()
@@ -98,9 +101,88 @@ class AppClass:
 
         self.build_volume_sheet()
         self.build_usage_sheet()
+        self.build_totals_sheet()
 
         self.workbook.close()
         logging.info(f"Data saved to {self.filename}")
+
+    def build_totals_sheet(self):
+        self.totals_ws.write('A1', "Type")
+        self.totals_ws.set_column(0, 0, 17)        
+        self.totals_ws.write('B1', "Total Provisioned (Licensing) (TiB)")
+        self.totals_ws.set_column(1, 1, 31.5)        
+        self.totals_ws.write('C1', "Used (TiB)")
+        self.totals_ws.set_column(2, 2, 14)        
+        self.totals_ws.write('D1', "Percent Used")
+        self.totals_ws.set_column(3, 3, 13)        
+
+        self.totals_ws.write('A2', "Azure CVO RW")
+        self.totals_ws.write_formula('B2', '=SUMIFS(usage_table[Provisioned (Licensing) TiB],usage_table[Cloud],"azure",usage_table[Cluster Type],"CVO",usage_table[Data Type],"RW")',
+                                     cell_format=self.cell_format_number)
+        self.totals_ws.write_formula('C2', '=SUMIFS(usage_table[Used TiB],usage_table[Cloud],"azure",usage_table[Cluster Type],"CVO",usage_table[Data Type],"RW")',
+                                     cell_format=self.cell_format_number)
+        self.totals_ws.write_formula('D2', '=IFERROR($C$2/$B$2, 0)', cell_format=self.cell_format_percentage)
+
+        self.totals_ws.write('A3', "Azure CVO DP")
+        self.totals_ws.write_formula('B3', '=SUMIFS(usage_table[Provisioned (Licensing) TiB],usage_table[Cloud],"azure",usage_table[Cluster Type],"CVO",usage_table[Data Type],"DP")',
+                                     cell_format=self.cell_format_number)
+        self.totals_ws.write_formula('C3', '=SUMIFS(usage_table[Used TiB],usage_table[Cloud],"azure",usage_table[Cluster Type],"CVO",usage_table[Data Type],"DP")',
+                                     cell_format=self.cell_format_number)
+        self.totals_ws.write_formula('D3', '=IFERROR($C$3/$B$3, 0)', cell_format=self.cell_format_percentage)
+
+        self.totals_ws.write('A4', "Azure CVO HA RW")
+        self.totals_ws.write_formula('B4', '=SUMIFS(usage_table[Provisioned (Licensing) TiB],usage_table[Cloud],"azure",usage_table[Cluster Type],"CVO HA",usage_table[Data Type],"RW")',
+                                     cell_format=self.cell_format_number)
+        self.totals_ws.write_formula('C4', '=SUMIFS(usage_table[Used TiB],usage_table[Cloud],"azure",usage_table[Cluster Type],"CVO HA",usage_table[Data Type],"RW")',
+                                     cell_format=self.cell_format_number)
+        self.totals_ws.write_formula('D4', '=IFERROR($C$4/$B$4, 0)', cell_format=self.cell_format_percentage)
+
+        self.totals_ws.write('A5', "Azure CVO HA DP")
+        self.totals_ws.write_formula('B5', '=SUMIFS(usage_table[Provisioned (Licensing) TiB],usage_table[Cloud],"azure",usage_table[Cluster Type],"CVO HA",usage_table[Data Type],"DP")',
+                                     cell_format=self.cell_format_number)
+        self.totals_ws.write_formula('C5', '=SUMIFS(usage_table[Used TiB],usage_table[Cloud],"azure",usage_table[Cluster Type],"CVO HA",usage_table[Data Type],"DP")',
+                                     cell_format=self.cell_format_number)
+        self.totals_ws.write_formula('D5', '=IFERROR($C$5/$B$5, 0)', cell_format=self.cell_format_percentage)
+
+        self.totals_ws.write('A6', "Azure Totals")
+        self.totals_ws.write_formula('B6', '=SUM($B2:$B5)', cell_format=self.cell_format_number)
+        self.totals_ws.write_formula('C6', '=SUM($C2:$C5)', cell_format=self.cell_format_number)
+        self.totals_ws.write_formula('D6', '=IFERROR($C$6/$B$6, 0)', cell_format=self.cell_format_percentage)
+
+        self.totals_ws.write('A8', "AWS CVO RW")
+        self.totals_ws.write_formula('B8', '=SUMIFS(usage_table[Provisioned (Licensing) TiB],usage_table[Cloud],"aws",usage_table[Cluster Type],"CVO",usage_table[Data Type],"RW")',
+                                     cell_format=self.cell_format_number)
+        self.totals_ws.write_formula('C8', '=SUMIFS(usage_table[Used TiB],usage_table[Cloud],"aws",usage_table[Cluster Type],"CVO",usage_table[Data Type],"RW")',
+                                     cell_format=self.cell_format_number)
+        self.totals_ws.write_formula('D8', '=IFERROR($C$8/$B$8, 0)', cell_format=self.cell_format_percentage)
+
+        self.totals_ws.write('A9', "AWS CVO DP")
+        self.totals_ws.write_formula('B9', '=SUMIFS(usage_table[Provisioned (Licensing) TiB],usage_table[Cloud],"aws",usage_table[Cluster Type],"CVO",usage_table[Data Type],"DP")',
+                                     cell_format=self.cell_format_number)
+        self.totals_ws.write_formula('C9', '=SUMIFS(usage_table[Used TiB],usage_table[Cloud],"aws",usage_table[Cluster Type],"CVO",usage_table[Data Type],"DP")',
+                                     cell_format=self.cell_format_number)
+        self.totals_ws.write_formula('D9', '=IFERROR($C$9/$B$9, 0)', cell_format=self.cell_format_percentage)
+
+        self.totals_ws.write('A10', "AWS CVO HA RW")
+        self.totals_ws.write_formula('B10', '=SUMIFS(usage_table[Provisioned (Licensing) TiB],usage_table[Cloud],"aws",usage_table[Cluster Type],"CVO HA",usage_table[Data Type],"RW")',
+                                     cell_format=self.cell_format_number)
+        self.totals_ws.write_formula('C10', '=SUMIFS(usage_table[Used TiB],usage_table[Cloud],"aws",usage_table[Cluster Type],"CVO HA",usage_table[Data Type],"RW")',
+                                     cell_format=self.cell_format_number)
+        self.totals_ws.write_formula('D10', '=IFERROR($C$10/$B$10, 0)', cell_format=self.cell_format_percentage)
+
+        self.totals_ws.write('A11', "AWS CVO HA DP")
+        self.totals_ws.write_formula('B11', '=SUMIFS(usage_table[Provisioned (Licensing) TiB],usage_table[Cloud],"aws",usage_table[Cluster Type],"CVO HA",usage_table[Data Type],"DP")',
+                                     cell_format=self.cell_format_number)
+        self.totals_ws.write_formula('C11', '=SUMIFS(usage_table[Used TiB],usage_table[Cloud],"aws",usage_table[Cluster Type],"CVO HA",usage_table[Data Type],"DP")',
+                                     cell_format=self.cell_format_number)
+        self.totals_ws.write_formula('D11', '=IFERROR($C$11/$B$11, 0)', cell_format=self.cell_format_percentage)
+
+        self.totals_ws.write('A12', "AWS Totals")
+        self.totals_ws.write_formula('B12', '=SUM($B8:$B11)', cell_format=self.cell_format_number)
+        self.totals_ws.write_formula('C12', '=SUM($C8:$C11)', cell_format=self.cell_format_number)
+        self.totals_ws.write_formula('D12', '=IFERROR($C$12/$B$12, 0)', cell_format=self.cell_format_percentage)
+
+
 
     def build_volume_sheet(self):
 
