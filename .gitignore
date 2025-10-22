@@ -98,4 +98,5 @@ na.ini
 *.xls
 NetApp/data
 NetApp/output
+.vscode
 
