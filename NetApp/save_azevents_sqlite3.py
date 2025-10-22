@@ -16,7 +16,7 @@ from libs.config import Config
 from libs.parseargs import argp
 from libs.log import setup_logger
 from libs.sqlite.azevents_db import AzEventsDB
-from libs.ems_db import EmsEventsDB
+from libs.sqlite.ems_db import EmsEventsDB
 
 setup_logger()
 #utils.LOG_ALL_API_CALLS = 1
