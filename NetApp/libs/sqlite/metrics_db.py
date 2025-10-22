@@ -17,8 +17,8 @@ sqlite3.register_converter("timestamp", convert_datetime)
 
 class MetricDB:
     def __init__(self, config, db_name='metrics.db'):
-        db_location = config.db_dir / db_name
-        self.conn = sqlite3.connect(db_location, detect_types=sqlite3.PARSE_DECLTYPES)
+        self.db_location = config.db_dir / db_name
+        self.conn = sqlite3.connect(self.db_location, detect_types=sqlite3.PARSE_DECLTYPES)
         self.conn.row_factory = sqlite3.Row  # Enables dictionary-like access        
         # self.create_table()
 
