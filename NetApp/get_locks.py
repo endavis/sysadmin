@@ -4,6 +4,7 @@
 import pprint
 import logging
 import sys
+import pathlib
 from datetime import datetime
 
 #from workbook import SpaceWorkbook
@@ -19,6 +20,8 @@ from libs.log import setup_logger
 logger = setup_logger()
 #utils.LOG_ALL_API_CALLS = 1
 
+script_name = pathlib.Path(__file__).stem
+
 APP = None
 
 class AppClass:
@@ -27,13 +30,9 @@ class AppClass:
         self.name = name
         self.cluster_details = clusters
         self.clusterdata = {}
-        #self.volume_name = 'PDECREATE'  
-        self.volume_name = 'PDECREATE_NC111'      
+        timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        self.filename = config.output_dir / f"locks_{timestamp}.xlsx"
         self.wb = Workbook()
-        self.ws = self.wb.active
-        self.ws.title = self.volume_name
-        #Volume	Protocol	Type	Path	Lock	State	IP address
-        self.ws.append(["Volume","Protocol","Type","Path","Lock","State","IP address"])
         self.build_app()
 
     def build_app(self):
@@ -45,14 +44,9 @@ class AppClass:
             cluster.gather_data()
             cluster.output_data()
 
-        timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-
-        filename = config.output_dir / f"locks_{self.volume_name}_{timestamp}.xlsx"
-        if self.ws.max_row > 1:
-            logging.info(f"Locks found: {self.ws.max_row - 1}")
-            self.wb.save(filename)
-        else:
-            logging.info("No locks found")
+        logging.info(f"{self.wb.sheetnames}")
+        self.wb.save(self.filename)
+        logging.info(f"output saved to {self.filename}")
 
 class ClusterData:
     def __init__(self, clustername: str, app_instance: AppClass, **kwargs):
@@ -64,30 +58,31 @@ class ClusterData:
         self.app_instance = app_instance
 
     def gather_data(self):
-        with HostConnection(self.ip, username='cvomon', password=config.settings['users']['cvomon']['enc'], verify=False):
-            volumes = list(Volume.get_collection(name=self.app_instance.volume_name))
-            
-            if len(volumes) == 1:
-                volume_uuid = volumes[0].uuid
-            else:
-                logging.error("More than one volume found")
-                sys.exit(1)
+        logging.info(f"Gathering data for {self.name}")
+        user, enc = self.app_instance.config.get_user('clusters', self.name)
+        try:
+            with HostConnection(self.ip, username=user, password=enc, verify=False):
 
-            self.fetched_data['locks'] = []
-            for lock in ClientLock.get_collection(**{"fields":"*", "volume.uuid":volume_uuid}):
-                self.fetched_data['locks'].append(lock.to_dict())
-       
+                self.fetched_data['locks'] = []
+                locks = ClientLock.get_collection(**{"fields":"*"})
+                for lock in locks:
+                    self.fetched_data['locks'].append(lock.to_dict())
+                logging.info(f"Locks found: {len(self.fetched_data['locks'])}")
+        except Exception as e:
+            logging.error(f"Could not retrieve data for {self.name} {e}", exc_info=e)
 
     def output_data(self):
+        ws = self.app_instance.wb.create_sheet(self.name)
+        ws.append(["Volume","Protocol","Type","Path","Lock","State","IP address"])
         for item in self.fetched_data['locks']:
             #'Volume,Protocol,Type,Path,Share Lock,Oplock Level,State,IP address'
 
             try:
                 if item['type'] == 'share_level':
-                    self.app_instance.ws.append([item['volume']['name'],item['path'],item['protocol'],item['type'],f"{item['share_lock']}",item['state'],item['client_address']])
+                    ws.append([item['volume']['name'],item['path'],item['protocol'],item['type'],f"{item['share_lock']}",item['state'],item['client_address']])
                 else:
                     if item['type'] == 'op_lock':
-                        self.app_instance.ws.append([item['volume']['name'],item['path'],item['protocol'],item['type'],f"{item['oplock_level']}",item['state'],item['client_address']])
+                        ws.append([item['volume']['name'],item['path'],item['protocol'],item['type'],f"{item['oplock_level']}",item['state'],item['client_address']])
                     else:
                         logging.info(f"Unknown type for {item}")
 
@@ -96,9 +91,8 @@ class ClusterData:
                 pprint.pprint(item)
 
 if __name__ == '__main__':
-    args = argp(description="build html page of endpoints and mostly static information")
-    config = Config(args.config_dir)
-
+    args = argp(script_name=script_name, description="get locks for a cluster(s)")
+    config = Config(args.config_dir, args.output_dir)
     items = config.get_clusters(args.filter)
     # aiqums = config.search('aiqums', {'bu':'PUMA'})
     # pprint.pprint(aiqums)
@@ -107,6 +101,6 @@ if __name__ == '__main__':
 
     # pprint.pprint(items)
 
-    APP = AppClass('html', items, config)
+    APP = AppClass(script_name, items, config)
     APP.go()
 
