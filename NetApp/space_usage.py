@@ -401,7 +401,7 @@ class ClusterData:
 
 
 if __name__ == '__main__':
-    args = argp(script_name=script_name ,description="gather volume and cluster stats, provisioned size and savings if changing to 80% and 90% autosize thresholds")
+    args = argp(script_name=script_name, description="gather volume and cluster stats, provisioned size and savings if changing to 80% and 90% autosize thresholds")
     config = Config(args.config_dir, args.output_dir)
 
     items = config.get_clusters(args.filter)
