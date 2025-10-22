@@ -1,8 +1,10 @@
 """
 
 """
-from pathlib import Path
+import pathlib
 import pprint
+import datetime
+import logging
 
 from yattag import Doc, indent
 
@@ -12,12 +14,13 @@ from netapp_ontap.resources import Cluster, Node, Svm, IpInterface, CifsService,
 
 from libs.config import Config
 from libs.parseargs import argp
-from libs.cloud_utils import build_azure_id, build_azure_portal_link, get_cloud_types
 from libs.log import setup_logger
 
 
 logger = setup_logger()
-logger.setLevel('INFO')
+
+script_name = pathlib.Path(__file__).stem
+
 #utils.LOG_ALL_API_CALLS = 1
 
 APP = None
@@ -26,6 +29,8 @@ class AppClass:
     def __init__(self, name, clusters, config):
         self.config = config
         self.name = name
+        timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        self.filename = self.config.output_dir / f"{script_name}_{timestamp}.csv"
         self.cluster_details = clusters
         self.clusterdata = {}
         self.divisions = {}
@@ -53,9 +58,11 @@ class AppClass:
             cluster.gather_data()
             cluster.output_data()
 
-        with open('licenses.csv', 'w') as licenseout:
+        with open(self.filename, 'w') as licenseout:
             for line in self.output:
                 licenseout.write(line + '\n')
+
+        logging.info(f"Output save to {self.filename}")
 
 
 class ClusterData:
@@ -69,7 +76,9 @@ class ClusterData:
         # self.gather_data()
 
     def gather_data(self):
-        with HostConnection(self.ip, username='cvomon', password=config.settings['users']['cvomon']['enc'], verify=False):
+        logging.info(f"Gathering info for {self.name}")
+        user, enc = self.app_instance.config.get_user('clusters', self.name)
+        with HostConnection(self.ip, username=user, password=enc, verify=False):
             self.fetched_data['licenses'] = []
             for license in LicensePackage.get_collection(fields="*"):
                 self.fetched_data['licenses'].append(license.to_dict())
@@ -87,8 +96,8 @@ class ClusterData:
             self.app_instance.output.append(f"{self.name},No Cloud license found")
 
 if __name__ == '__main__':
-    args = argp(description="build html page of endpoints and mostly static information")
-    config = Config(args.config_dir, debug=args.debug)
+    args = argp(script_name=script_name, description="output licenses to a csv")
+    config = Config(args.config_dir, args.output_dir)
 
     items = config.get_clusters(args.filter)
     # aiqums = config.search('aiqums', {'bu':'PUMA'})
@@ -98,6 +107,6 @@ if __name__ == '__main__':
 
     # pprint.pprint(items)
 
-    APP = AppClass('html', items, config)
+    APP = AppClass(script_name, items, config)
     APP.go()
 
