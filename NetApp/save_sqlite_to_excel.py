@@ -14,6 +14,7 @@ script_name = pathlib.Path(__file__).stem
 
 def save_database(database_file, table_name, output_file):
     logging.info(f"Saving table {table_name} from db {database_file} to {output_file}")
+
     # Connect to your SQLite database
     conn = sqlite3.connect(database_file)
 
@@ -21,7 +22,8 @@ def save_database(database_file, table_name, output_file):
     df = pd.read_sql_query(f"SELECT * FROM {table_name}", conn)
 
     # Export to Excel
-    df.to_excel(output_file, index=False, engine='xlsxwriter')  # or use engine='xlsxwriter'
+    # use engine 'xlsxwriter' or 'openpyxl'
+    df.to_excel(output_file, index=False, engine='xlsxwriter')
 
 
 if __name__ == '__main__':
