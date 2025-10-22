@@ -1,7 +1,7 @@
 """
 
 """
-from pathlib import Path
+import pathlib
 from datetime import datetime, timezone
 import logging
 import pprint
@@ -21,7 +21,7 @@ from libs.ems_db import EmsEventsDB
 setup_logger()
 #utils.LOG_ALL_API_CALLS = 1
 
-script_name = Path(__file__).stem
+script_name = pathlib.Path(__file__).stem
 
 APP = None
 
@@ -131,8 +131,8 @@ class ClusterData:
             self.fetched_data['azmaints'] = {}
             self.fetched_data['ems_events'] = []
             azevent_dict = self.empty_azevent()
-
-            with HostConnection(self.ip, username='cvomon', password=config.settings['users']['cvomon']['enc'], verify=False):
+            user, enc = self.app_instance.config.get_user('clusters', self.name)
+            with HostConnection(self.ip, username=user, password=enc, verify=False):
                 # Event Structure
                 # {'_links': {'self': {'href': '/api/support/ems/events/somenode-02/1875713'}},
                 # 'index': 1875713,
