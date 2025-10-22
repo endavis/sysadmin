@@ -13,13 +13,6 @@ from urllib.parse import urlencode
 class APIWrapper:
     """
     Tiny OpenAPI wrapper client for path/param discovery + calling endpoints.
-
-    Improvements over the original:
-    - Correct path templating ({id}) and keep template path for lookups.
-    - Use requests.Session with default headers and timeout.
-    - Robust $ref resolution against a flat schema file (schema.json).
-    - validate_body() validates the resolved schema (no no-ops).
-    - Human-readable suggest_parameters() and get_schema_for_endpoint().
     """
 
     def __init__(
