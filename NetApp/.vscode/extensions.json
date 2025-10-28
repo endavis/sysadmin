@@ -1,0 +1,10 @@
+{
+    "recommendations": [
+        "alexcvzz.vscode-sqlite",
+        "ms-python.debugpy",
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "ms-python.vscode-python-envs",
+        "tamasfe.even-better-toml"
+    ]
+}
