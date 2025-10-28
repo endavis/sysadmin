@@ -51,6 +51,7 @@ class Config:
         self.data_types = ['aiqums', 'connectors', 'cloudinsights', 'clusters', 'azure']
         self.settings = {}
         self.parse_data()
+        logging.debug(f"Toplevel settings: {self.settings.keys()}")
         self.script_name = pathlib.Path(sys.argv[0]).stem
         self.output_dir = pathlib.Path(os.getcwd()) / output_dir
         self.db_dir = self.output_dir / 'db'
@@ -66,9 +67,9 @@ class Config:
         for file in all_tomls:
             logging.debug(f"{file_name} : parsing {file}")
             self.parse_toml(file)
-            loaded_tomls.append(file.stem)
+            loaded_tomls.append(file)
 
-        logging.debug(f"{file_name} :loaded the following files: {', '.join(loaded_tomls)}")
+        logging.debug(f"{file_name} :loaded the following files: {', '.join([str(path) for path in loaded_tomls])}")
         self.add_searchable_keys()
 
     def parse_toml(self, file):
