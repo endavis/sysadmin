@@ -1,20 +1,16 @@
 import logging
-import json
 import pathlib
 import pprint
-import time
 import datetime
-import math
 import collections
 from zoneinfo import ZoneInfo
 
-from netapp_ontap import HostConnection
-from netapp_ontap.resources import Cluster, Volume, Node
+from netapp_ontap import HostConnection # pyright: ignore[reportPrivateImportUsage]
+from netapp_ontap.resources import Volume
 
 from libs.config import Config
 from libs.parseargs import argp
 from libs.log import setup_logger
-from libs.openapi import APIWrapper
 from libs.sqlite.metrics_db import MetricDB
 import libs.dii
 
@@ -27,11 +23,11 @@ config = None
 APP = None
 
 class AppClass:
-    def __init__(self, name, clusters, config):
+    def __init__(self, name, clusters, config: Config):
         # start_time="2025-09-12T00:00:00Z",
         # end_time="2025-09-15T00:00:00Z"
-        self.config = config        
-        tdate: datetime.datetime = datetime.datetime.strptime(self.config.args.date, "%Y-%m-%d")
+        self.config = config
+        tdate: datetime.datetime = datetime.datetime.strptime(self.config.args.date, "%Y-%m-%d") # pyright: ignore[reportOptionalMemberAccess]
         tdate = tdate.replace(tzinfo=ZoneInfo("GMT"))
         dt_start_date = tdate - datetime.timedelta(days=1)
         dt_end_date = tdate + datetime.timedelta(days=2)
@@ -43,12 +39,7 @@ class AppClass:
         self.name = name
         self.cluster_details = clusters
         self.clusterdata = {}
-        self.dii_api_client = APIWrapper(
-            api_spec_path=config.get_schema_location("dii") / "api.json",
-            schema_path=config.get_schema_location("dii") / "schema.json",
-            base_url=config.settings["settings"]["dii"]["base_url"],
-            auth_token=config.settings["settings"]["dii"]["api_ro_token"]
-        )
+        self.dii_api_client = libs.dii.api.DIIAPIClient(self.config) # pyright: ignore[reportAttributeAccessIssue]
 
         self.build_app()
 
@@ -56,7 +47,7 @@ class AppClass:
         for item in self.cluster_details:
             self.clusterdata[item] = ClusterData(item, self, **self.cluster_details[item])
 
-    def gather_data(self, vol_output_file=None):
+    def gather_data(self):
         for cluster in self.clusterdata.values():
             cluster.gather_data()
 
@@ -68,20 +59,21 @@ class ClusterData:
             setattr(self, name, value)
         self.app_instance = app_instance
         self.volume_metrics = {}
-        self.metrics_db = MetricDB(self.app_instance.config, db_name=f"{self.name}_{self.app_instance.config.args.date}_metrics.db")
+        self.metrics_db = MetricDB(self.app_instance.config,
+                                   db_name=f"{self.name}_{self.app_instance.config.args.date}_metrics.db") # pyright: ignore[reportOptionalMemberAccess]
         self.metrics_to_get = ["read_ops", "write_ops", "read_throughput", "write_throughput", "read_latency", "write_latency"]
 
     def gather_data(self):
         logging.info(f'Gathering data for cluster {self.name}')
         user, enc = self.app_instance.config.get_user('clusters', self.name)
         try:
-            with HostConnection(self.ip, username=user, password=enc, verify=False):
+            with HostConnection(self.ip, username=user, password=enc, verify=False): # pyright: ignore[reportAttributeAccessIssue]
                 volume_args = {}
                 volume_args['is_svm_root'] = False
                 volume_args['fields'] = '*'
 
                 volumes = list(Volume.get_collection(**volume_args))
-                
+
                 for volume in volumes:
                     self.gather_data_for_volume(volume['name'], volume['svm']['name'])
         except Exception as e:
@@ -90,14 +82,14 @@ class ClusterData:
         logging.info(f"Database saved to {self.metrics_db.db_location}")
 
 
-    def gather_data_for_volume(self, volume_name, vserver_name):
-        logging.info(f'  Gathering data for {self.name}:{vserver_name}:{volume_name}')  
+    def gather_data_for_volume(self, volume_name: str, vserver_name: str):
+        logging.info(f'  Gathering data for {self.name}:{vserver_name}:{volume_name}')
         bad_keys = []
         try:
             # Note : boolean operators must be CAPITAL LETTERS
             filter_expr=f'vserver_name = "{vserver_name}" AND volume_name = "{volume_name}"'
 
-            results = libs.dii.lake.query.timeseries.post(
+            results = libs.dii.api.lake.query.timeseries.post( # pyright: ignore[reportAttributeAccessIssue]
                 self.app_instance.dii_api_client,
                 category="netapp_ontap",
                 measurement="workload_volume",
@@ -110,12 +102,12 @@ class ClusterData:
             )
             self.volume_metrics[volume_name] = collections.OrderedDict()
             current_metrics = self.volume_metrics[volume_name]
-            first = True 
+            first = True
             for metric in results:
                 # print(f"Len {metric} {len(results[metric])}")
                 # print(f"Keys: {results[metric][0].keys()}")
                 for data in results[metric][0]['timeseries']:
-                    timestamp = data['time'] // 1000                    
+                    timestamp = data['time'] // 1000
                     # dt_object = datetime.datetime.fromtimestamp(timestamp, tz=ZoneInfo("GMT"))
                     # if first:
                         # logging.info(f"Converted timestamp {dt_object:%a %b %d %H:%M:%S %Z %Y}")
@@ -149,7 +141,7 @@ class ClusterData:
             # Add the data to database
             table_name = f"{vserver_name}-{volume_name}"
             self.metrics_db.create_table(table_name)
-            metrics_list = list(current_metrics.values()) 
+            metrics_list = list(current_metrics.values())
             self.metrics_db.upsert_many(table_name, metrics_list)
 
         except Exception as e:
@@ -159,10 +151,10 @@ class ClusterData:
 if __name__ == "__main__":
 
     args = argp(script_name=script_name, description="dump volume metrics for a specific day (+/- done day for 3 days total)", parse=False)
-    args.parser.add_argument('-d', '--date', type=str, help="the date of the form YYYY-MM-DD, example: 2025-04-13", default="", required=True)    
+    args.parser.add_argument('-d', '--date', type=str, help="the date of the form YYYY-MM-DD, example: 2025-04-13", default="", required=True)
     args.parse()
 
-    config = Config(args.config_dir, args.output_dir, args=args)
+    config = Config(args.config_dir, args.output_dir, args=args) # pyright: ignore[reportAttributeAccessIssue]
 
     items = config.get_clusters(args.filter)
 
@@ -194,7 +186,7 @@ if __name__ == "__main__":
     #     metrics=metrics,
     #     # Note : boolean operators must be CAPITAL LETTERS
     #     filter_expr='cluster_name = "ZUSE2PDAXCST210" AND vserver_name = "svm_ZUSE2PDAXCST210" AND volume_name = "PD2TY2024_E2210"',
-    #     # filter_expr = 'volume_name CONTAINS "2024"', 
+    #     # filter_expr = 'volume_name CONTAINS "2024"',
     #     # interval="60s",
     #     # lookback_minutes=1440
     #     start_time="2025-07-15T00:00:00Z",
