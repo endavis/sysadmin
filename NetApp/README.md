@@ -50,10 +50,6 @@ uv python pin 3.11
 
 If your project has a `pyproject.toml` or `requirements.txt`, you can install all dependencies automatically:
 
-```bash
-uv pip install -r requirements.txt
-```
-
 Or, for projects using `pyproject.toml` (recommended):
 
 ```bash
