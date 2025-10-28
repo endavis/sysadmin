@@ -1,0 +1,29 @@
+# This is a tmuxp environmnet for developing
+# It loads VS Code as the editor
+# to load this tmuxp config
+#   tmuxp load devconfig/tmux/netapp.tmuxp.yaml -y
+# change the start_directory to the location of the code
+# It has 3 windows for various tasks
+#   Window 1: to run git commands
+#   Window 2: to search files from the command line
+#   Window 3: a python interpreter in the venv
+session_name: Python NetApp Scripts
+start_directory: ~/src/sysadmin/NetApp
+environment:
+  EDITOR: /usr/bin/vim
+windows:
+  - window_name: Git
+    shell_command_before:
+      - '[ -f .venv/bin/activate ] && source .venv/bin/activate && reset'
+    panes:
+      - code .
+  - window_name: Search
+    shell_command_before:
+      - '[ -f .venv/bin/activate ] && source .venv/bin/activate && reset'
+    panes:
+      -
+  - window_name: Python
+    shell_command_before:
+      - '[ -f .venv/bin/activate ] && source .venv/bin/activate && reset'
+    panes:
+      - python3
