@@ -23,15 +23,15 @@ class argp:
     def parse(self):
         self.args = self.parser.parse_args(namespace=self)
 
-        if self.filter:
-            logging.debug(f"{file_name} : filter before conversion: {self.filter = }")
-            converted_filter = self.parse_json(self.filter)
+        if self.args.filter: # pyright: ignore[reportAttributeAccessIssue]
+            logging.debug(f"{file_name} : filter before conversion: {self.args.filter = }") # pyright: ignore[reportAttributeAccessIssue]
+            converted_filter = self.parse_json(self.args.filter) # pyright: ignore[reportAttributeAccessIssue]
             logging.debug(f"{file_name} : After conversion: {type(converted_filter) = } {converted_filter = }")
-            self.filter = converted_filter
+            self.args.filter = converted_filter # pyright: ignore[reportAttributeAccessIssue]
         else:
-            self.filter = ''
+            self.args.filter = '' # pyright: ignore[reportAttributeAccessIssue]
 
-        if self.debug:
+        if self.args.debug: # pyright: ignore[reportAttributeAccessIssue]
             for handler in logging.getLogger().handlers:
                 handler.setLevel(logging.DEBUG)
 
