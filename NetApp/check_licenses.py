@@ -5,7 +5,7 @@ from pathlib import Path
 from datetime import datetime, timedelta, timezone
 import logging
 
-from netapp_ontap import HostConnection
+from netapp_ontap import HostConnection # pyright: ignore[reportPrivateImportUsage]
 from netapp_ontap.resources import LicensePackage, Node
 
 from libs.config import Config
@@ -77,7 +77,7 @@ class AppClass:
                 serial = item['serial number'] if 'serial number' in item else 'Unknown'
                 license_type = item['license type'] if 'license type' in item else 'Unknown'
                 days = item['days checked'] if 'days checked' in item else 'Unknown'
-                if days < 0:
+                if isinstance(days, (int, float)) and days < 0:
                     #email_body.append(f"- {item['cluster']} - {owner} - {serial} - {license_type} has expired {abs(days)} days ago on {item['expires']}!  ")
                     email_body.append(f"    <p class='red-white'>{item['cluster']} - {owner} - {serial} - {license_type} has expired {abs(days)} days ago on {item['expires']}!</p>")
                 else:
@@ -112,9 +112,9 @@ class ClusterData:
 
     def gather_data(self):
         logging.info(f"{script_name} : Checking {self.name}")
-        user, enc = self.app_instance.config.get_user('clusters', self.name)        
+        user, enc = self.app_instance.config.get_user('clusters', self.name)
         try:
-            with HostConnection(self.ip, username=user, password=enc, verify=False):
+            with HostConnection(self.ip, username=user, password=enc, verify=False): # pyright: ignore[reportAttributeAccessIssue]
                 self.fetched_data['licenses'] = []
                 for license in LicensePackage.get_collection(fields="*"):
                     self.fetched_data['licenses'].append(license.to_dict())
@@ -131,7 +131,7 @@ class ClusterData:
         days_to_check = 30
         license_type = 'ONTAP BYOL'
         current_time = datetime.now(timezone.utc)
-        
+
         if not self.fetched_data['licenses']:
             self.app_instance.license_issues.append({'cluster':self.name,
                                                         'owner': '',
@@ -209,7 +209,7 @@ class ClusterData:
 if __name__ == '__main__':
 
     args = argp(script_name=script_name, description="check clusters for licensing issues")
-    config = Config(args.config_dir, args.output_dir)
+    config = Config(args.config_dir, args.output_dir) # pyright: ignore[reportAttributeAccessIssue]
 
     items = config.get_clusters(args.filter)
 
