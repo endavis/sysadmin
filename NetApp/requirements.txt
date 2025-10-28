@@ -1,6 +1,0 @@
-netapp_ontap
-openpyxl
-xlsxwriter
-pandas
-jsonschema
-paramiko

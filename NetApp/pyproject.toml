@@ -1,0 +1,14 @@
+[project]
+name = "NetAppScripts"
+version = "0.1.0"
+description = "NetApp scripts and Libraries for various tasks"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "jsonschema>=4.25.1",
+    "netapp-ontap>=9.17.1.0",
+    "openpyxl>=3.1.5",
+    "pandas>=2.3.3",
+    "paramiko>=4.0.0",
+    "xlsxwriter>=3.2.9",
+]
