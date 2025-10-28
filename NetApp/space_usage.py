@@ -13,7 +13,7 @@ import traceback
 import pathlib
 from datetime import datetime
 
-from netapp_ontap import HostConnection
+from netapp_ontap import HostConnection # pyright: ignore[reportPrivateImportUsage]
 from netapp_ontap.resources import Cluster, Volume, Node
 import xlsxwriter
 import xlsxwriter.utility
@@ -108,79 +108,123 @@ class AppClass:
 
     def build_totals_sheet(self):
         self.totals_ws.write('A1', "Type")
-        self.totals_ws.set_column(0, 0, 17)        
+        self.totals_ws.set_column(0, 0, 17)
         self.totals_ws.write('B1', "Total Provisioned (Licensing) (TiB)")
-        self.totals_ws.set_column(1, 1, 31.5)        
+        self.totals_ws.set_column(1, 1, 31.5)
         self.totals_ws.write('C1', "Used (TiB)")
-        self.totals_ws.set_column(2, 2, 14)        
+        self.totals_ws.set_column(2, 2, 14)
         self.totals_ws.write('D1', "Percent Used")
-        self.totals_ws.set_column(3, 3, 13)        
+        self.totals_ws.set_column(3, 3, 13)
 
         self.totals_ws.write('A2', "Azure CVO RW")
-        self.totals_ws.write_formula('B2', '=SUMIFS(usage_table[Provisioned (Licensing) TiB],usage_table[Cloud],"azure",usage_table[Cluster Type],"CVO",usage_table[Data Type],"RW")',
-                                     cell_format=self.cell_format_number)
-        self.totals_ws.write_formula('C2', '=SUMIFS(usage_table[Used TiB],usage_table[Cloud],"azure",usage_table[Cluster Type],"CVO",usage_table[Data Type],"RW")',
-                                     cell_format=self.cell_format_number)
-        self.totals_ws.write_formula('D2', '=IFERROR($C$2/$B$2, 0)', cell_format=self.cell_format_percentage)
+        self.totals_ws.write_formula('B2',
+                                     formula='=SUMIFS(usage_table[Provisioned (Licensing) TiB],usage_table[Cloud],"azure",usage_table[Cluster Type],"CVO",usage_table[Data Type],"RW")',
+                                     cell_format=self.cell_format_number) # pyright: ignore[reportCallIssue]
+        self.totals_ws.write_formula('C2',
+                                     formula='=SUMIFS(usage_table[Used TiB],usage_table[Cloud],"azure",usage_table[Cluster Type],"CVO",usage_table[Data Type],"RW")',
+                                     cell_format=self.cell_format_number) # pyright: ignore[reportCallIssue]
+        self.totals_ws.write_formula('D2',
+                                     formula='=IFERROR($C$2/$B$2, 0)',
+                                     cell_format=self.cell_format_percentage)  # pyright: ignore[reportCallIssue]
 
         self.totals_ws.write('A3', "Azure CVO DP")
-        self.totals_ws.write_formula('B3', '=SUMIFS(usage_table[Provisioned (Licensing) TiB],usage_table[Cloud],"azure",usage_table[Cluster Type],"CVO",usage_table[Data Type],"DP")',
-                                     cell_format=self.cell_format_number)
-        self.totals_ws.write_formula('C3', '=SUMIFS(usage_table[Used TiB],usage_table[Cloud],"azure",usage_table[Cluster Type],"CVO",usage_table[Data Type],"DP")',
-                                     cell_format=self.cell_format_number)
-        self.totals_ws.write_formula('D3', '=IFERROR($C$3/$B$3, 0)', cell_format=self.cell_format_percentage)
+        self.totals_ws.write_formula('B3',
+                                     formula='=SUMIFS(usage_table[Provisioned (Licensing) TiB],usage_table[Cloud],"azure",usage_table[Cluster Type],"CVO",usage_table[Data Type],"DP")',
+                                     cell_format=self.cell_format_number) # pyright: ignore[reportCallIssue]
+        self.totals_ws.write_formula('C3',
+                                     formula='=SUMIFS(usage_table[Used TiB],usage_table[Cloud],"azure",usage_table[Cluster Type],"CVO",usage_table[Data Type],"DP")',
+                                     cell_format=self.cell_format_number) # pyright: ignore[reportCallIssue]
+        self.totals_ws.write_formula('D3',
+                                     formula='=IFERROR($C$3/$B$3, 0)',
+                                     cell_format=self.cell_format_percentage) # pyright: ignore[reportCallIssue]
 
         self.totals_ws.write('A4', "Azure CVO HA RW")
-        self.totals_ws.write_formula('B4', '=SUMIFS(usage_table[Provisioned (Licensing) TiB],usage_table[Cloud],"azure",usage_table[Cluster Type],"CVO HA",usage_table[Data Type],"RW")',
-                                     cell_format=self.cell_format_number)
-        self.totals_ws.write_formula('C4', '=SUMIFS(usage_table[Used TiB],usage_table[Cloud],"azure",usage_table[Cluster Type],"CVO HA",usage_table[Data Type],"RW")',
-                                     cell_format=self.cell_format_number)
-        self.totals_ws.write_formula('D4', '=IFERROR($C$4/$B$4, 0)', cell_format=self.cell_format_percentage)
+        self.totals_ws.write_formula('B4',
+                                     formula='=SUMIFS(usage_table[Provisioned (Licensing) TiB],usage_table[Cloud],"azure",usage_table[Cluster Type],"CVO HA",usage_table[Data Type],"RW")',
+                                     cell_format=self.cell_format_number) # pyright: ignore[reportCallIssue]
+        self.totals_ws.write_formula('C4',
+                                     formula='=SUMIFS(usage_table[Used TiB],usage_table[Cloud],"azure",usage_table[Cluster Type],"CVO HA",usage_table[Data Type],"RW")',
+                                     cell_format=self.cell_format_number) # pyright: ignore[reportCallIssue]
+        self.totals_ws.write_formula('D4',
+                                     formula='=IFERROR($C$4/$B$4, 0)',
+                                     cell_format=self.cell_format_percentage) # pyright: ignore[reportCallIssue]
 
         self.totals_ws.write('A5', "Azure CVO HA DP")
-        self.totals_ws.write_formula('B5', '=SUMIFS(usage_table[Provisioned (Licensing) TiB],usage_table[Cloud],"azure",usage_table[Cluster Type],"CVO HA",usage_table[Data Type],"DP")',
-                                     cell_format=self.cell_format_number)
-        self.totals_ws.write_formula('C5', '=SUMIFS(usage_table[Used TiB],usage_table[Cloud],"azure",usage_table[Cluster Type],"CVO HA",usage_table[Data Type],"DP")',
-                                     cell_format=self.cell_format_number)
-        self.totals_ws.write_formula('D5', '=IFERROR($C$5/$B$5, 0)', cell_format=self.cell_format_percentage)
+        self.totals_ws.write_formula('B5',
+                                     formula='=SUMIFS(usage_table[Provisioned (Licensing) TiB],usage_table[Cloud],"azure",usage_table[Cluster Type],"CVO HA",usage_table[Data Type],"DP")',
+                                     cell_format=self.cell_format_number) # pyright: ignore[reportCallIssue]
+        self.totals_ws.write_formula('C5',
+                                     formula='=SUMIFS(usage_table[Used TiB],usage_table[Cloud],"azure",usage_table[Cluster Type],"CVO HA",usage_table[Data Type],"DP")',
+                                     cell_format=self.cell_format_number) # pyright: ignore[reportCallIssue]
+        self.totals_ws.write_formula('D5',
+                                     formula='=IFERROR($C$5/$B$5, 0)',
+                                     cell_format=self.cell_format_percentage) # pyright: ignore[reportCallIssue]
 
         self.totals_ws.write('A6', "Azure Totals")
-        self.totals_ws.write_formula('B6', '=SUM($B2:$B5)', cell_format=self.cell_format_number)
-        self.totals_ws.write_formula('C6', '=SUM($C2:$C5)', cell_format=self.cell_format_number)
-        self.totals_ws.write_formula('D6', '=IFERROR($C$6/$B$6, 0)', cell_format=self.cell_format_percentage)
+        self.totals_ws.write_formula('B6',
+                                     formula='=SUM($B2:$B5)',
+                                     cell_format=self.cell_format_number) # pyright: ignore[reportCallIssue]
+        self.totals_ws.write_formula('C6',
+                                     formula='=SUM($C2:$C5)',
+                                     cell_format=self.cell_format_number) # pyright: ignore[reportCallIssue]
+        self.totals_ws.write_formula('D6',
+                                     formula='=IFERROR($C$6/$B$6, 0)',
+                                     cell_format=self.cell_format_percentage) # pyright: ignore[reportCallIssue]
 
         self.totals_ws.write('A8', "AWS CVO RW")
-        self.totals_ws.write_formula('B8', '=SUMIFS(usage_table[Provisioned (Licensing) TiB],usage_table[Cloud],"aws",usage_table[Cluster Type],"CVO",usage_table[Data Type],"RW")',
-                                     cell_format=self.cell_format_number)
-        self.totals_ws.write_formula('C8', '=SUMIFS(usage_table[Used TiB],usage_table[Cloud],"aws",usage_table[Cluster Type],"CVO",usage_table[Data Type],"RW")',
-                                     cell_format=self.cell_format_number)
-        self.totals_ws.write_formula('D8', '=IFERROR($C$8/$B$8, 0)', cell_format=self.cell_format_percentage)
+        self.totals_ws.write_formula('B8',
+                                     formula='=SUMIFS(usage_table[Provisioned (Licensing) TiB],usage_table[Cloud],"aws",usage_table[Cluster Type],"CVO",usage_table[Data Type],"RW")',
+                                     cell_format=self.cell_format_number) # pyright: ignore[reportCallIssue]
+        self.totals_ws.write_formula('C8',
+                                     formula='=SUMIFS(usage_table[Used TiB],usage_table[Cloud],"aws",usage_table[Cluster Type],"CVO",usage_table[Data Type],"RW")',
+                                     cell_format=self.cell_format_number) # pyright: ignore[reportCallIssue]
+        self.totals_ws.write_formula('D8',
+                                     formula='=IFERROR($C$8/$B$8, 0)',
+                                     cell_format=self.cell_format_percentage) # pyright: ignore[reportCallIssue]
 
         self.totals_ws.write('A9', "AWS CVO DP")
-        self.totals_ws.write_formula('B9', '=SUMIFS(usage_table[Provisioned (Licensing) TiB],usage_table[Cloud],"aws",usage_table[Cluster Type],"CVO",usage_table[Data Type],"DP")',
-                                     cell_format=self.cell_format_number)
-        self.totals_ws.write_formula('C9', '=SUMIFS(usage_table[Used TiB],usage_table[Cloud],"aws",usage_table[Cluster Type],"CVO",usage_table[Data Type],"DP")',
-                                     cell_format=self.cell_format_number)
-        self.totals_ws.write_formula('D9', '=IFERROR($C$9/$B$9, 0)', cell_format=self.cell_format_percentage)
+        self.totals_ws.write_formula('B9',
+                                     formula='=SUMIFS(usage_table[Provisioned (Licensing) TiB],usage_table[Cloud],"aws",usage_table[Cluster Type],"CVO",usage_table[Data Type],"DP")',
+                                     cell_format=self.cell_format_number) # pyright: ignore[reportCallIssue]
+        self.totals_ws.write_formula('C9',
+                                     formula='=SUMIFS(usage_table[Used TiB],usage_table[Cloud],"aws",usage_table[Cluster Type],"CVO",usage_table[Data Type],"DP")',
+                                     cell_format=self.cell_format_number) # pyright: ignore[reportCallIssue]
+        self.totals_ws.write_formula('D9',
+                                     formula='=IFERROR($C$9/$B$9, 0)',
+                                     cell_format=self.cell_format_percentage) # pyright: ignore[reportCallIssue]
 
         self.totals_ws.write('A10', "AWS CVO HA RW")
-        self.totals_ws.write_formula('B10', '=SUMIFS(usage_table[Provisioned (Licensing) TiB],usage_table[Cloud],"aws",usage_table[Cluster Type],"CVO HA",usage_table[Data Type],"RW")',
-                                     cell_format=self.cell_format_number)
-        self.totals_ws.write_formula('C10', '=SUMIFS(usage_table[Used TiB],usage_table[Cloud],"aws",usage_table[Cluster Type],"CVO HA",usage_table[Data Type],"RW")',
-                                     cell_format=self.cell_format_number)
-        self.totals_ws.write_formula('D10', '=IFERROR($C$10/$B$10, 0)', cell_format=self.cell_format_percentage)
+        self.totals_ws.write_formula('B10',
+                                     formula='=SUMIFS(usage_table[Provisioned (Licensing) TiB],usage_table[Cloud],"aws",usage_table[Cluster Type],"CVO HA",usage_table[Data Type],"RW")',
+                                     cell_format=self.cell_format_number) # pyright: ignore[reportCallIssue]
+        self.totals_ws.write_formula('C10',
+                                     formula='=SUMIFS(usage_table[Used TiB],usage_table[Cloud],"aws",usage_table[Cluster Type],"CVO HA",usage_table[Data Type],"RW")',
+                                     cell_format=self.cell_format_number) # pyright: ignore[reportCallIssue]
+        self.totals_ws.write_formula('D10',
+                                     formula='=IFERROR($C$10/$B$10, 0)',
+                                     cell_format=self.cell_format_percentage) # pyright: ignore[reportCallIssue]
 
         self.totals_ws.write('A11', "AWS CVO HA DP")
-        self.totals_ws.write_formula('B11', '=SUMIFS(usage_table[Provisioned (Licensing) TiB],usage_table[Cloud],"aws",usage_table[Cluster Type],"CVO HA",usage_table[Data Type],"DP")',
-                                     cell_format=self.cell_format_number)
-        self.totals_ws.write_formula('C11', '=SUMIFS(usage_table[Used TiB],usage_table[Cloud],"aws",usage_table[Cluster Type],"CVO HA",usage_table[Data Type],"DP")',
-                                     cell_format=self.cell_format_number)
-        self.totals_ws.write_formula('D11', '=IFERROR($C$11/$B$11, 0)', cell_format=self.cell_format_percentage)
+        self.totals_ws.write_formula('B11',
+                                     formula='=SUMIFS(usage_table[Provisioned (Licensing) TiB],usage_table[Cloud],"aws",usage_table[Cluster Type],"CVO HA",usage_table[Data Type],"DP")',
+                                     cell_format=self.cell_format_number) # pyright: ignore[reportCallIssue]
+        self.totals_ws.write_formula('C11',
+                                     formula='=SUMIFS(usage_table[Used TiB],usage_table[Cloud],"aws",usage_table[Cluster Type],"CVO HA",usage_table[Data Type],"DP")',
+                                     cell_format=self.cell_format_number) # pyright: ignore[reportCallIssue]
+        self.totals_ws.write_formula('D11',
+                                     formula='=IFERROR($C$11/$B$11, 0)',
+                                     cell_format=self.cell_format_percentage) # pyright: ignore[reportCallIssue]
 
         self.totals_ws.write('A12', "AWS Totals")
-        self.totals_ws.write_formula('B12', '=SUM($B8:$B11)', cell_format=self.cell_format_number)
-        self.totals_ws.write_formula('C12', '=SUM($C8:$C11)', cell_format=self.cell_format_number)
-        self.totals_ws.write_formula('D12', '=IFERROR($C$12/$B$12, 0)', cell_format=self.cell_format_percentage)
+        self.totals_ws.write_formula('B12',
+                                     formula='=SUM($B8:$B11)',
+                                     cell_format=self.cell_format_number) # pyright: ignore[reportCallIssue]
+        self.totals_ws.write_formula('C12',
+                                     formula='=SUM($C8:$C11)',
+                                     cell_format=self.cell_format_number) # pyright: ignore[reportCallIssue]
+        self.totals_ws.write_formula('D12',
+                                     formula='=IFERROR($C$12/$B$12, 0)',
+                                     cell_format=self.cell_format_percentage) # pyright: ignore[reportCallIssue]
 
 
 
@@ -239,7 +283,7 @@ class AppClass:
             'autofilter': True,
             'total_row': True,
             'name':'volume_table'
-        })
+        }) # pyright: ignore[reportCallIssue]
 
         # Apply autofilter to Volumes sheet
         #self.volumes_ws.autofilter(0, 0, len(self.volume_data), len(columns) - 1)
@@ -249,7 +293,11 @@ class AppClass:
             self.volumes_ws.set_column(col_num, col_num, width + 4)
 
         # self.volumes_ws.autofit()
-        self.volumes_ws.conditional_format(f"{last_column}2:{last_column}{len(self.volume_data) + 1}", {"type": "cell", "criteria": ">=", "value": 90, "format": self.cell_format_red})
+        self.volumes_ws.conditional_format(f"{last_column}2:{last_column}{len(self.volume_data) + 1}",
+                                           {"type": "cell",
+                                            "criteria": ">=",
+                                            "value": 90,
+                                            "format": self.cell_format_red}) # pyright: ignore[reportCallIssue]
 
 
     def build_usage_sheet(self):
@@ -328,16 +376,21 @@ class AppClass:
             'autofilter': True,
             'total_row': True,
             'name':'usage_table'
-        })
+        }) # pyright: ignore[reportCallIssue]
 
         # Auto-size columns for Usage sheet and get % Used column
+        percentused_column = ""
         for col_num, width in enumerate(usage_col_widths):
             self.usage_ws.set_column(col_num, col_num, width + 2)
             if columns[col_num]['header'] == "% Used":
                 percentused_column = xlsxwriter.utility.xl_col_to_name(col_num)
 
         # Set
-        self.usage_ws.conditional_format(f"{percentused_column}2:{percentused_column}{len(usage_data) + 2}", {"type": "cell", "criteria": ">=", "value": 90, "format": self.cell_format_red})
+        self.usage_ws.conditional_format(f"{percentused_column}2:{percentused_column}{len(usage_data) + 2}",
+                                         {"type": "cell",
+                                          "criteria": ">=",
+                                          "value": 90,
+                                          "format": self.cell_format_red}) # pyright: ignore[reportCallIssue]
 
 
 class ClusterData:
@@ -353,9 +406,10 @@ class ClusterData:
 
     def gather_data(self):
         logging.info(f'Gathering data for {self.name}')
+        volume = {'name':'Unknown'}
         user, enc = self.app_instance.config.get_user('clusters', self.name)
         try:
-            with HostConnection(self.ip, username=user, password=enc, verify=False):
+            with HostConnection(self.ip, username=user, password=enc, verify=False): # pyright: ignore[reportAttributeAccessIssue]
                 cluster = Cluster()
 
                 cluster.get()
@@ -377,21 +431,22 @@ class ClusterData:
                         used = 0
                     else:
                         used = float(f"{approximate_size_specific(volume['space']['used'], 'TiB', withsuffix=False):.7f}")
-                    self.app_instance.divisions[self.div][self.bu][self.app][self.env][self.subapp][self.cloud][self.region][self.cluster_type][volume['type'].upper()] = True
+                    subapp = self.app_instance.divisions[self.div][self.bu][self.app][self.env][self.subapp] # type: ignore
+                    subapp[self.cloud][self.region][self.cluster_type][volume['type'].upper()] = True # type: ignore
                     self.data_totals[volume['type'].upper()] = True
-                    self.app_instance.volume_data.append([self.div,
-                                                 self.bu,
+                    self.app_instance.volume_data.append([self.div, # type: ignore
+                                                 self.bu,# type: ignore
                                                  self.name,
-                                                 self.app,
-                                                 self.env,
-                                                 self.subapp,
-                                                 self.cloud,
-                                                 self.region,
+                                                 self.app,# type: ignore
+                                                 self.env,# type: ignore
+                                                 self.subapp,# type: ignore
+                                                 self.cloud,# type: ignore
+                                                 self.region,# type: ignore
                                                  self.cluster_type,
                                                  volume['type'].upper(),
                                                  volume['name'],
                                                  volume['state'],
-                                                 ",".join(self.tags),
+                                                 ",".join(self.tags),# type: ignore
                                                  size,
                                                  used,
                                                  float(f"{(used / size) * 100:.3f}")])
@@ -402,7 +457,7 @@ class ClusterData:
 
 if __name__ == '__main__':
     args = argp(script_name=script_name, description="gather volume and cluster stats, provisioned size and savings if changing to 80% and 90% autosize thresholds")
-    config = Config(args.config_dir, args.output_dir)
+    config = Config(args.config_dir, args.output_dir) # pyright: ignore[reportAttributeAccessIssue]
 
     items = config.get_clusters(args.filter)
 
