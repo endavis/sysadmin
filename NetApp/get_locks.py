@@ -8,7 +8,7 @@ import pathlib
 from datetime import datetime
 
 #from workbook import SpaceWorkbook
-from netapp_ontap import HostConnection, utils
+from netapp_ontap import HostConnection, utils # pyright: ignore[reportPrivateImportUsage]
 from netapp_ontap.resources import ClientLock, Volume
 from openpyxl import Workbook
 
@@ -61,10 +61,10 @@ class ClusterData:
         logging.info(f"Gathering data for {self.name}")
         user, enc = self.app_instance.config.get_user('clusters', self.name)
         try:
-            with HostConnection(self.ip, username=user, password=enc, verify=False):
+            with HostConnection(self.ip, username=user, password=enc, verify=False): # pyright: ignore[reportAttributeAccessIssue]
 
                 self.fetched_data['locks'] = []
-                locks = ClientLock.get_collection(**{"fields":"*"})
+                locks = ClientLock.get_collection(**{"fields":"*"}) # pyright: ignore[reportArgumentType]
                 for lock in locks:
                     self.fetched_data['locks'].append(lock.to_dict())
                 logging.info(f"Locks found: {len(self.fetched_data['locks'])}")
@@ -92,7 +92,7 @@ class ClusterData:
 
 if __name__ == '__main__':
     args = argp(script_name=script_name, description="get locks for a cluster(s)")
-    config = Config(args.config_dir, args.output_dir)
+    config = Config(args.config_dir, args.output_dir) # pyright: ignore[reportAttributeAccessIssue]
     items = config.get_clusters(args.filter)
     # aiqums = config.search('aiqums', {'bu':'PUMA'})
     # pprint.pprint(aiqums)
