@@ -56,7 +56,7 @@ class argp:
             "--output_dir",
             type=str,
             help="output directory",
-            default=f"output/{script_name}",
+            default="",
         )
 
         if parse:

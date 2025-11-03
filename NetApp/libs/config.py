@@ -1,8 +1,11 @@
-"""# return any items match all 3 tags
+"""Module to read configs and setup environment.
+
+# return any items match all 3 tags
 -f '{"bu":"Business", "env":"Prod", "tags":"active"}'
 # return any item that matches bu and env and has both 'active' and 'workload' as a tag
 -f '{"bu":"Business", "env":"Prod", "tags":"active && workload"}'
-# return any item that matches bu, env, and tags and app is one of app_name1 or app_name2
+# return any item that matches bu, env, and tags and
+#            app is one of app_name1 or app_name2
 -f '{"bu":"Business", "app": "app_name1 || app_name2", "env":"Prod", "tags":"active"}'
 # return any items with either name1 or name2
 -f '{"name":"name1 || name2"}'
@@ -31,7 +34,8 @@ IBM/Softlayer settings (ibm.toml)
 AWS settings (aws.toml)
 global settings (settings.toml)
 
-These tomls are loading into the Config.config attribute by file name (without the .toml)
+These tomls are loading into the Config.config
+    attribute by file name (without the .toml)
 """
 
 import tomllib
@@ -44,7 +48,7 @@ file_name = pathlib.Path(__file__).name
 
 
 class Config:
-    def __init__(self, config_dir, output_dir, args=None):
+    def __init__(self, config_dir="config", output_dir="", script_name="", args=None):
         self.data = {}
         self.args = args
         self.config_dir = pathlib.Path.cwd() / config_dir
@@ -52,9 +56,19 @@ class Config:
         self.settings = {}
         self.parse_data()
         logging.debug(f"Toplevel settings: {self.settings.keys()}")
-        self.script_name = pathlib.Path(sys.argv[0]).stem
-        self.output_dir = pathlib.Path(os.getcwd()) / output_dir
-        self.db_dir = self.output_dir / "db"
+        self.script_name = script_name
+        self.data_dir = pathlib.Path(os.getcwd()) / "data" / script_name
+        if output_dir:
+            self.output_dir = pathlib.Path(output_dir)
+            self.db_dir = pathlib.Path(output_dir)
+        else:
+            self.output_dir = self.data_dir / "output"
+            self.db_dir = self.data_dir / "db"
+
+        self.files_dir = self.data_dir / "files"
+        self.log_dir = self.data_dir / "logs"
+        os.makedirs(self.data_dir, exist_ok=True)
+        os.makedirs(self.files_dir, exist_ok=True)
         os.makedirs(self.output_dir, exist_ok=True)
         os.makedirs(self.db_dir, exist_ok=True)
 
@@ -70,7 +84,8 @@ class Config:
             loaded_tomls.append(file)
 
         logging.debug(
-            f"{file_name} :loaded the following files: {', '.join([str(path) for path in loaded_tomls])}"
+            f"{file_name} :loaded the"
+            f" following files: {', '.join([str(path) for path in loaded_tomls])}"
         )
         self.add_searchable_keys()
 
@@ -150,7 +165,9 @@ class Config:
                 self.data[data_type].update(data[data_type])
 
     def chk_and(self, search_term, values):
-        """>>> chk_and(test, 'active && workload1', ['active'])
+        """Check if an && matches.
+
+        >>> chk_and(test, 'active && workload1', ['active'])
         ['active', 'workload1']
         False
         >>> chk_and(test, 'active && workload1', ['active', 'workload1'])
@@ -169,7 +186,9 @@ class Config:
         return set(terms).issubset(values)
 
     def chk_or(self, search_term, value):
-        """>>> chk_or(test, 'active || workload1', ['active'])
+        """Check if an || matches.
+
+        >>> chk_or(test, 'active || workload1', ['active'])
         True
         >>> chk_or(test, 'workload1 || workload2', ['active'])
         False
@@ -197,14 +216,14 @@ class Config:
                 return term == value
 
     def search(self, data_type, search_dict):
-        """Search for items that match the given fields
+        """Search for items that match the given fields.
+
         each param should be a dictionary with field and value
 
         this is case insensitive
 
         value can be {'tags':'active && Workload'} or
                      {'app': 'App1 || App2'}
-
         """
         if not search_dict:
             return self.data[data_type].copy()
@@ -221,11 +240,14 @@ class Config:
                 if key not in item_details:
                     result_check.append(False)
                     logging.debug(
-                        f"{file_name} :      search: {key} not in item details, did not match"
+                        f"{file_name} :      search: {key} not"
+                        " in item details, did not match"
                     )
                     break
                 logging.debug(
-                    f"{file_name} :      search: check_term {search_dict[key]}, {item_details[key]} returned {self.check_term(search_dict[key], item_details[key])}"
+                    f"{file_name} :      search: check_term {search_dict[key]}, "
+                    f"{item_details[key]} returned "
+                    f"{self.check_term(search_dict[key], item_details[key])}"
                 )
                 result_check.append(
                     self.check_term(search_dict[key], item_details[key])
@@ -238,7 +260,8 @@ class Config:
                 results[item] = item_details
             else:
                 logging.debug(
-                    f"{file_name} :      search: item - {item_details['name']} did not match"
+                    f"{file_name} :      search: item - {item_details['name']} "
+                    "did not match"
                 )
 
         logging.debug(f"{file_name} : search returned - {list(results.keys())}")
