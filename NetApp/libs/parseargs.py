@@ -4,6 +4,9 @@ import argparse
 import json
 import pathlib
 import logging
+import os
+
+import psutil
 
 file_name = pathlib.Path(__file__).name
 
@@ -16,6 +19,15 @@ class argp:
     ):
         """Initialize the parser with common arguments."""
         self.description = description
+        self.pid = os.getpid()
+        self.cmd_line = psutil.Process(self.pid).cmdline()
+        self.environ = psutil.Process(self.pid).environ()
+
+        logging.info(f"Command line '{self.cmd_line}'")
+        logging.debug(f"Working directory: {psutil.Process(self.pid).cwd()}")
+        logging.debug("Environment:")
+        for item in self.environ:
+            logging.debug(f"    '{item}':'{self.environ[item]}'")
 
         self.parser = argparse.ArgumentParser(description=self.description)
         self.parser.add_argument(
