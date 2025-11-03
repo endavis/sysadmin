@@ -1,5 +1,4 @@
-"""
-# return any items match all 3 tags
+"""# return any items match all 3 tags
 -f '{"bu":"Business", "env":"Prod", "tags":"active"}'
 # return any item that matches bu and env and has both 'active' and 'workload' as a tag
 -f '{"bu":"Business", "env":"Prod", "tags":"active && workload"}'
@@ -34,27 +33,28 @@ global settings (settings.toml)
 
 These tomls are loading into the Config.config attribute by file name (without the .toml)
 """
+
 import tomllib
 import logging
-import pprint
 import pathlib
 import sys
 import os
 
 file_name = pathlib.Path(__file__).name
 
+
 class Config:
     def __init__(self, config_dir, output_dir, args=None):
         self.data = {}
         self.args = args
         self.config_dir = pathlib.Path.cwd() / config_dir
-        self.data_types = ['aiqums', 'connectors', 'cloudinsights', 'clusters', 'azure']
+        self.data_types = ["aiqums", "connectors", "cloudinsights", "clusters", "azure"]
         self.settings = {}
         self.parse_data()
         logging.debug(f"Toplevel settings: {self.settings.keys()}")
         self.script_name = pathlib.Path(sys.argv[0]).stem
         self.output_dir = pathlib.Path(os.getcwd()) / output_dir
-        self.db_dir = self.output_dir / 'db'
+        self.db_dir = self.output_dir / "db"
         os.makedirs(self.output_dir, exist_ok=True)
         os.makedirs(self.db_dir, exist_ok=True)
 
@@ -62,20 +62,26 @@ class Config:
         return pathlib.Path(self.config_dir / "apis" / api_name)
 
     def parse_data(self):
-        all_tomls = self.config_dir.rglob('*.toml')
+        all_tomls = self.config_dir.rglob("*.toml")
         loaded_tomls = []
         for file in all_tomls:
             logging.debug(f"{file_name} : parsing {file}")
             self.parse_toml(file)
             loaded_tomls.append(file)
 
-        logging.debug(f"{file_name} :loaded the following files: {', '.join([str(path) for path in loaded_tomls])}")
+        logging.debug(
+            f"{file_name} :loaded the following files: {', '.join([str(path) for path in loaded_tomls])}"
+        )
         self.add_searchable_keys()
 
     def parse_toml(self, file):
         with open(file, "rb") as f:
             data = tomllib.load(f)
-            if 'settings' in data and 'type' in data['settings'] and data['settings']['type'] == 'data':
+            if (
+                "settings" in data
+                and "type" in data["settings"]
+                and data["settings"]["type"] == "data"
+            ):
                 logging.debug(f"{file_name} : data file: {file.stem}")
                 self.load_data(data)
             else:
@@ -90,14 +96,14 @@ class Config:
         enc = None
 
         try:
-            user = self.settings['users'][utype]['user']
-            enc = self.settings['users'][utype]['enc']
+            user = self.settings["users"][utype]["user"]
+            enc = self.settings["users"][utype]["enc"]
         except KeyError:
             pass
 
         try:
-            user = self.data[utype][uobject]['user']
-            enc = self.data[utype][uobject]['enc']
+            user = self.data[utype][uobject]["user"]
+            enc = self.data[utype][uobject]["enc"]
         except KeyError:
             pass
 
@@ -110,8 +116,7 @@ class Config:
 
         return user, enc
 
-
-    def count(self, section, id='name'):
+    def count(self, section, id="name"):
         found = []
         for item in self.data[section]:
             try:
@@ -122,26 +127,30 @@ class Config:
 
     def add_searchable_keys(self):
         for data_type in self.data_types:
-            if data_type in self.settings['settings'] and  'searchable_keys' in self.settings['settings'][data_type]:
-                default_keys = self.settings['settings'][data_type]['searchable_keys']
+            if (
+                data_type in self.settings["settings"]
+                and "searchable_keys" in self.settings["settings"][data_type]
+            ):
+                default_keys = self.settings["settings"][data_type]["searchable_keys"]
                 for item in self.data[data_type]:
-                    if 'name' not in self.data[data_type][item]:
-                        self.data[data_type][item]['name'] = item
+                    if "name" not in self.data[data_type][item]:
+                        self.data[data_type][item]["name"] = item
                     for key in default_keys:
                         if key not in self.data[data_type][item]:
-                            self.data[data_type][item][key] = ''
+                            self.data[data_type][item][key] = ""
 
     def load_data(self, data):
         for data_type in self.data_types:
             if data_type not in self.data:
                 self.data[data_type] = {}
             if data_type in data:
-                logging.debug(f"{file_name} : adding {len(data[data_type])} {data_type} items")
+                logging.debug(
+                    f"{file_name} : adding {len(data[data_type])} {data_type} items"
+                )
                 self.data[data_type].update(data[data_type])
 
     def chk_and(self, search_term, values):
-        """
-        >>> chk_and(test, 'active && workload1', ['active'])
+        """>>> chk_and(test, 'active && workload1', ['active'])
         ['active', 'workload1']
         False
         >>> chk_and(test, 'active && workload1', ['active', 'workload1'])
@@ -156,12 +165,11 @@ class Config:
         # && only makes sense for lists
         if not isinstance(values, list):
             return False
-        terms = [item.strip() for item in search_term.split(' && ')]
+        terms = [item.strip() for item in search_term.split(" && ")]
         return set(terms).issubset(values)
 
     def chk_or(self, search_term, value):
-        """
-        >>> chk_or(test, 'active || workload1', ['active'])
+        """>>> chk_or(test, 'active || workload1', ['active'])
         True
         >>> chk_or(test, 'workload1 || workload2', ['active'])
         False
@@ -171,16 +179,16 @@ class Config:
         True
         >>> chk_or(test, 'workload1 || Test', ['active', 'workload2'])
         """
-        terms = [item.strip() for item in search_term.split(' || ')]
+        terms = [item.strip() for item in search_term.split(" || ")]
         if isinstance(value, list):
             return any(item in value for item in terms)
         else:
             return any(item == value for item in terms)
 
     def check_term(self, term, value):
-        if ' || ' in term:
+        if " || " in term:
             return self.chk_or(term, value)
-        elif ' && ' in term:
+        elif " && " in term:
             return self.chk_and(term, value)
         else:
             if isinstance(value, list):
@@ -189,8 +197,7 @@ class Config:
                 return term == value
 
     def search(self, data_type, search_dict):
-        """
-        search for items that match the given fields
+        """Search for items that match the given fields
         each param should be a dictionary with field and value
 
         this is case insensitive
@@ -213,29 +220,39 @@ class Config:
                 logging.debug(f"{file_name} :      search: checking {key}")
                 if key not in item_details:
                     result_check.append(False)
-                    logging.debug(f"{file_name} :      search: {key} not in item details, did not match")
+                    logging.debug(
+                        f"{file_name} :      search: {key} not in item details, did not match"
+                    )
                     break
-                logging.debug(f"{file_name} :      search: check_term {search_dict[key]}, {item_details[key]} returned {self.check_term(search_dict[key], item_details[key])}")
-                result_check.append(self.check_term(search_dict[key], item_details[key]))
+                logging.debug(
+                    f"{file_name} :      search: check_term {search_dict[key]}, {item_details[key]} returned {self.check_term(search_dict[key], item_details[key])}"
+                )
+                result_check.append(
+                    self.check_term(search_dict[key], item_details[key])
+                )
 
             if all(result_check):
-                logging.debug(f"{file_name} :      search: item - {item_details['name']} matched")
+                logging.debug(
+                    f"{file_name} :      search: item - {item_details['name']} matched"
+                )
                 results[item] = item_details
             else:
-                logging.debug(f"{file_name} :      search: item - {item_details['name']} did not match")
+                logging.debug(
+                    f"{file_name} :      search: item - {item_details['name']} did not match"
+                )
 
-        logging.debug(f"{file_name} : search - {results = }")
+        logging.debug(f"{file_name} : search returned - {list(results.keys())}")
         return results
 
     def get_clusters(self, search_terms):
-        return self.search('clusters', search_terms)
+        return self.search("clusters", search_terms)
 
     def find_closest(self, data_type: str, tree: dict):
         logging.debug(f"{file_name} :find_closest")
         logging.debug(f"{file_name} :  {data_type = }")
         logging.debug(f"{file_name} :  {tree = }")
         tree = tree.copy()
-        key_order = ['div', 'bu', 'app', 'env', 'subapp', 'cloud', 'region']
+        key_order = ["div", "bu", "app", "env", "subapp", "cloud", "region"]
         key_order.reverse()
         found = None
 
@@ -254,7 +271,9 @@ class Config:
             # go through the key_order and delete keys until something is found
             for key in key_order:
                 if key in tree:
-                    logging.debug(f"{file_name} :  removing {key} and searching {tree = }")
+                    logging.debug(
+                        f"{file_name} :  removing {key} and searching {tree = }"
+                    )
                     del tree[key]
                 else:
                     continue
