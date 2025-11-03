@@ -1,4 +1,3 @@
-
 from libs.config import Config
 from libs.parseargs import argp
 from libs.log import setup_logger
@@ -8,9 +7,10 @@ import pandas as pd
 import pathlib
 import logging
 
-setup_logger()
-
 script_name = pathlib.Path(__file__).stem
+
+setup_logger(script_name)
+
 
 def save_database(database_file, table_name, output_file):
     logging.info(f"Saving table {table_name} from db {database_file} to {output_file}")
@@ -23,16 +23,36 @@ def save_database(database_file, table_name, output_file):
 
     # Export to Excel
     # use engine 'xlsxwriter' or 'openpyxl'
-    df.to_excel(output_file, index=False, engine='xlsxwriter')
+    df.to_excel(output_file, index=False, engine="xlsxwriter")
 
 
-if __name__ == '__main__':
-    args = argp(script_name=script_name ,description="gather volume and cluster stats, provisioned size and savings if changing to 80% and 90% autosize thresholds", parse=False)
-    args.parser.add_argument('-i', '--inputfile', type=str, help="sqlite db file", default="", required=True)
-    args.parser.add_argument('-t', '--tablename', type=str, help="table name", default="", required=True)
+if __name__ == "__main__":
+    args = argp(
+        script_name=script_name,
+        description=(
+            "gather volume and cluster stats, provisioned size"
+            " and savings if changing to 80% and 90% autosize thresholds"
+        ),
+        parse=False,
+    )
+    args.parser.add_argument(
+        "-i", "--inputfile", type=str, help="sqlite db file", default="", required=True
+    )
+    args.parser.add_argument(
+        "-t", "--tablename", type=str, help="table name", default="", required=True
+    )
 
     args.parse()
 
-    config = Config(args.config_dir, args.output_dir)
+    config = Config(
+        args.config_dir,  # pyright: ignore[reportAttributeAccessIssue]
+        args.output_dir,  # pyright: ignore[reportAttributeAccessIssue]
+        script_name=script_name,
+        args=args,
+    )
 
-    save_database(args.inputfile, args.tablename, f'{args.output_dir}/azevents.xlsx')
+    save_database(
+        args.inputfile,  # pyright: ignore[reportAttributeAccessIssue]
+        args.tablename,  # pyright: ignore[reportAttributeAccessIssue]
+        f"{args.output_dir}/azevents.xlsx",  # pyright: ignore[reportAttributeAccessIssue]
+    )
