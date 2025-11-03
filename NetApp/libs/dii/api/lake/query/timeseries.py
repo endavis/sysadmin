@@ -1,7 +1,8 @@
 import logging
 from datetime import datetime, timedelta, timezone
 
-from  libs.time_utils import to_epoch_ms
+from libs.time_utils import to_epoch_ms
+
 
 def post(
     client,
@@ -10,9 +11,9 @@ def post(
     metrics: list,
     filter_expr: str,
     interval: str = "60s",
-    start_time: str = None,
-    end_time: str = None,
-    lookback_minutes: int = None
+    start_time: str | None = None,
+    end_time: str | None = None,
+    lookback_minutes: int | None = None,
 ) -> dict:
     if start_time and end_time:
         # Expecting ISO 8601 format: "YYYY-MM-DDTHH:MM:SSZ"
@@ -22,10 +23,12 @@ def post(
         end = datetime.now(timezone.utc)
         start = end - timedelta(minutes=lookback_minutes)
     else:
-        raise ValueError("Either start_time and end_time or lookback_minutes must be provided.")
+        raise ValueError(
+            "Either start_time and end_time or lookback_minutes must be provided."
+        )
 
-    start_ms = to_epoch_ms(start)
-    end_ms = to_epoch_ms(end)
+    start_ms = to_epoch_ms(start)  # pyright: ignore[reportArgumentType]
+    end_ms = to_epoch_ms(end)  # pyright: ignore[reportArgumentType]
     max_points = int((end_ms - start_ms) / 60000)  # 1 point per minute
 
     results = {}
@@ -40,17 +43,17 @@ def post(
             "timeAggregationInterval": interval,
             "maxNumberOfDataPoints": max_points,
             "detectAnomalies": False,
-            "interpolationType": "NONE"
+            "interpolationType": "NONE",
         }
 
         try:
             response = client.call_endpoint(
-                "/rest/v1/lake/query/timeseries",
-                method="POST",
-                body=payload
+                "/lake/query/timeseries", method="POST", body=payload
             )
             if not response:
-                logging.debug(f"no data for {category}:{measurement}:{metric} with {filter_expr}")
+                logging.debug(
+                    f"no data for {category}:{measurement}:{metric} with {filter_expr}"
+                )
             results[metric] = response
         except Exception as e:
             logging.error(f"Error querying metric {metric}: {e}")
