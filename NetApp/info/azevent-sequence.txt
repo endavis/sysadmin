@@ -1,0 +1,934 @@
+2/18/2025 23:17:08  NODE_001
+                                     NOTICE        callhome.reboot.giveback: Call home for REBOOT (after giveback)
+2/18/2025 23:17:08  NODE_001
+                                     DEBUG         cf.transition.summary: eventType="SFO Giveback (VOLUME_013)", eventSummary="Protocol Transition Time(msec):NFS=550[340|210], CIFS=550[340|210], FCP=550[340|210], ISCSI=550[340|210], NVMe-oF=550[340|210], S3=550[340|210]", shutdownSummary="Phase1=0, Phase2=0, Phase3=96, Phase4=0, Phase5=0, Phase6=10, Phase7=0, Phase8=0, Phase9=0, aggr_offline=10, aggr_migrate=90", onlineSummary="src_done_total=0, pre_wafl=40, Phase1=251 {aggr_premount=9, aggr_mount=174 {new_label=10, old_label=0}, vvol_mount=77}, Phase2=59 {nvfile_replay=20, aggr_premount=10, vvol_premount=0, aggr_flush_raid=0, set_vols_dirty=0, aggr_mount=0, vvol_mount=0, post_mount_cp=0, lmgr_mount_start=29}, Phase3=29 {aggr_mount=19, vvol_mount=10}", lagSummary="start_lag=0, pkt_sent=1739920566838, pkt_recv=1739920566838"
+2/18/2025 23:17:08  NODE_001
+                                     NOTICE        cf.transition.info: SFO Giveback (VOLUME_013) Protocol Transition Time(msec):NFS=550[340|210], CIFS=550[340|210], FCP=550[340|210], ISCSI=550[340|210], NVMe-oF=550[340|210], S3=550[340|210].
+2/18/2025 23:16:57  NODE_001
+                                     NOTICE        wafl.scan.done: Completed cold data reporting on volume VOLUME_057@vserver:UUID_001.
+
+Time                Node             Severity      Event
+------------------- ---------------- ------------- ---------------------------
+2/18/2025 23:16:52  NODE_001
+                                     NOTICE        wafl.scan.done: Completed cold data reporting on volume VOLUME_060@vserver:UUID_001.
+2/18/2025 23:16:43  NODE_001
+                                     NOTICE        wafl.scan.done: Completed cold data reporting on volume VOLUME_056@vserver:UUID_001.
+2/18/2025 23:16:31  NODE_001
+                                     ERROR         secd.dns.srv.lookup.failed: DNS server failed to look up service (_kerberos._tcpDOMAIN_001) for vserver (VSERVER_001) with error (No server(s) found).
+2/18/2025 23:16:31  NODE_001
+                                     EMERGENCY     secd.ldap.noServers: None of the LDAP servers configured for Vserver (VSERVER_001) are currently accessible via the network for LDAP service type (Service: LDAP (Active Directory), Operation: SiteDiscovery).
+2/18/2025 23:16:31  NODE_001
+                                     ERROR         secd.dns.srv.lookup.failed: DNS server failed to look up service (_ldap._tcpDOMAIN_002) for vserver (VSERVER_001) with error (No server(s) found).
+2/18/2025 23:16:31  NODE_001
+                                     ERROR         secd.dns.srv.lookup.failed: DNS server failed to look up service (_kerberos._tcp.dc._msdcsDOMAIN_001) for vserver (VSERVER_001) with error (No server(s) found).
+2/18/2025 23:16:23  NODE_001
+                                     NOTICE        wafl.scan.done: Completed cold data reporting on volume VOLUME_062@vserver:UUID_001.
+2/18/2025 23:16:22  NODE_001
+                                     NOTICE        wafl.scan.done: Completed cold data reporting on volume VOLUME_058@vserver:UUID_001.
+2/18/2025 23:16:22  NODE_001
+                                     NOTICE        wafl.scan.done: Completed cold data reporting on volume VOLUME_063@vserver:UUID_001.
+2/18/2025 23:16:21  NODE_001
+                                     NOTICE        wafl.scan.done: Completed cold data reporting on volume VOLUME_055@vserver:UUID_001.
+2/18/2025 23:16:21  NODE_001
+                                     NOTICE        wafl.scan.done: Completed cold data reporting on volume VOLUME_059@vserver:UUID_001.
+2/18/2025 23:16:20  NODE_001
+                                     DEBUG         wafl.scan.start: Starting composite aggregate AGGREGATE_030 on aggregate AGGREGATE_031
+2/18/2025 23:16:20  NODE_001
+                                     DEBUG         wafl.scan.start: Starting cold data reporting on volume VOLUME_059@vserver:UUID_001.
+2/18/2025 23:16:20  NODE_001
+                                     DEBUG         wafl.scan.start: Starting cold data reporting on volume VOLUME_060@vserver:UUID_001.
+2/18/2025 23:16:20  NODE_001
+                                     DEBUG         wafl.scan.start: Starting cold data reporting on volume VOLUME_061@vserver:UUID_001.
+2/18/2025 23:16:20  NODE_001
+                                     DEBUG         wafl.scan.start: Starting cold data reporting on volume VOLUME_062@vserver:UUID_001.
+2/18/2025 23:16:20  NODE_001
+                                     DEBUG         wafl.scan.start: Starting cold data reporting on volume VOLUME_055@vserver:UUID_001.
+2/18/2025 23:16:20  NODE_001
+                                     DEBUG         wafl.scan.start: Starting cold data reporting on volume VOLUME_057@vserver:UUID_001.
+2/18/2025 23:16:20  NODE_001
+                                     DEBUG         wafl.scan.start: Starting cold data reporting on volume VOLUME_058@vserver:UUID_001.
+2/18/2025 23:16:20  NODE_001
+                                     DEBUG         wafl.scan.start: Starting cold data reporting on volume VOLUME_054@vserver:UUID_001.
+2/18/2025 23:16:20  NODE_001
+                                     DEBUG         wafl.scan.start: Starting cold data reporting on volume VOLUME_063@vserver:UUID_001.
+2/18/2025 23:16:20  NODE_001
+                                     DEBUG         wafl.scan.start: Starting cold data reporting on volume VOLUME_056@vserver:UUID_001.
+
+Time                Node             Severity      Event
+------------------- ---------------- ------------- ---------------------------
+2/18/2025 23:16:17  NODE_001
+                                     DEBUG         monitor.volumes.one.ok: Aggregate VOLUME_013 is OK.
+2/18/2025 23:16:17  NODE_001
+                                     DEBUG         monitor.volumes.one.ok: Volume VOLUME_053@vserver:UUID_001 is OK.
+2/18/2025 23:16:17  NODE_001
+                                     DEBUG         monitor.volumes.one.ok: Volume VOLUME_054@vserver:UUID_001 is OK.
+2/18/2025 23:16:17  NODE_001
+                                     DEBUG         monitor.volumes.one.ok: Volume VOLUME_055@vserver:UUID_001 is OK.
+2/18/2025 23:16:17  NODE_001
+                                     DEBUG         monitor.volumes.one.ok: Volume VOLUME_056@vserver:UUID_001 is OK.
+2/18/2025 23:16:17  NODE_001
+                                     DEBUG         monitor.volumes.one.ok: Volume VOLUME_057@vserver:UUID_001 is OK.
+2/18/2025 23:16:17  NODE_001
+                                     DEBUG         monitor.volumes.one.ok: Volume VOLUME_058@vserver:UUID_001 is OK.
+2/18/2025 23:16:17  NODE_001
+                                     DEBUG         monitor.volumes.one.ok: Volume VOLUME_059@vserver:UUID_001 is OK.
+2/18/2025 23:16:17  NODE_001
+                                     DEBUG         monitor.volumes.one.ok: Volume VOLUME_060@vserver:UUID_001 is OK.
+2/18/2025 23:16:17  NODE_001
+                                     DEBUG         monitor.volumes.one.ok: Volume VOLUME_061@vserver:UUID_001 is OK.
+2/18/2025 23:16:17  NODE_001
+                                     DEBUG         monitor.volumes.one.ok: Volume VOLUME_062@vserver:UUID_001 is OK.
+2/18/2025 23:16:17  NODE_001
+                                     DEBUG         monitor.volumes.one.ok: Volume VOLUME_063@vserver:UUID_001 is OK.
+2/18/2025 23:16:07  NODE_001
+                                     DEBUG         raid.mcc.clearSoFlags: Switchover flags cleared: aggregate AGGREGATE_032 (dynamic mount).
+2/18/2025 23:16:07  NODE_001
+                                     NOTICE        raid.vol.state.online: vol_type="Aggregate", vol_uuid="b7163774-3fef-4e72-ab67-004c729f56c2", vol="VOLUME_013"
+2/18/2025 23:16:07  NODE_001
+                                     NOTICE        raid.config.online.req.ok: Aggregate VOLUME_013 is mounted. Time taken to mount the aggregate AGGREGATE_033 397 milliseconds.
+2/18/2025 23:16:07  NODE_001
+                                     DEBUG         ha.giveback.aggrOnlineTime: Total time taken to bring online the aggregate AGGREGATE_032 and its volumes after the giveback was 436 milliseconds.
+2/18/2025 23:16:07  NODE_001
+                                     INFORMATIONAL wafl.aggregate.online.phases: aggrName="VOLUME_013", uuid="b7163774-3fef-4e72-ab67-004c729f56c2", phase1="251", phase2="59", phase3="29"
+2/18/2025 23:16:07  NODE_001
+                                     DEBUG         lmgr.reclaim.stop.grace: Lock reclaim grace period stopped on aggregate 'VOLUME_013' with file system id '145673750'.
+2/18/2025 23:16:07  NODE_001
+                                     DEBUG         lmgr.grace.aggr.scan.done: Scanning of all host metafiles on the aggregate 'VOLUME_013' with file system id '145673750' has completed.
+2/18/2025 23:16:07  NODE_001
+                                     DEBUG         lmgr.reclaim.locks: Lock reclaims on volume 'VOLUME_013' initiated by 'volume_mount_grace_start'.
+2/18/2025 23:16:07  NODE_001
+                                     INFORMATIONAL wafl.aggregate.online.replay: aggrName="VOLUME_013", uuid="b7163774-3fef-4e72-ab67-004c729f56c2", time="20"
+2/18/2025 23:16:07  NODE_001
+                                     DEBUG         raid.aggr.log.CP.count: aggregate_type="Aggregate", aggregate_name="VOLUME_013", aggregate_uuid="b7163774-3fef-4e72-ab67-004c729f56c2", home_owner_id="2328561699", home_owner_name="NODE_001", CP_count="17894693"
+2/18/2025 23:16:06  NODE_001
+                                     DEBUG         rastrace.dump.saved: A RAS trace dump for module RAID instance 0 was stored in /etc/log/rastrace/RAID_0_20250218_23:16:06:858205.dmp.
+
+Time                Node             Severity      Event
+------------------- ---------------- ------------- ---------------------------
+2/18/2025 23:16:06  NODE_001
+                                     DEBUG         ha.srcDoneProcTimes: proc_start_time="233278", bdfu_time="0", server_version_time="0", raid_proc_time="0", add_to_pending_list_time="0", suspend_comp_events_time="0", sanown_rescan_time="0", src_done_total_proc_time="0"
+2/18/2025 23:16:06  NODE_001
+                                     NOTICE        fm.cpuUtilDuringTransition: CPU and disk utilization during the 60 seconds online start of SFO_GB: cpu_util_high: 13; cpu_util_low: 1; cpu_util_avg: 2; disk_util_high: 14; disk_util_low: 0; disk_util_avg: 0
+2/18/2025 23:16:05  NODE_001
+                                     DEBUG         cf.fm.localFwTransition: prevstate="SF_CLUSTERWAIT", newstate="SF_UP", progresscounter="0"
+2/18/2025 23:14:42  NODE_001
+                                     NOTICE        Nblade.graceEnd: NFS server grace state has ended for Vserver "VSERVER_001", LIF ID "1030", LIF IP address "IP_ADDRESS_001".
+2/18/2025 23:14:32  NODE_001
+                                     DEBUG         csm.createSessionFailed: Cluster Session Manager (CSM) failed to create session (req=NODE_002:dblade, rsp=NODE_001:dblade, uniquifier=1a062e72c68f1053) with transport type CT, session tag NVME, record state ACTIVE, CSM error CSM_CONNABORTED, low-level error UNKNOWN, socket error 0, and TLS error 0.
+2/18/2025 23:14:22  NODE_001
+                                     DEBUG         csm.createSessionFailed: Cluster Session Manager (CSM) failed to create session (req=NODE_002:dblade, rsp=NODE_001:dblade, uniquifier=1a062e72c5e5149f) with transport type CT, session tag NVME, record state ACTIVE, CSM error CSM_CONNABORTED, low-level error UNKNOWN, socket error 0, and TLS error 0.
+2/18/2025 23:14:19  NODE_001
+                                     DEBUG         csm.updateBladeIpv4Mapping: CSM updated blade to IPv4 mapping for cluster 256a226c-1d7f-11ea-93ef-000d3a0e5e31, blade b0413228-1d7e-11ea-a105-000d3a0e532c to IP address IP_ADDRESS_002, Device ID: -, Vserver ID -1.
+2/18/2025 23:14:18  NODE_001
+                                     DEBUG         csm.updateBladeIpv4Mapping: CSM updated blade to IPv4 mapping for cluster 256a226c-1d7f-11ea-93ef-000d3a0e5e31, blade b1ee18e3-1d7e-11ea-93ef-000d3a0e5e31 to IP address IP_ADDRESS_003, Device ID: -, Vserver ID -1.
+2/18/2025 23:14:18  NODE_001
+                                     DEBUG         rastrace.dump.saved: A RAS trace dump for module SMN instance 0 was stored in /etc/log/rastrace/SMN_0_20250218_23:14:18:528113.dmp.
+2/18/2025 23:14:17  NODE_001
+                                     DEBUG         disk.arraymon.discovery.done: Arraymon detects virtual disk discovery being done.
+2/18/2025 23:14:17  NODE_001
+                                     DEBUG         arraymon.discovery.ports.done: Processing of ports complete.
+2/18/2025 23:14:17  NODE_001
+                                     DEBUG         arraymon.mhost.up: M-Host is up - Detected by array monitor thread.
+2/18/2025 23:14:16  NODE_001
+                                     DEBUG         stackmon.mhost.up: Stackmon detects M-Host up.
+2/18/2025 23:14:10  NODE_001
+                                     DEBUG         csm.createSessionFailed: Cluster Session Manager (CSM) failed to create session (req=NODE_002:dblade, rsp=NODE_001:dblade, uniquifier=1a062e72c53b18ed) with transport type CT, session tag NVME, record state ACTIVE, CSM error CSM_CONNABORTED, low-level error UNKNOWN, socket error 0, and TLS error 0.
+2/18/2025 23:13:57  NODE_001
+                                     NOTICE        Nblade.graceBegin: NFS server grace state has begun for Vserver "VSERVER_001", LIF ID "1030", LIP IP address "IP_ADDRESS_001".
+2/18/2025 23:13:56  NODE_001
+                                     NOTICE        Nblade.recoveryBegin: NFS server lock recovery has begun for Vserver "VSERVER_001", LIFID "1030", LIF IP address "IP_ADDRESS_001".
+2/18/2025 23:13:54  NODE_001
+                                     INFORMATIONAL extCache.QoS: External Cache QoS is: Enabled.
+2/18/2025 23:13:53  NODE_001
+                                     NOTICE        vsa.azure.nlb.probeActive: Received Load Balancer probe (now active) for 1 ports (port range: 63003 to 63003).
+2/18/2025 23:13:52  NODE_001
+                                     NOTICE        vsa.cloud.nlb.probeListening: ONTAP Load Balancer has started listening for probes from a Cloud Network load Balancer on port 63003.
+2/18/2025 23:13:51  NODE_001
+                                     NOTICE        vifmgr.lifsuccessfullymoved: LIF data_2 (on virtual server 3), IP address IP_ADDRESS_001, is now hosted on node NODE_001, port e0a.
+2/18/2025 23:13:51  NODE_001
+                                     INFORMATIONAL secd.rpc.server.ready: SecD is ready to serve all RPCs.
+
+Time                Node             Severity      Event
+------------------- ---------------- ------------- ---------------------------
+2/18/2025 23:13:51  NODE_001
+                                     DEBUG         perf.ccma.close.track: Performance archiver cannot close file '092199_000000_0000000000000_0000000.ccma'.
+2/18/2025 23:13:51  NODE_001
+                                     DEBUG         qmm.nodelist.event.recvd: hostname="NODE_001", nvram_id="0x8acb0823"
+2/18/2025 23:13:51  NODE_001
+                                     DEBUG         qmm.nodelist.event.recvd: hostname="NODE_002", nvram_id="0x8acb0827"
+2/18/2025 23:13:47  NODE_001
+                                     NOTICE        boot.verify.kmods.success: The verification of digitally signed kernel modules has completed.
+2/18/2025 23:13:47  NODE_001
+                                     NOTICE        boot.varfs.restore.success: Successfully restored the /var file system.
+2/18/2025 23:13:45  NODE_001
+                                     INFORMATIONAL zapi.sf.up.ready: ZAPI: system node stable after startup.
+2/18/2025 23:13:45  NODE_001
+                                     NOTICE        scsiblade.online: This node has completed initialization of the SAN configuration cache. FCP and iSCSI traffic are enabled on this node.
+2/18/2025 23:13:40  NODE_001
+                                     DEBUG         clam.master.epoch.change: CLAM changed the epoch of the local node's master from 737 to 742.
+2/18/2025 23:13:39  NODE_001
+                                     INFORMATIONAL ctran.enabled: CTRAN subsystem is now enabled.
+2/18/2025 23:13:39  NODE_001
+                                     DEBUG         ctran.api.state.change: CTRAN subsystem's API is now ready.
+2/18/2025 23:13:39  NODE_001
+                                     INFORMATIONAL ctran.jpc.assigned: Cluster node (name=NODE_002, ID=1000) is the Join Proposal Coordinator (JPC) node.
+2/18/2025 23:13:39  NODE_001
+                                     DEBUG         ctran.jpc.selection.begin: The JPC selection process begins.
+2/18/2025 23:13:39  NODE_001
+                                     DEBUG         ctran.acn.received: CTRAN has received an ACN with value 0x00000003.
+2/18/2025 23:13:39  NODE_001
+                                     DEBUG         qmm.ssg.grp.update
+2/18/2025 23:13:39  NODE_001
+                                     DEBUG         qmm.acn.event.recvd: hostname="NODE_001", nvram_id="0x0", clam_id="1001", attribs="0xa"
+2/18/2025 23:13:39  NODE_001
+                                     DEBUG         qmm.acn.event.recvd: hostname="NODE_002", nvram_id="0x0", clam_id="1000", attribs="0xa"
+2/18/2025 23:13:39  NODE_001
+                                     DEBUG         clam.quorum.epoch: CLAM set the quorum epoch on local node to 742.
+2/18/2025 23:13:39  NODE_001
+                                     INFORMATIONAL clam.update.partner.state: CLAM on node (ID=1001) updated failover state of partner (ID=1000) to hb.
+2/18/2025 23:13:39  NODE_001
+                                     INFORMATIONAL clam.valid.config: Local node (name=NODE_001, id=1001) is operating in a suitable configuration for providing CLAM functionality.
+2/18/2025 23:13:39  NODE_001
+                                     DEBUG         clam.node.op.status.change: The operational status of node (name=NODE_001, ID=1001) changed from Unknown to Up.
+2/18/2025 23:13:39  NODE_001
+                                     DEBUG         clam.node.avail.change: The availability status of node (name=NODE_001, ID=1001) changed from Unknown to Available.
+2/18/2025 23:13:39  NODE_001
+                                     INFORMATIONAL clam.node.inq: Cluster node (name=NODE_001, ID=1001) is in "CLAM quorum".
+2/18/2025 23:13:39  NODE_001
+                                     DEBUG         clam.node.op.status.change: The operational status of node (name=NODE_002, ID=1000) changed from Unknown to Up.
+2/18/2025 23:13:39  NODE_001
+                                     DEBUG         clam.node.avail.change: The availability status of node (name=NODE_002, ID=1000) changed from Unknown to Available.
+
+Time                Node             Severity      Event
+------------------- ---------------- ------------- ---------------------------
+2/18/2025 23:13:39  NODE_001
+                                     INFORMATIONAL clam.node.inq: Cluster node (name=NODE_002, ID=1000) is in "CLAM quorum".
+2/18/2025 23:13:39  NODE_001
+                                     DEBUG         clam.received.quorum: Local node received a quorum update from Cluster node (name=NODE_002, ID=1000).
+2/18/2025 23:13:32  NODE_001
+                                     NOTICE        vsa.scheduledEvent.update: Cloud provider event status update for node "NODE_001". ID: CC5E4432-77F8-4218-A1C9-18B0623CB04B. Type: freeze. Status: complete.
+2/18/2025 23:13:30  NODE_001
+                                     INFORMATIONAL snmp.warmstart.trap: SNMP daemon was reinitialized with no configuration changes.
+2/18/2025 23:13:30  NODE_001
+                                     NOTICE        callhome.invoke: Call home for USER_TRIGGERED (TEST:MAINT=END Cloud Provider Maintenance Event. Status: complete.)
+2/18/2025 23:13:30  NODE_001
+                                     DEBUG         perf.ccma.init: Performance archiver kernel threads started and ready. PIDs:0xfffffe00a865b600, 0xfffffe00a865fbc0, 0xfffffe00a865aa60, 0xfffffe00a865f9d0, 0xfffffe00a8499830.
+2/18/2025 23:13:29  NODE_001
+                                     DEBUG         perf.ccma.start: Performance archiver started.
+2/18/2025 23:13:29  NODE_001
+                                     NOTICE        vsa.scheduledEvent.update: Cloud provider event status update for node "NODE_001". ID: CC5E4432-77F8-4218-A1C9-18B0623CB04B. Type: freeze. Status: started.
+2/18/2025 23:13:28  NODE_001
+                                     DEBUG         cmd.startup.success: The Counter Manager daemon (cmd) started up successfully.
+2/18/2025 23:13:26  NODE_001
+                                     DEBUG         clam.master.epoch.change: CLAM changed the epoch of the local node's master from 0 to 737.
+2/18/2025 23:13:26  NODE_001
+                                     DEBUG         clam.master.change: Node (name=NODE_001, ID=1001) identified node (name=NODE_002, ID=1000) as the new CLAM Master(higher epoch). Node (name=Unknown, ID=0) was the old CLAM Master.
+2/18/2025 23:13:25  NODE_001
+                                     INFORMATIONAL clam.mailbox.initialized: CLAM on local node has initialized its mailboxes and is ready to participate in quorum.
+2/18/2025 23:13:25  NODE_001
+                                     DEBUG         clam.ha.partner.identified: CLAM on local node has identified HA partner and partner node id is 1000.
+2/18/2025 23:13:25  NODE_001
+                                     DEBUG         clam.ha.partner.info.rcvd: CLAM received partner dblade uuid (8321c03d-1d81-11ea-a91e-000d3aa4b171) from HA subsystem.
+2/18/2025 23:13:25  NODE_001
+                                     NOTICE        vifmgr.lifsuccessfullymoved: LIF iscsi_2 (on virtual server 3), IP address IP_ADDRESS_004, is now hosted on node NODE_001, port e0a.
+2/18/2025 23:13:24  NODE_001
+                                     NOTICE        nvmf.remote.status.cb: NVMeOF remote status callback endpoint=CLIENT, status=Session OK.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         clam.version.change: CLAM running version has changed from 1 to 5.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         csm.updateBladeIpv4Mapping: CSM updated blade to IPv4 mapping for cluster 00000000-0000-0000-0000-000000000000, blade 831c6672-1d81-11ea-a91e-000d3aa4b171 to IP address IP_ADDRESS_005, Device ID: -, Vserver ID -3.
+2/18/2025 23:13:24  NODE_001
+                                     INFORMATIONAL clam.enable.takeover: CLAM is enabled to perform storage failover when partner node is OOQ.
+2/18/2025 23:13:24  NODE_001
+                                     NOTICE        lmgr.sf.up.ready: Lock manager allowed high availability module to transition to the up state for the following reason: Lock-sync complete.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         lmgr.sf.up.state: Lock manager mirror state: Done sending mirror state RPC.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature SPACE_REPORTING_CH1 is enabled.
+
+Time                Node             Severity      Event
+------------------- ---------------- ------------- ---------------------------
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature VDOM_CH is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature QOS_FEATURE_CONTROL is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature NVMF_HOST_PRIORITY is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature ANALYTICS_SCANPROGRESS_VERSION_CH1 is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature BCOMKA_NVMF_HOST_PRIORITY is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature FPOLICY_FEATURES_CH1 is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature BCOMKA_CH is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature S3_SERVER_FEATURES_CH1 is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature FLEXCACHE_FPOLICY_CH1 is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature SCSIT_CH_ONE is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature NFS41_CLUSTER_SYNC_ST_LH1 is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature S3_SERVER_FEATURES_CH0 is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature LARGE_VOL_600TB_SUPPORT_CH1 is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature VLDBCACHE_VERSION_LH1 is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature FC_ORIGIN_FULL_CAPABLE_LH1 is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature ANALYTICS_TOPK_INACTIVE_LH1 is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature LARGE_VOL_FILE_SUPPORT_LH1 is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature BCOMKA_LH is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature CM_REST_LH is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature S3_SERVER_FEATURES_LH0 is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature NFS41_PRESERVE_UNLINK_YD is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature VDOM_YD is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature NFS42_EXTENDED_ATTRIBUTES_YD is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature ANALYTICS_LARGE_DIRECTORY_REPORT_YD is enabled.
+
+Time                Node             Severity      Event
+------------------- ---------------- ------------- ---------------------------
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature BCOMKA_NVMF_INBAND_AUTHENTICATION is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature S3_SERVER_FEATURES_YD1 is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature LARGE_VOL_FILE_SUPPORT_YD1 is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature NFS41_CLUSTER_SYNC_YD is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature LONG_DLOCK_SUPPORT is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature NFS42_SPARSE_FILE_YD is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature S3_SERVER_FEATURES_YD0 is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature VDOM_MN is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature S3_BUCKET_VERSIONING_MN is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature NFS41_SESSION_TRUNKING_MP is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature ADFC_MN is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature FSA_NONCUMULATIVE_YD is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature BCOMKA_MN is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature WAFL_TIMESTAMPS_SK is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature CM_REST_SK is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature BCOMKA_SK is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature SPINNP_RC_BIN_LABEL_WITH_VIFID_CW is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature CM_REST_CW is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature NFS42_SEC_LABEL_CW is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature BCOMKA_CW is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature S3_METADATA_CW is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature NFS4_OPEN_ACCESS_CW is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature S3_POLICY_DW is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature REMOTE_LOCK_DW is enabled.
+
+Time                Node             Severity      Event
+------------------- ---------------- ------------- ---------------------------
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature NVMF_REMOTE_IO is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature NFS42_DW is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature CM_REST_DW is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature BCOMKA_DW is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature SNAPORG_DW is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature SCSIT_BP_ZERO is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature QOS_AFF_FLOORS_V2 is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature FLEXCACHE_FPOLICY_BP is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature CM_REST_BP is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature FLEXGROUP_BP is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature BCOMKA_BP is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature FLEXCACHE_BP is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature VDOM_TRANSITION_DR is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature ISCSI_ENDPOINT is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature FLEXCACHE_AUDIT_BP is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature QOS_FLOORS_V2 is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature NDO_FLEXGROUP_VR is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature FLEXGROUP_VR is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature CM_REST is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature BCOMKA_VR is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature NVMF_V2 is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature SPINNP_RC_FLEXCACHE_DB is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature FLEXGROUP_DB is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature BCOMKA_DB is enabled.
+
+Time                Node             Severity      Event
+------------------- ---------------- ------------- ---------------------------
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature NVMF_V1 is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature SNAPSCALE_KB is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature LICENSE_KB is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature FLEXGROUP_KB is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature DYNAMIC_VOLUME_REMAPPING is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature SPINNP_RC_CHKSM_HN0 is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature SAN_LIF_MV_PRECHECKS is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature FG_BAGOFBITS is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature CM_ASUP_STORE is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature AUDIT_HN0 is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature CLAM_V5 is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature FLI_V3 is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature SPINNP_RC_LB0 is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature SCSIT_LB_ZERO is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature RAID_LB0 is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature KCS_V4 is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature CLAM_V4 is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature BCOMKA_LB0 is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature QOS_LOCK_OBJECT is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature FLI_V2 is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature CLAM_V3 is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature FLI_V1 is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature SCSIT_FS_ZERO is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature QOS_EC is enabled.
+
+Time                Node             Severity      Event
+------------------- ---------------- ------------- ---------------------------
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature MNA_FS_ZERO is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature KCS_V3 is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature EC_CLUSTER is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature CLAM_V2 is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature SCSIT_SN_ZERO is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         ecv.feature.state.changed: The infrastructure feature KCS_V2 is enabled.
+2/18/2025 23:13:24  NODE_001
+                                     DEBUG         csm.updateBladeIpv4Mapping: CSM updated blade to IPv4 mapping for cluster 00000000-0000-0000-0000-000000000000, blade 8321c03d-1d81-11ea-a91e-000d3aa4b171 to IP address IP_ADDRESS_005, Device ID: -, Vserver ID -3.
+2/18/2025 23:13:24  NODE_001
+                                     NOTICE        vifmgr.lifCapacity: Node NODE_001 is capable of hosting 1024 data LIFs.
+2/18/2025 23:13:20  NODE_001
+                                     DEBUG         perfstatd.startup.success: The perfstat daemon started up successfully.
+2/18/2025 23:13:19  NODE_001
+                                     DEBUG         csm.createSessionFailed: Cluster Session Manager (CSM) failed to create session (req=NODE_001:dblade, rsp=8321c03d-1d81-11ea-a91e-000d3aa4b171, uniquifier=0d062e72c9592cd1) with transport type UNASSIGNED, session tag NDOLITE, record state STARTING, CSM error CSM_RPC, low-level error UNKNOWN, socket error 0, and TLS error 0.
+2/18/2025 23:13:18  NODE_001
+                                     INFORMATIONAL mgmtgwd.jobmgr.jobrestart: Restarted job "SnapMirror Service Job" [id 23]: SnapMirror Service Job.
+2/18/2025 23:13:17  NODE_001
+                                     NOTICE        kern.timezone.change: old_tz="GMT", old_tz_offset="0", new_tz="Etc/UTC", new_tz_offset="0"
+2/18/2025 23:13:17  NODE_001
+                                     NOTICE        kern.rc.msg: set_timezone new
+2/18/2025 23:13:17  NODE_001
+                                     NOTICE        kern.rc.msg: settzname called
+2/18/2025 23:13:17  NODE_001
+                                     NOTICE        kern.rc.msg: tzinit tzload ok
+2/18/2025 23:13:17  NODE_001
+                                     NOTICE        kern.rc.msg: tzload called with 'Etc/UTC'
+2/18/2025 23:13:17  NODE_001
+                                     NOTICE        kern.rc.msg: tzinit of 'Etc/UTC'
+2/18/2025 23:13:17  NODE_001
+                                     NOTICE        kern.rc.msg: set_timezone called 'Etc/UTC'
+2/18/2025 23:13:17  NODE_001
+                                     DEBUG         qmm.nodelist.event.recvd: hostname="NODE_001", nvram_id="0x0"
+2/18/2025 23:13:17  NODE_001
+                                     DEBUG         qmm.nodelist.event.recvd: hostname="NODE_002", nvram_id="0x0"
+2/18/2025 23:13:14  NODE_001
+                                     DEBUG         csm.createSessionFailed: Cluster Session Manager (CSM) failed to create session (req=NODE_001:dblade, rsp=8321c03d-1d81-11ea-a91e-000d3aa4b171, uniquifier=0d062e72c909d44d) with transport type UNASSIGNED, session tag NDOLITE, record state STARTING, CSM error CSM_RPC, low-level error UNKNOWN, socket error 0, and TLS error 0.
+2/18/2025 23:13:13  NODE_001
+                                     DEBUG         bcomd.startedsuccessfully: The Blocks Configuration and Operations Manager Daemon (BCOMd) started up successfully.
+
+Time                Node             Severity      Event
+------------------- ---------------- ------------- ---------------------------
+2/18/2025 23:13:12  NODE_001
+                                     NOTICE        rdb.ha.synchronized: Entering HA-Normal: Synchronized with peer in a high-availability (HA) configuration.
+2/18/2025 23:13:10  NODE_001
+                                     NOTICE        vifmgr.portup: A link up event was received on node NODE_001, port e0b.
+2/18/2025 23:13:09  NODE_001
+                                     NOTICE        vifmgr.started: The Logical Interface Manager (VIFMgr) has started.
+2/18/2025 23:13:09  NODE_001
+                                     DEBUG         csm.createSessionFailed: Cluster Session Manager (CSM) failed to create session (req=NODE_001:dblade, rsp=8321c03d-1d81-11ea-a91e-000d3aa4b171, uniquifier=0d062e72c8baa2da) with transport type UNASSIGNED, session tag NDOLITE, record state STARTING, CSM error CSM_RPC, low-level error UNKNOWN, socket error 0, and TLS error 0.
+2/18/2025 23:13:03  NODE_001
+                                     DEBUG         csm.createSessionFailed: Cluster Session Manager (CSM) failed to create session (req=NODE_001:dblade, rsp=8321c03d-1d81-11ea-a91e-000d3aa4b171, uniquifier=0d062e72c86b4a56) with transport type UNASSIGNED, session tag NDOLITE, record state STARTING, CSM error CSM_RPC, low-level error UNKNOWN, socket error 0, and TLS error 0.
+2/18/2025 23:13:03  NODE_001
+                                     DEBUG         csm.createSessionFailed: Cluster Session Manager (CSM) failed to create session (req=8321c03d-1d81-11ea-a91e-000d3aa4b171, rsp=NODE_001:dblade, uniquifier=1a062e72c492079c) with transport type CT, session tag NVME, record state STARTING, CSM error CSM_CONNABORTED, low-level error , socket error 0, and TLS error 0.
+2/18/2025 23:13:00  NODE_001
+                                     DEBUG         license.state.v2.modified: Licensing state for local node changed from false to true.
+2/18/2025 23:13:00  NODE_001
+                                     NOTICE        monitor.globalStatus.ok: The system's global status is normal.
+2/18/2025 23:12:58  NODE_001
+                                     DEBUG         csm.createSessionFailed: Cluster Session Manager (CSM) failed to create session (req=NODE_001:dblade, rsp=8321c03d-1d81-11ea-a91e-000d3aa4b171, uniquifier=0d062e72c81c18e3) with transport type UNASSIGNED, session tag NDOLITE, record state STARTING, CSM error CSM_RPC, low-level error UNKNOWN, socket error 0, and TLS error 0.
+2/18/2025 23:12:56  NODE_001
+                                     NOTICE        pha.obj.throttle: PHA Obj throttled 1 times on the blob 02RootBlob-NODE_003 in the container blobcontainer due to the "AZURE_SERVER_BUSY".
+2/18/2025 23:12:53  NODE_001
+                                     DEBUG         csm.createSessionFailed: Cluster Session Manager (CSM) failed to create session (req=NODE_001:dblade, rsp=8321c03d-1d81-11ea-a91e-000d3aa4b171, uniquifier=0d062e72c7cd0e7f) with transport type UNASSIGNED, session tag NDOLITE, record state STARTING, CSM error CSM_RPC, low-level error UNKNOWN, socket error 0, and TLS error 0.
+2/18/2025 23:12:52  NODE_001
+                                     DEBUG         csm.createSessionFailed: Cluster Session Manager (CSM) failed to create session (req=8321c03d-1d81-11ea-a91e-000d3aa4b171, rsp=NODE_001:dblade, uniquifier=1a062e72c3e8a82b) with transport type CT, session tag NVME, record state STARTING, CSM error CSM_CONNABORTED, low-level error , socket error 0, and TLS error 0.
+2/18/2025 23:12:50  NODE_001
+                                     NOTICE        cf.fsm.takeoverOfPartnerEnabled: Failover monitor: takeover of NODE_002 enabled
+2/18/2025 23:12:49  NODE_001
+                                     DEBUG         acp.common.message: The ACP Administrator reports a debug event: ACP is now running IBACP
+2/18/2025 23:12:49  NODE_001
+                                     DEBUG         acp.common.message: The ACP Administrator reports a debug event: Running IBACP on boot
+2/18/2025 23:12:49  NODE_001
+                                     DEBUG         acp.common.message: The ACP Administrator reports a debug event: we don't have a dedicated ethernet port
+2/18/2025 23:12:48  NODE_001
+                                     DEBUG         nvpm.state.changed: Node 1's NVPM state changed from "2" to "2".
+2/18/2025 23:12:48  NODE_001
+                                     DEBUG         csm.createSessionFailed: Cluster Session Manager (CSM) failed to create session (req=NODE_001:dblade, rsp=8321c03d-1d81-11ea-a91e-000d3aa4b171, uniquifier=0d062e72c77db5fd) with transport type UNASSIGNED, session tag NDOLITE, record state STARTING, CSM error CSM_RPC, low-level error UNKNOWN, socket error 0, and TLS error 0.
+2/18/2025 23:12:46  NODE_001
+                                     DEBUG         csm.createSessionFailed: Cluster Session Manager (CSM) failed to create session (req=8321c03d-1d81-11ea-a91e-000d3aa4b171, rsp=NODE_001:dblade, uniquifier=0b062e72c570a7e4) with transport type CT, session tag CTRAN, record state STARTING, CSM error CSM_CONNABORTED, low-level error , socket error 0, and TLS error 0.
+2/18/2025 23:12:43  NODE_001
+                                     DEBUG         csm.createSessionFailed: Cluster Session Manager (CSM) failed to create session (req=NODE_001:dblade, rsp=8321c03d-1d81-11ea-a91e-000d3aa4b171, uniquifier=0d062e72c72ed2ae) with transport type UNASSIGNED, session tag NDOLITE, record state STARTING, CSM error CSM_RPC, low-level error UNKNOWN, socket error 0, and TLS error 0.
+
+Time                Node             Severity      Event
+------------------- ---------------- ------------- ---------------------------
+2/18/2025 23:12:43  NODE_001
+                                     DEBUG         csm.invalidBladeUUID: bladeUUID="8321c03d-1d81-11ea-a91e-000d3aa4b171", reason="mgwd iface key not found", filename="src/Csm/BladeLocationService.cc", lineno="983"
+2/18/2025 23:12:43  NODE_001
+                                     DEBUG         lmgr.sf.up.state: Lock manager mirror state: Requesting lock sync.
+2/18/2025 23:12:43  NODE_001
+                                     INFORMATIONAL clam.enable: CLAM functionality is enabled.
+2/18/2025 23:12:43  NODE_001
+                                     DEBUG         DOMAIN_003.dbladeId: D-blade ID of the local node is 84300338-1d81-11ea-986b-000d3aa4b387.
+2/18/2025 23:12:43  NODE_001
+                                     DEBUG         lmgr.reclaim.stop.grace: Lock reclaim grace period stopped on aggregate 'AGGREGATE_008' with file system id '492461624'.
+2/18/2025 23:12:43  NODE_001
+                                     DEBUG         lmgr.grace.aggr.scan.done: Scanning of all host metafiles on the aggregate 'AGGREGATE_008' with file system id '492461624' has completed.
+2/18/2025 23:12:43  NODE_001
+                                     DEBUG         lmgr.reclaim.locks: Lock reclaims on volume 'AGGREGATE_008' initiated by 'boot_grace_start'.
+2/18/2025 23:12:43  NODE_001
+                                     NOTICE        kern.syslog.msg: domain xing mode: off, domain xing interrupt: false
+2/18/2025 23:12:43  NODE_001
+                                     NOTICE        raid.vol.state.online: vol_type="Volume", vol_uuid="658b9722-000c-4606-9efb-30fa9fea3c4c", vol="AGGREGATE_008"
+2/18/2025 23:12:43  NODE_001
+                                     INFORMATIONAL asup.config.minimal.parse: AutoSupport could not parse section overview in /etc/asup_content.conf
+2/18/2025 23:12:43  NODE_001
+                                     INFORMATIONAL replication.upgrade.complete: Post-upgrade operations for SnapMirror and SnapVault are complete.
+2/18/2025 23:12:43  NODE_001
+                                     INFORMATIONAL mgr.boot.disk_done: NetApp Release 9.12.1P1 boot complete. Last disk update written at Tue Feb 18 23:12:34 GMT 2025
+2/18/2025 23:12:43  NODE_001
+                                     NOTICE        kern.syslog.msg: Setting /etc/serialnum to the hardware serial number: 90920140000001151955.  The old value was: 90620191213081748827.  See the na_serialnum(5) man page.
+2/18/2025 23:12:42  NODE_001
+                                     DEBUG         raid.aggr.log.CP.count: aggregate_type="Aggregate", aggregate_name="AGGREGATE_008", aggregate_uuid="658b9722-000c-4606-9efb-30fa9fea3c4c", home_owner_id="2328561699", home_owner_name="NODE_001", CP_count="15577732"
+2/18/2025 23:12:42  NODE_001
+                                     NOTICE        raid.recons.MP: RAID reconstruct multiprocessing is disabled (raid.reconstruct.threads: 4 rows, RAID I/O threads: 5).
+2/18/2025 23:12:42  NODE_001
+                                     NOTICE        cf.fsm.takeoverByPartnerEnabled: Failover monitor: takeover of NODE_001 by NODE_002 enabled
+2/18/2025 23:12:42  NODE_001
+                                     DEBUG         nvmm.mirror.onlined: mirror="HA_PARTNER"
+2/18/2025 23:12:42  NODE_001
+                                     DEBUG         nvmm.mirror.state.change: mirror of sysid 1, partner_type HA Partner, changed state from NVMM_MIRROR_SYNCING_OTHER to NVMM_MIRROR_ONLINE and took 1016 msecs.
+2/18/2025 23:12:42  NODE_001
+                                     DEBUG         cf.fm.localFwTransition: prevstate="SF_MBWAIT", newstate="SF_CLUSTERWAIT", progresscounter="0"
+2/18/2025 23:12:41  NODE_001
+                                     DEBUG         nvmm.mirror.state.change: mirror of sysid 1, partner_type HA Partner, changed state from NVMM_MIRROR_WAFL_HEADER to NVMM_MIRROR_SYNCING_OTHER and took 1 msecs.
+2/18/2025 23:12:41  NODE_001
+                                     NOTICE        wafl.transition.cp.completed: Transition CP with reason rmt_nv_bringup, 00000000 for replaying=0,0 unmounting=0,0 total=2,1 volumes with a total of total=90 incoming=0 dirty buffers took 69ms with longest CP phases being CP_P2_FLUSH=45, CP_P3A_VOLINFO=11, CP_PRE_P0=4 on aggregate AGGREGATE_034
+
+Time                Node             Severity      Event
+------------------- ---------------- ------------- ---------------------------
+2/18/2025 23:12:41  NODE_001
+                                     DEBUG         nvmm.mirror.state.change: mirror of sysid 1, partner_type HA Partner, changed state from NVMM_MIRROR_CP2_FINISH to NVMM_MIRROR_WAFL_HEADER and took 63 msecs.
+2/18/2025 23:12:41  NODE_001
+                                     DEBUG         monitor.volumes.one.ok: Aggregate AGGREGATE_008 is OK.
+2/18/2025 23:12:41  NODE_001
+                                     DEBUG         monitor.volumes.one.ok: Volume VOLUME_064 is OK.
+2/18/2025 23:12:41  NODE_001
+                                     DEBUG         rastrace.dump.saved: A RAS trace dump for module RAID instance 0 was stored in /etc/log/rastrace/RAID_0_20250218_23:12:41:087946.dmp.
+2/18/2025 23:12:41  NODE_001
+                                     INFORMATIONAL cf.mode.HA.onboot
+2/18/2025 23:12:41  NODE_001
+                                     INFORMATIONAL mgr.boot.pmroot.done
+2/18/2025 23:12:41  NODE_001
+                                     INFORMATIONAL tar.csum.match: Stored checksum matches, not extracting local://mnt/prestage/pmroot.tgz.
+2/18/2025 23:12:41  NODE_001
+                                     INFORMATIONAL mgr.boot.pmroot.start
+2/18/2025 23:12:41  NODE_001
+                                     INFORMATIONAL mgr.boot.mroot.done
+2/18/2025 23:12:41  NODE_001
+                                     INFORMATIONAL tar.csum.match: Stored checksum matches, not extracting local://mnt/prestage/mroot.tgz.
+2/18/2025 23:12:41  NODE_001
+                                     INFORMATIONAL mgr.boot.mroot.start
+2/18/2025 23:12:41  NODE_001
+                                     NOTICE        kern.syslog.msg: The system was down for 3 seconds
+2/18/2025 23:12:41  NODE_001
+                                     DEBUG         nvmm.mirror.state.change: mirror of sysid 1, partner_type HA Partner, changed state from NVMM_MIRROR_WAFL_INIT to NVMM_MIRROR_CP2_FINISH and took 3 msecs.
+2/18/2025 23:12:41  NODE_001
+                                     DEBUG         nvmm.mirror.state.change: mirror of sysid 1, partner_type HA Partner, changed state from NVMM_MIRROR_CP1_START to NVMM_MIRROR_WAFL_INIT and took 1 msecs.
+2/18/2025 23:12:41  NODE_001
+                                     DEBUG         nvmm.mirror.state.change: mirror of sysid 1, partner_type HA Partner, changed state from NVMM_MIRROR_SYNCING_START to NVMM_MIRROR_CP1_START and took 1 msecs.
+2/18/2025 23:12:41  NODE_001
+                                     DEBUG         nvmm.mirror.state.change: mirror of sysid 1, partner_type HA Partner, changed state from NVMM_MIRROR_LAYOUT_SYNCED to NVMM_MIRROR_SYNCING_START and took 0 msecs.
+2/18/2025 23:12:41  NODE_001
+                                     DEBUG         nvmm.mirror.state.change: mirror of sysid 1, partner_type HA Partner, changed state from NVMM_MIRROR_LAYOUT_SYNCING to NVMM_MIRROR_LAYOUT_SYNCED and took 8 msecs.
+2/18/2025 23:12:41  NODE_001
+                                     DEBUG         license.check.v2.heurState: License not available for CIFS. Returning state: false.
+2/18/2025 23:12:41  NODE_001
+                                     DEBUG         license.check.v2.bootUnavail: Licensing not available. Boot completed: false, pending halt: false.
+2/18/2025 23:12:41  NODE_001
+                                     DEBUG         nvmm.mirror.enabled: mirror="HA_PARTNER"
+2/18/2025 23:12:40  NODE_001
+                                     NOTICE        wafl.transition.cp.completed: Transition CP with reason flush_b4_mounted, 00000000 for replaying=0,0 unmounting=0,0 total=2,1 volumes with a total of total=86 incoming=3 dirty buffers took 87ms with longest CP phases being CP_P3A_VOLINFO=26, CP_P2_FLUSH=22, CP_P2V_INO=18 on aggregate AGGREGATE_034
+
+Time                Node             Severity      Event
+------------------- ---------------- ------------- ---------------------------
+2/18/2025 23:12:40  NODE_001
+                                     NOTICE        cf.fm.discardNvram: Failover monitor: node was previously taken over, nvram may be discarded
+2/18/2025 23:12:40  NODE_001
+                                     INFORMATIONAL cf.fm.launch: Launching failover monitor
+2/18/2025 23:12:40  NODE_001
+                                     NOTICE        wafl.maxdirsize.boot.notice: VOLUME_012: This volume's maxdirsize (1174323KB) is higher than the default (327680KB). There may be a performance penalty when doing operations on large directories.
+2/18/2025 23:12:40  NODE_001
+                                     INFORMATIONAL raid.stripe.replay.summary: Replayed 0 stripes.
+2/18/2025 23:12:38  NODE_001
+                                     INFORMATIONAL raid.cksum.replay.summary: Replayed 0 checksum blocks.
+2/18/2025 23:12:36  NODE_001
+                                     INFORMATIONAL cf.fm.partnerFwTransition: prevstate="SF_OPEN", newstate="SF_UP", progresscounter="2"
+2/18/2025 23:12:35  NODE_001
+                                     INFORMATIONAL coredump.host.spare.none: No sparecore disk was found for host 0.
+2/18/2025 23:12:35  NODE_001
+                                     INFORMATIONAL cf.boot.continuing
+2/18/2025 23:12:31  NODE_001
+                                     DEBUG         cf.fm.localFwTransition: prevstate="SF_GIVEWAIT", newstate="SF_MBWAIT", progresscounter="2"
+2/18/2025 23:12:29  NODE_001
+                                     DEBUG         cf.diskinventory.state: oldState="1", newState="2"
+2/18/2025 23:12:20  NODE_001
+                                     DEBUG         cf.diskinventory.state: oldState="0", newState="1"
+2/18/2025 23:12:19  NODE_001
+                                     INFORMATIONAL cf.sysid.sent: sysid="2328561699", host="LOCAL", partner_sysid="2328561703"
+2/18/2025 23:12:19  NODE_001
+                                     DEBUG         cf.fm.waitingForGB: reason="WFG: partner f/w state is SF_TO"
+2/18/2025 23:12:19  NODE_001
+                                     INFORMATIONAL cf.fm.partnerFwState: state="16"
+2/18/2025 23:12:18  NODE_001
+                                     DEBUG         ha.partner.dbladeId: D-blade ID of the partner node is 8321c03d-1d81-11ea-a91e-000d3aa4b171.
+2/18/2025 23:12:18  NODE_001
+                                     INFORMATIONAL cf.fm.partner: Failover monitor: partner 'NODE_002'
+2/18/2025 23:12:18  NODE_001
+                                     INFORMATIONAL fmmb.instStat.change: normal mailbox instance on Local side.
+2/18/2025 23:12:18  NODE_001
+                                     DEBUG         fmmb.online.disk: side="Local", disk="0d.1", uuid="73617171:77746433:74326263:6F6E7461:696E6572:3032526F:6F74426C:6F622D5A:00000000:00000000", flag="0x61", location="Local node", nodeAttachId="0", node_attach_uuid="00000000-0000-0000-0000-000000000000"
+2/18/2025 23:12:18  NODE_001
+                                     INFORMATIONAL fmmb.current.lock.disk: Disk 0d.1 is a Local HA mailbox disk.
+2/18/2025 23:12:18  NODE_001
+                                     DEBUG         fmmb.discover.online.disks: side="Local"
+2/18/2025 23:12:18  NODE_001
+                                     DEBUG         fmmb.rcvryCredenceInfo: host="Local", disk="0d.1", mailboxId="bc1af0b1-1d81-11ea-986b-000d3aa4b387", sysid="2328561699", sequenceNo="126548515", credence="UUID Match"
+2/18/2025 23:12:16  NODE_001
+                                     INFORMATIONAL fmmb.instStat.change: normal mailbox instance on Partner side.
+2/18/2025 23:12:16  NODE_001
+                                     DEBUG         fmmb.online.disk: side="Partner", disk="0d.0", uuid="73617171:77746433:74326263:6F6E7461:696E6572:3031526F:6F74426C:6F622D5A:00000000:00000000", flag="0x61", location="Local node", nodeAttachId="0", node_attach_uuid="00000000-0000-0000-0000-000000000000"
+
+Time                Node             Severity      Event
+------------------- ---------------- ------------- ---------------------------
+2/18/2025 23:12:16  NODE_001
+                                     INFORMATIONAL fmmb.current.lock.disk: Disk 0d.0 is a Partner HA mailbox disk.
+2/18/2025 23:12:16  NODE_001
+                                     DEBUG         fmmb.discover.online.disks: side="Partner"
+2/18/2025 23:12:16  NODE_001
+                                     DEBUG         fmmb.rcvryCredenceInfo: host="Partner", disk="0d.0", mailboxId="b83d3deb-1d81-11ea-a91e-000d3aa4b171", sysid="2328561699", sequenceNo="126313188", credence="UUID Match"
+2/18/2025 23:12:16  NODE_001
+                                     INFORMATIONAL wafl.memory.status: 75322MB of memory is currently available for the WAFL file system.
+2/18/2025 23:12:16  NODE_001
+                                     INFORMATIONAL crypto.debug: cryptomod key table initialized with room for 32768 keys (8192 pages).
+2/18/2025 23:12:12  NODE_001
+                                     DEBUG         cf.fm.localFwTransition: prevstate="SF_OS_BOOTED", newstate="SF_GIVEWAIT", progresscounter="101"
+2/18/2025 23:12:12  NODE_001
+                                     DEBUG         fmmb.discvryHintsUUID: diskUUID="46020000:00000000:C0503882:FFFFFFFF:46020000:00000000:20900000:80F6FFFF:CAE53880:FFFFFFFF"
+2/18/2025 23:12:12  NODE_001
+                                     DEBUG         fmmb.discvryHintsUUID: diskUUID="8010744C:01FEFFFF:70000260:00000000:46020000:00000000:C0503882:FFFFFFFF:8010744C:01FEFFFF"
+2/18/2025 23:12:12  NODE_001
+                                     DEBUG         fmmb.discvryHintsUUID: diskUUID="00000000:00000000:A8CA600A:00F8FFFF:0090A08A:04F8FFFF:708F0000:80F6FFFF:46020000:00000000"
+2/18/2025 23:12:12  NODE_001
+                                     DEBUG         fmmb.discvryHintsUUID: diskUUID="73617171:77746433:74326263:6F6E7461:696E6572:3031526F:6F74426C:6F622D5A:00000000:00000000"
+2/18/2025 23:12:12  NODE_001
+                                     DEBUG         fmmb.discvryHintsInstance: action="read", host="Partner", mailboxId="b83d3deb-1d81-11ea-a91e-000d3aa4b171", sequenceNo="104802017", startTime="0", finishTime="0"
+2/18/2025 23:12:12  NODE_001
+                                     DEBUG         fmmb.discvryHintsUUID: diskUUID="E8030000:00000000:00A1F23E:01FEFFFF:00000000:00000000:E038734C:01FEFFFF:00010000:00000000"
+2/18/2025 23:12:12  NODE_001
+                                     DEBUG         fmmb.discvryHintsUUID: diskUUID="E038734C:01FEFFFF:00A1F23E:01FEFFFF:00000000:00000000:C0503882:FFFFFFFF:80974681:FFFFFFFF"
+2/18/2025 23:12:12  NODE_001
+                                     DEBUG         fmmb.discvryHintsUUID: diskUUID="B01D744C:01FEFFFF:F08E0000:80F6FFFF:A56C4180:FFFFFFFF:01000000:00000000:00000000:00000000"
+2/18/2025 23:12:12  NODE_001
+                                     DEBUG         fmmb.discvryHintsUUID: diskUUID="73617171:77746433:74326263:6F6E7461:696E6572:3032526F:6F74426C:6F622D5A:00000000:00000000"
+2/18/2025 23:12:12  NODE_001
+                                     DEBUG         fmmb.discvryHintsInstance: action="read", host="Local", mailboxId="bc1af0b1-1d81-11ea-986b-000d3aa4b387", sequenceNo="105025000", startTime="0", finishTime="0"
+2/18/2025 23:12:12  NODE_001
+                                     INFORMATIONAL diskown.isEnabled: software ownership has been enabled for this system
+2/18/2025 23:12:10  NODE_001
+                                     DEBUG         rdma.rlib.connected: stream:HA:A QP is now connected.
+2/18/2025 23:12:10  NODE_001
+                                     DEBUG         rdma.rlib.connected: misc:HA:P QP is now connected.
+2/18/2025 23:12:10  NODE_001
+                                     DEBUG         rdma.rlib.connected: raid:HA:P QP is now connected.
+2/18/2025 23:12:10  NODE_001
+                                     DEBUG         rdma.rlib.connected: wafl:HA:P QP is now connected.
+2/18/2025 23:12:10  NODE_001
+                                     DEBUG         rdma.rlib.connected: kill:HA:A QP is now connected.
+
+Time                Node             Severity      Event
+------------------- ---------------- ------------- ---------------------------
+2/18/2025 23:12:10  NODE_001
+                                     DEBUG         rdma.rlib.connected: ofw:HA:A QP is now connected.
+2/18/2025 23:12:10  NODE_001
+                                     DEBUG         rdma.rlib.connected: kstat:HA:A QP is now connected.
+2/18/2025 23:12:09  NODE_001
+                                     DEBUG         rdma.rlib.connected: misc:HA:A QP is now connected.
+2/18/2025 23:12:09  NODE_001
+                                     DEBUG         rdma.rlib.connected: raid:HA:A QP is now connected.
+2/18/2025 23:12:09  NODE_001
+                                     DEBUG         rdma.rlib.connected: wafl:HA:A QP is now connected.
+2/18/2025 23:12:09  NODE_001
+                                     DEBUG         rdma.rlib.connected: ftfs:HA:A QP is now connected.
+2/18/2025 23:12:09  NODE_001
+                                     DEBUG         rdma.rlib.connected: hb:HA:A QP is now connected.
+2/18/2025 23:12:08  NODE_001
+                                     NOTICE        kern.rc.msg: gmtload
+2/18/2025 23:12:08  NODE_001
+                                     DEBUG         cf.fm.localFwTransition: prevstate="SF_OPEN", newstate="SF_OS_BOOTED", progresscounter="0"
+2/18/2025 23:12:08  NODE_001
+                                     INFORMATIONAL dcs.framework.enabled: The DCS framework is enabled on this node.
+2/18/2025 23:10:57  NODE_001
+                                     NOTICE        rlib.remote.node.event: peerIP="IP_ADDRESS_006", peerSysid="2328561703", localIP="IP_ADDRESS_007", localPort="e0c", eventDesc="New peer added"
+2/18/2025 23:10:40  NODE_001
+                                     INFORMATIONAL netif.linkUp: Ethernet mlx5_core3: Link up.
+2/18/2025 23:10:40  NODE_001
+                                     INFORMATIONAL netif.linkUp: Ethernet mlx5_core2: Link up.
+2/18/2025 23:10:40  NODE_001
+                                     INFORMATIONAL netif.linkUp: Ethernet mlx5_core1: Link up.
+2/18/2025 23:10:39  NODE_001
+                                     INFORMATIONAL netif.linkUp: Ethernet mlx5_core0: Link up.
+2/18/2025 23:10:39  NODE_001
+                                     INFORMATIONAL netif.linkUp: Ethernet e0d: Link up.
+2/18/2025 23:10:38  NODE_001
+                                     INFORMATIONAL netif.linkUp: Ethernet e0c: Link up.
+2/18/2025 23:10:37  NODE_001
+                                     INFORMATIONAL netif.linkUp: Ethernet e0b: Link up.
+2/18/2025 23:10:37  NODE_001
+                                     INFORMATIONAL netif.linkUp: Ethernet e0a: Link up.
+2/18/2025 23:10:35  NODE_001
+                                     DEBUG         kern.time.settime: Process kernel changed time to 1739920234.387563. The step was 1.162797 (second.microsecond). Call #1.
+2/18/2025 22:43:42  NODE_001
+                                     NOTICE        wafl.transition.cp.completed: Transition CP with reason none, 00000000 for replaying=0,0 unmounting=0,0 total=1,0 volumes with a total of total=24 incoming=0 dirty buffers took 99ms with longest CP phases being CP_P3A_VOLINFO=49, CP_P2_FLUSH=40, CP_PRE_P0=7 on aggregate AGGREGATE_034
+2/18/2025 22:43:41  NODE_001
+                                     NOTICE        wafl.transition.cp.completed: Transition CP with reason none, 00000000 for replaying=0,0 unmounting=0,0 total=2,1 volumes with a total of total=75 incoming=0 dirty buffers took 98ms with longest CP phases being CP_P3A_VOLINFO=49, CP_P2_FLUSH=38, CP_PRE_P0=4 on aggregate AGGREGATE_034
+2/18/2025 22:43:41  NODE_001
+                                     NOTICE        wafl.transition.cp.completed: Transition CP with reason none, 00000000 for replaying=0,0 unmounting=0,0 total=2,1 volumes with a total of total=82 incoming=1 dirty buffers took 86ms with longest CP phases being CP_P3A_VOLINFO=39, CP_PRE_P0=24, CP_P2_FLUSH=21 on aggregate AGGREGATE_034
+
+Time                Node             Severity      Event
+------------------- ---------------- ------------- ---------------------------
+2/18/2025 22:43:41  NODE_001
+                                     INFORMATIONAL tar.csum.match: Stored checksum matches, not extracting /cfcard/x86_64/freebsd/image1/pmroot_late.tgz.
+2/18/2025 22:43:41  NODE_001
+                                     NOTICE        wafl.transition.cp.completed: Transition CP with reason none, 00000000 for replaying=0,0 unmounting=0,0 total=2,1 volumes with a total of total=222 incoming=133 dirty buffers took 69ms with longest CP phases being CP_P2_FLUSH=44, CP_P3A_VOLINFO=20, CP_PRE_P0=1 on aggregate AGGREGATE_034
+2/18/2025 22:43:41  NODE_001
+                                     DEBUG         ctran.gm.proposal.retired: Cluster group member (name=CLAM_CCN_GROUP, id=99) has retired proposal trans_id=437514922#1.
+2/18/2025 22:43:41  NODE_001
+                                     NOTICE        wafl.transition.cp.completed: Transition CP with reason proto_shut, 00000000 for replaying=0,0 unmounting=0,0 total=2,1 volumes with a total of total=177 incoming=71 dirty buffers took 78ms with longest CP phases being CP_P2_FLUSH=54, CP_P3A_VOLINFO=19, CP_PRE_P0=1 on aggregate AGGREGATE_034
+2/18/2025 22:43:40  NODE_001
+                                     NOTICE        kern.syslog.msg: registry: unfinished active registry transactions were found.
+2/18/2025 22:43:40  NODE_001
+                                     DEBUG         ctran.api.state.change: CTRAN subsystem's API is now not ready.
+2/18/2025 22:43:40  NODE_001
+                                     DEBUG         csm.createSessionFailed: Cluster Session Manager (CSM) failed to create session (req=NODE_001:spinvfs, rsp=NODE_001:dblade, uniquifier=0006282a8de5250a) with transport type NULL, session tag DEFAULT, record state ACTIVE, CSM error CSM_CONNABORTED, low-level error UNKNOWN, socket error 0, and TLS error 0.
+2/18/2025 22:43:40  NODE_001
+                                     DEBUG         csm.sessionFailed: Cluster interconnect session (req=NODE_001:spinvfs, rsp=NODE_001:dblade, uniquifier=0006282a8de5250a) failed with transport type NULL, session tag DEFAULT, record state ACTIVE, CSM error CSM_CONNABORTED, low-level error UNKNOWN, socket error 0, and TLS error 0.
+2/18/2025 22:43:40  NODE_001
+                                     INFORMATIONAL wafl.csm.sessionStopped
+2/18/2025 22:43:40  NODE_001
+                                     NOTICE        kern.shutdown: System shut down because : "D-blade Shutdown".
+2/18/2025 22:43:37  NODE_001
+                                     DEBUG         ctran.gm.proposal.retired: Cluster group member (name=CLAM_CCN_GROUP, id=99) has retired proposal trans_id=437514921#1.
+2/18/2025 22:43:32  NODE_001
+                                     NOTICE        wafl.transition.cp.completed: Transition CP with reason proto_shut, 00000000 for replaying=0,0 unmounting=0,0 total=2,1 volumes with a total of total=195 incoming=47 dirty buffers took 69ms with longest CP phases being CP_P2_FLUSH=44, CP_P3A_VOLINFO=19, CP_PRE_P0=1 on aggregate AGGREGATE_034
+2/18/2025 22:43:31  NODE_001
+                                     ALERT         perf.ccma.off: Performance archiver is not enabled for datastore 'opm'.
+2/18/2025 22:43:31  NODE_001
+                                     NOTICE        ha.localNodeShutDown: Shutdown of the local node has been initiated with inhibit_takeover set to FALSE.
+2/18/2025 22:43:29  NODE_001
+                                     NOTICE        wafl.transition.cp.completed: Transition CP with reason none, 00000000 for replaying=0,0 unmounting=0,0 total=2,1 volumes with a total of total=406 incoming=253 dirty buffers took 185ms with longest CP phases being CP_P2_FLUSH=106, CP_P1_CLEAN=48, CP_P3A_VOLINFO=29 on aggregate AGGREGATE_034
+2/18/2025 22:43:22  NODE_001
+                                     DEBUG         cf.fsm.nfo.shtdwnRecvIC: A node received a shutdown request over interconnect.
+2/18/2025 22:43:22  NODE_001
+                                     DEBUG         cf.fsm.nfo.shtdwnRecvIC: A node received a shutdown request over interconnect.
+2/18/2025 22:43:20  NODE_001
+                                     DEBUG         rastrace.dump.saved: A RAS trace dump for module HA instance 0 was stored in /etc/log/rastrace/HA_0_20250218_22:43:20:713280.dmp.
+2/18/2025 22:43:20  NODE_001
+                                     INFORMATIONAL clam.disable: CLAM functionality is disabled.
+2/18/2025 22:43:20  NODE_001
+                                     DEBUG         clam.node.op.status.change: The operational status of node (name=NODE_001, ID=1001) changed from Up to Down.
+
+Time                Node             Severity      Event
+------------------- ---------------- ------------- ---------------------------
+2/18/2025 22:43:20  NODE_001
+                                     DEBUG         clam.node.avail.change: The availability status of node (name=NODE_001, ID=1001) changed from Available to Unavailable.
+2/18/2025 22:43:20  NODE_001
+                                     DEBUG         clam.node.op.status.change: The operational status of node (name=NODE_002, ID=1000) changed from Up to Down.
+2/18/2025 22:43:20  NODE_001
+                                     DEBUG         clam.node.avail.change: The availability status of node (name=NODE_002, ID=1000) changed from Available to Unavailable.
+2/18/2025 22:43:20  NODE_001
+                                     NOTICE        cf.fsm.nfo.startingGracefulShutdown: Negotiated failover: starting graceful shutdown.
+2/18/2025 22:43:20  NODE_001
+                                     DEBUG         cf.fsm.nfo.shtdwnThruMbx: A shutdown request was acknowledged through mailbox.
+2/18/2025 22:43:19  NODE_001
+                                     NOTICE        wafl.transition.cp.completed: Transition CP with reason none, 00000000 for replaying=0,0 unmounting=0,0 total=2,1 volumes with a total of total=430 incoming=273 dirty buffers took 105ms with longest CP phases being CP_P2_FLUSH=73, CP_P3A_VOLINFO=29, CP_P1_CLEAN=1 on aggregate AGGREGATE_034
+2/18/2025 22:43:09  NODE_001
+                                     INFORMATIONAL sfo.takenOver.relocDone: partner_name="NODE_002", partner_sysid="2328561703", relocation_status="0"
+2/18/2025 22:43:09  NODE_001
+                                     DEBUG         ha.takenOver.stateChng: old_state="SFO_PHASE_INPROG", new_state="SFO_PHASE_DONE"
+2/18/2025 22:43:09  NODE_001
+                                     NOTICE        arl.OpFinished: Aggregate relocation operation from the source node NODE_001 to the destination node NODE_002 finished in 1013 milliseconds. 'override-vetoes' set to false, and 'override-destination-checks' set to false.
+2/18/2025 22:43:09  NODE_001
+                                     INFORMATIONAL wafl.cleanup.after.relocate: aggrName="VOLUME_013", delay="135"
+2/18/2025 22:43:09  NODE_001
+                                     DEBUG         arl.aggrProcessTime: Time taken to post migration processing during relocation of the aggregate 'VOLUME_013' was 30 milliseconds.
+2/18/2025 22:43:09  NODE_001
+                                     DEBUG         arl.aggrSubsystemTime: Subsystem wafl took 30 milliseconds to complete post migration processing during relocation of the aggregate AGGREGATE_031
+2/18/2025 22:43:09  NODE_001
+                                     INFORMATIONAL sfo.aggr.relocated.temp: Aggregate VOLUME_013 was temporarily relocated from source node NODE_001 to destination node NODE_002 in 839 milliseconds.
+2/18/2025 22:43:09  NODE_001
+                                     DEBUG         arl.aggr.SrcTotalTime: Total time taken by the source node to relocate the aggregate 'VOLUME_013' was 839 milliseconds.
+2/18/2025 22:43:09  NODE_001
+                                     DEBUG         arl.aggrProcessTime: Time taken to change the ownership during relocation of the aggregate 'VOLUME_013' was 88 milliseconds.
+2/18/2025 22:43:09  NODE_001
+                                     INFORMATIONAL volmigrate.result: Migration of volume VOLUME_065 to NODE_002 was successful.
+2/18/2025 22:43:09  NODE_001
+                                     NOTICE        vsa.cloud.nlb.probeListening: ONTAP Load Balancer has stopped listening for probes from a Cloud Network load Balancer on port 63003.
+2/18/2025 22:43:08  NODE_001
+                                     DEBUG         rastrace.dump.saved: A RAS trace dump for module RAID instance 0 was stored in /etc/log/rastrace/RAID_0_20250218_22:43:08:943273.dmp.
+2/18/2025 22:43:08  NODE_001
+                                     DEBUG         rastrace.dump.saved: A RAS trace dump for module RAID instance 0 was stored in /etc/log/rastrace/RAID_0_20250218_22:43:08:903272.dmp.
+2/18/2025 22:43:08  NODE_001
+                                     DEBUG         raid.cksum.inval.disk.cache: caller="0xffffffff8ce78cf2", disk="0d.2", diskobj="0xfffff828f178d000", dirty="0", cached="1079", flight="0", invalidated="1079", none="0"
+2/18/2025 22:43:08  NODE_001
+                                     INFORMATIONAL raid.aggregate.relocate: Aggregate VOLUME_013: Prepared for 'relocation' operation.
+2/18/2025 22:43:08  NODE_001
+                                     NOTICE        diskown.changingOwner: The ownership of disk 0d.2 (S/N saqqwtd3t2bcontainer7kqxhk3doch1) is being changed from node "NODE_001" (ID: 2328561699, home ID: 2328561699, DR home ID: 4294967295) to node "NODE_002" (ID: 2328561703, home ID: 2328561699, DR home ID: 4294967295).
+
+Time                Node             Severity      Event
+------------------- ---------------- ------------- ---------------------------
+2/18/2025 22:43:08  NODE_001
+                                     INFORMATIONAL volmigrate.migrating: Migrating volume VOLUME_065 to NODE_002 (ID 2328561703).
+2/18/2025 22:43:08  NODE_001
+                                     DEBUG         arl.aggrProcessTime: Time taken to offline the aggregate AGGREGATE_035 relocation of the aggregate 'VOLUME_013' was 19 milliseconds.
+2/18/2025 22:43:08  NODE_001
+                                     NOTICE        raid.vol.state.changed: vol_type="Aggregate", vol_uuid="b7163774-3fef-4e72-ab67-004c729f56c2", vol="VOLUME_013", state="offline"
+2/18/2025 22:43:08  NODE_001
+                                     DEBUG         arl.aggrProcessTime: Time taken to commit processing during relocation of the aggregate 'VOLUME_013' was 243 milliseconds.
+2/18/2025 22:43:08  NODE_001
+                                     DEBUG         arl.aggrSubsystemTime: Subsystem wafl took 107 milliseconds to complete commit processing during relocation of the aggregate AGGREGATE_031
+2/18/2025 22:43:08  NODE_001
+                                     INFORMATIONAL wafl.aggr.relocation.times: aggrName="VOLUME_013", timesString="0 0 107 0 0 0 0 0 0 "
+2/18/2025 22:43:08  NODE_001
+                                     NOTICE        wafl.transition.cp.completed: Transition CP with reason sh_vol_sync, 00000000 for replaying=0,0 unmounting=1,11 total=12,11 volumes with a total of total=701 incoming=0 dirty buffers took 107ms with longest CP phases being CP_P2_FLUSH=70, CP_PRE_P0=17, CP_P3A_VOLINFO=11 on aggregate AGGREGATE_031
+2/18/2025 22:43:08  NODE_001
+                                     NOTICE        wafl.transition.cp.completed: Transition CP with reason sh_gr_sync, 00000000 for replaying=0,0 unmounting=0,0 total=2,1 volumes with a total of total=535 incoming=426 dirty buffers took 136ms with longest CP phases being CP_P2_FLUSH=105, CP_P3A_VOLINFO=19, CP_PRE_P0=3 on aggregate AGGREGATE_034
+2/18/2025 22:43:08  NODE_001
+                                     DEBUG         arl.aggrSubsystemTime: Subsystem qos_ll_sfo_giveback took 136 milliseconds to complete commit processing during relocation of the aggregate AGGREGATE_031
+2/18/2025 22:43:08  NODE_001
+                                     NOTICE        wafl.transition.cp.completed: Transition CP with reason sh_gr_sync, 00000000 for replaying=0,0 unmounting=0,0 total=1,0 volumes with a total of total=24 incoming=0 dirty buffers took 29ms with longest CP phases being CP_P2_FLUSH=16, CP_P3A_VOLINFO=10, CP_PRE_P0=3 on aggregate AGGREGATE_031
+2/18/2025 22:43:08  NODE_001
+                                     INFORMATIONAL clam.peer.halting: CLAM is notified that node NODE_002 (ID=1000) is undergoing a planned shutdown.
+2/18/2025 22:43:08  NODE_001
+                                     DEBUG         arl.aggrProcessTime: Time taken to precommit processing during relocation of the aggregate 'VOLUME_013' was 0 milliseconds.
+2/18/2025 22:43:08  NODE_001
+                                     NOTICE        arl.precmt.repl: Replication transfers aborted due to aggregate AGGREGATE_036
+2/18/2025 22:43:08  NODE_001
+                                     DEBUG         repl.engine.error: replStatus="5", replFailureMsg="5898500", replFailureMsgDetail="5898509", functionName="void repl_core::Instance::abortDestTransfer(spinnp_uuid_t *, snapmirror_dst_info_t **, spinnp_repl_result_t &)", lineNumber="1837"
+2/18/2025 22:43:08  NODE_001
+                                     DEBUG         arl.aggrProcessTime: Time taken to check for vetoes during relocation of the aggregate 'VOLUME_013' was 0 milliseconds.
+2/18/2025 22:43:08  NODE_001
+                                     DEBUG         arl.aggrProcessTime: Time taken to destination check during relocation of the aggregate 'VOLUME_013' was 10 milliseconds.
+2/18/2025 22:43:08  NODE_001
+                                     INFORMATIONAL mgwd.notify.halt.result: MGWD able to notify CLAM on its HA partner node that this node is undergoing a planned shutdown (reason: planned takeover). Error: -
+2/18/2025 22:43:08  NODE_001
+                                     INFORMATIONAL clam.update.partner.state: CLAM on node (ID=1001) updated failover state of partner (ID=1000) to shutting-down.
+2/18/2025 22:43:08  NODE_001
+                                     INFORMATIONAL clam.partner.halting: CLAM is notified that its HA partner node is undergoing a planned shutdown (reason: Planned takeover).
+2/18/2025 22:43:08  NODE_001
+                                     DEBUG         clam.notify.halt.result: CLAM was able to notify its HA partner node that the local node is undergoing a planned shutdown (reason: Local node shutting down). Error: 0
+2/18/2025 22:43:08  NODE_001
+                                     NOTICE        fm.cpuUtilDuringTransition: CPU and disk utilization during the 60 seconds preceding start of VOLUME_013 SFO_TAKEOVER: cpu_util_high: 16; cpu_util_low: 1; cpu_util_avg: 4; disk_util_high: 71; disk_util_low: 0; disk_util_avg: 2
+
+Time                Node             Severity      Event
+------------------- ---------------- ------------- ---------------------------
+2/18/2025 22:43:08  NODE_001
+                                     NOTICE        arl.aggrStart: Starting relocation of aggregate AGGREGATE_032 at time 7163103369.
+2/18/2025 22:43:08  NODE_001
+                                     DEBUG         ha.bdfu.Disable: HA subsystem disabled background disk firmware update.
+2/18/2025 22:43:08  NODE_001
+                                     NOTICE        arl.OpStart: Starting relocation to destination NODE_002 at time 7163103369. 'override-vetoes' set to false, and 'override-destination-checks' set to false.
+2/18/2025 22:43:08  NODE_001
+                                     DEBUG         sfo.takenOver.relocAllResp: status="0"
+2/18/2025 22:43:08  NODE_001
+                                     DEBUG         ha.takenOver.stateChng: old_state="NOT_IN_TAKEOVER", new_state="SFO_PHASE_INPROG"
+2/18/2025 22:43:08  NODE_001
+                                     DEBUG         sfo.takenOver.relocAllReq: partner_name="NODE_002", partner_sysid="2328561703"
+2/18/2025 22:43:08  NODE_001
+                                     NOTICE        vifmgr.lifBeingRemoved: LIF data_2 (on virtual server 3), IP address IP_ADDRESS_001, is being removed from node NODE_001, port e0a.
+2/18/2025 22:43:08  NODE_001
+                                     NOTICE        vifmgr.lifmoved.nodedown: LIF data_2 (on virtual server 3), IP address IP_ADDRESS_001, is being moved to node NODE_002, port e0a.
+2/18/2025 22:42:37  NODE_001
+                                     NOTICE        callhome.invoke: Call home for USER_TRIGGERED (TEST:MAINT=1h Cloud Provider Maintenance Event. Status: scheduled. Type: freeze. VM: NODE_003-vm2.)
+2/18/2025 22:42:35  NODE_001
+                                     ALERT         vsa.scheduledEvent.scheduled: Cloud provider event scheduled from: Platform, out: 9 for node "NODE_001". ID: CC5E4432-77F8-4218-A1C9-18B0623CB04B. Type: freeze. Not before: 2/18/2025 22:56:56.
