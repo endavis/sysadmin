@@ -1,20 +1,19 @@
-"""
+""" """
 
-"""
 import pathlib
 import logging
-import pprint
 
 from libs.config import Config
 from libs.parseargs import argp
 from libs.log import setup_logger
 
-setup_logger()
-#utils.LOG_ALL_API_CALLS = 1
-
 script_name = pathlib.Path(__file__).stem
 
+setup_logger(script_name)
+# utils.LOG_ALL_API_CALLS = 1
+
 APP = None
+
 
 class AppClass:
     def __init__(self, name, clusters, config):
@@ -34,12 +33,13 @@ class AppClass:
             logging.info(f"  {item}")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
-    args = argp(script_name=script_name, description="return objects for a specific filter")
+    args = argp(
+        script_name=script_name, description="return objects for a specific filter"
+    )
     config = Config(args.config_dir, args.output_dir)
 
     items = config.get_clusters(args.filter)
 
     APP = AppClass(script_name, items, config)
-
