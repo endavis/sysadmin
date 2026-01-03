@@ -1,5 +1,6 @@
 Functionality:
 #TODO: add ability to run CLI command through SSH
+#TODO: change to fabric library instead of paramiko?
 #TODO: add ability to download a file from the SPI
 
 Scripts:
